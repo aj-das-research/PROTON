@@ -58,6 +58,7 @@ def style_mcm(**kw): return dict(color=C_MCM, lw=1.0, ls=(0, (3, 2)), zorder=2, 
 def save(fig, name, docs=True):
     """Write paper/figures/<name>.pdf|png|svg (+ docs/figures/<name>.png|svg)."""
     out = os.path.join(ROOT, "paper", "figures", name)
+    os.makedirs(os.path.dirname(out), exist_ok=True); os.makedirs(os.path.join(ROOT, "docs", "figures"), exist_ok=True)
     for ext in ("pdf", "svg", "png"):
         fig.savefig(f"{out}.{ext}", bbox_inches="tight", pad_inches=0.01)
     if docs:

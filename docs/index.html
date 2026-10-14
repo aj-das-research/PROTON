@@ -26,6 +26,11 @@
 
 <section class="tldr">
   <p>Medical vision-language models classify images from text prompts alone, and their softmax cannot tell that an image comes from a new camera or population. PROTON+ builds class prototypes from the test stream itself, anchors them to the dominant imaging domain, and admits only class-consistent samples, so confidently misclassified shifted inputs no longer corrupt the bank. With PROTON's hyper-parameters unchanged, it improves over MCM on covariate and far shifts across retinal photographs, chest radiographs and histopathology, with no labels and no training.</p>
+  <div class="stats">
+    <div><b>+16 to +47</b><span>AUROC points over MCM on covariate shift, in all three modalities</span></div>
+    <div><b>168 / 168</b><span>gate and bank-size settings where PROTON+ beats PROTON</span></div>
+    <div><b>0.1–0.3 ms</b><span>per image on one CPU core, same hyper-parameters as PROTON</span></div>
+  </div>
 </section>
 
 <section>
@@ -45,10 +50,30 @@
   <h2>Results</h2>
   <p class="note">AUROC (%) per shift type, mean over five random stream orders. Full tables are on the <a href="results.html">results page</a>.</p>
   <div class="tablewrap" id="headline"></div>
-  <figure class="wide">
-    <img src="figures/fig3_results.png" alt="ID-fraction sweep, gate sweep and bank contamination">
-    <figcaption>(a) Covariate AUROC against the in-distribution fraction of the stream. (b) Sensitivity to the confidence gate. (c) Shifted share of the class bank, PROTON versus PROTON+.</figcaption>
-  </figure>
+  <div class="figtabs wide" id="figtabs">
+    <div class="tabs" role="tablist" aria-label="Result figures">
+      <button role="tab" aria-selected="true" data-k="0">Robustness</button>
+      <button role="tab" aria-selected="false" data-k="1">Why it works</button>
+      <button role="tab" aria-selected="false" data-k="2">Gate × bank size</button>
+      <button role="tab" aria-selected="false" data-k="3">Convergence</button>
+    </div>
+    <figure role="tabpanel">
+      <img src="figures/fig3_results.png" alt="ID-fraction sweep, gate sweep and bank contamination">
+      <figcaption><b>PROTON+ beats MCM whenever ID images are the stream majority, holds across gates, and keeps the bank clean.</b> (a) Covariate AUROC against the ID fraction of the stream. (b) Covariate AUROC against the gate γ. (c) Shifted share of the most contaminated class bank, PROTON against PROTON+.</figcaption>
+    </figure>
+    <figure role="tabpanel" hidden>
+      <img loading="lazy" src="figures/fig1_blind_spot.png" alt="Score overlap, MCM confidence against prototype distance, and t-SNE of the embeddings">
+      <figcaption><b>Shifted inputs fall inside the ID range of the softmax score but form separate clusters in embedding space.</b> (a) Share of OOD MCM scores inside the ID range. (b) MCM confidence against the PROTON+ prototype distance on the covariate stream. (c) t-SNE of the image embeddings, one column per modality.</figcaption>
+    </figure>
+    <figure role="tabpanel" hidden>
+      <img loading="lazy" src="figures/fig3b_gamma_M.png" alt="Change in covariate AUROC over MCM for every gate and bank size, PROTON and PROTON+">
+      <figcaption><b>PROTON+ beats PROTON in all 168 gate and bank-size settings and stays above MCM in all but three.</b> Change in covariate AUROC over MCM for each gate γ and bank size M, with the defaults boxed.</figcaption>
+    </figure>
+    <figure role="tabpanel" hidden>
+      <img loading="lazy" src="figures/fig3a_convergence.png" alt="Prototype convergence, drift per update and cosine of the contaminated bank to the clean class mean">
+      <figcaption><b>Prototypes settle within thirty admissions in five of six banks, and PROTON+ keeps the most contaminated bank close to the clean class.</b> (a) Cosine to the final prototype. (b) Change per admission. (c) Cosine of the most contaminated bank to the clean class mean.</figcaption>
+    </figure>
+  </div>
 </section>
 
 <section class="callout">
@@ -101,6 +126,12 @@ fetch("headline.json").then(r => r.json()).then(d => {
   }
   document.getElementById("headline").innerHTML = h + "</tbody></table>";
 }).catch(() => { document.getElementById("headline").innerHTML = "<p class='note'>Results table unavailable.</p>"; });
+</script>
+<script>
+(() => { const box = document.getElementById("figtabs"); const btn = [...box.querySelectorAll("[role=tab]")], pan = [...box.querySelectorAll("[role=tabpanel]")];
+  const show = (k) => { btn.forEach((b, i) => b.setAttribute("aria-selected", i === k)); pan.forEach((p, i) => p.hidden = i !== k); };
+  btn.forEach((b, i) => { b.onclick = () => show(i); b.onkeydown = (e) => { const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (d) { const j = (i + d + btn.length) % btn.length; show(j); btn[j].focus(); } }; });
+})();
 </script>
 </body>
 </html>

@@ -20,10 +20,10 @@
 PROTON+ is the follow-up to **PROTON** (Das et al., MICCAI 2026), our prototype-based test-time online OOD detector for
 medical vision-language models (VLMs). PROTON keeps a bank of class prototypes filled from confident test
 predictions and fuses the distance to the nearest prototype with the maximum-concept-matching (MCM) score, so that
-inputs from a new camera or population that look confident to the softmax can still be flagged. When we
-re-implemented PROTON from scratch on three modalities we found that its confidence gate admits exactly the
-confidently misclassified shifted inputs, so the prototypes absorb the shift. PROTON+ fixes this with three changes
-(orange in the figure) and the same hyper-parameters:
+inputs from a new camera or population that look confident to the softmax can still be flagged. Evaluated on three
+modalities, PROTON's confidence gate turns out to admit exactly the confidently misclassified shifted inputs, so the
+prototypes absorb the shift. PROTON+ fixes this with three changes (orange in the figure) and the same
+hyper-parameters:
 
 1. **Domain-anchored prototypes.** A mean-shift step over the union of all class banks finds the dominant imaging-domain mode; each class prototype is the mean of its bank weighted by proximity to that mode.
 2. **Consistency admission.** A sample enters the bank only if it is confident *and* within the typical prototype distance of previously admitted samples.
@@ -31,12 +31,17 @@ confidently misclassified shifted inputs, so the prototypes absorb the shift. PR
 
 Use PROTON+ instead of PROTON: it is better on every covariate and far shift we measured, it costs 0.1 to 0.3 ms per
 sample on a CPU core, and the original algorithm remains available as the default configuration for comparison.
-The full story, the diagnosis and all tables are in the [PROTON+ preprint](https://aj-das-research.github.io/PROTON/protonplus.pdf) (LNCS format, a follow-up to PROTON) and in `outputs/results/`.
+
+- **+16.4 to +47.3 AUROC points over MCM on covariate shift** and +14.9 to +63.9 on far shift, in all three modalities and on every stream order.
+- **Beats PROTON in all 168 gate and bank-size settings**, and MCM in 165 of them.
+- **Keeps the bank clean:** the shifted share of the most contaminated class bank drops from 63%, 59% and 16% (PROTON) to 42%, 16% and 1%.
+
+The full story, the diagnosis and all tables are in the [PROTON+ preprint](https://aj-das-research.github.io/PROTON/protonplus.pdf) (LNCS format, a follow-up to PROTON) and on the [results page](https://aj-das-research.github.io/PROTON/results.html).
 
 ## Results
 
 AUROC (%) per shift type, mean ± SD over five random stream orders. Each stream is the ID test set plus one OOD split.
-All numbers are regenerated from `outputs/results/` by `scripts/readme_results.py`; nothing is copied from a paper.
+The table is generated from the outputs of `proton run` by `scripts/readme_results.py`, and every other table of the preprint is on the [results page](https://aj-das-research.github.io/PROTON/results.html).
 
 <!-- RESULTS:START -->
 | Benchmark (VLM) | Method | Semantic | Covariate | Far-OOD |
@@ -51,6 +56,27 @@ All numbers are regenerated from `outputs/results/` by `scripts/readme_results.p
 | Pathology · QuiltNet | PROTON | 64.9 ± 1.3 | 73.0 ± 3.7 | 75.2 ± 3.7 |
 | Pathology · QuiltNet | **PROTON+** | **82.4 ± 0.3** | **85.6 ± 0.9** | **92.1 ± 0.7** |
 <!-- RESULTS:END -->
+
+<img src="docs/figures/fig3_results.png" width="100%" alt="Stream composition, gate sweep and bank contamination">
+
+*(a) Covariate AUROC against the ID fraction of the stream. (b) Covariate AUROC against the gate γ. (c) Shifted share of the most contaminated class bank, PROTON against PROTON+.*
+
+<details>
+<summary><b>More figures</b>: embedding view, gate × bank-size grid, prototype convergence</summary>
+
+<img src="docs/figures/fig1_blind_spot.png" width="100%" alt="Score overlap, MCM confidence against prototype distance, t-SNE">
+
+*Shifted inputs fall inside the ID range of the softmax score but form separate clusters in embedding space.*
+
+<img src="docs/figures/fig3b_gamma_M.png" width="100%" alt="Change in covariate AUROC over MCM for every gate and bank size">
+
+*PROTON+ beats PROTON in all 168 gate and bank-size settings and stays above MCM in all but three of them.*
+
+<img src="docs/figures/fig3a_convergence.png" width="100%" alt="Prototype convergence and drift">
+
+*Prototypes settle within thirty admissions in five of six banks, and PROTON+ keeps the most contaminated bank close to the clean class.*
+
+</details>
 
 The curated benchmarks (parquet images, cached embeddings, prompt embeddings, manifests) are on the Hugging Face Hub at [abhijit2k01/proton-benchmarks](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks), so every number can be recomputed on a CPU without downloading any source dataset. Benchmarks: ophthalmology = FIVES normal/DR vs glaucoma+AMD, DeepDRiD ultra-widefield, ImageNet; radiology = RSNA
 normal/opacity vs NIH ChestX-ray14 other findings, paediatric CXR, ImageNet; pathology = PatchCamelyon vs NCT-CRC
@@ -100,16 +126,21 @@ proton run --benchmark myretina                                 # every table ->
 ID-fraction sweep, PROTON on six base scores, privileged kNN / Mahalanobis baselines, robustness extras, the γ × M
 grid, the PROTON+ comparison and a prompt-sensitivity table, all as Markdown and JSON.
 
-## Reproduce the report
+## Rebuild every table and figure
 
 ```bash
 tools/fetch_third_party.sh && pip install -e third_party/FLAIR
 tools/download_data.sh && tools/download_weights.sh      # ~12 GB of public datasets, three checkpoints
 proton prepare-data                                      # seeded manifests (de-duplicates NIH against RSNA)
 for b in ophthalmology radiology pathology; do proton extract --benchmark $b && proton run --benchmark $b; done
-proton figures && python scripts/contamination_stats.py && python scripts/extra_stats.py
-python scripts/build_report.py && python scripts/readme_results.py && python scripts/build_site.py
+python scripts/contamination_stats.py && python scripts/extra_stats.py && python scripts/make_paper_tables.py
+for f in figures_src/fig{2_embedding,3_results_v2,4_convergence,5_gamma_M}.py; do python $f; done
+python scripts/readme_results.py && python scripts/build_site.py         # README block, results page, headline
 ```
+
+The method figure is TikZ (`figures_src/tikz_method/fig_method.tex`, built with any LaTeX engine). Without the raw
+datasets, the cached embeddings on the [Hugging Face Hub](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks)
+give every number on a CPU.
 
 ## Layout
 
@@ -119,8 +150,8 @@ proton/            models/ (FLAIR, UniMed-CLIP, QuiltNet, open_clip), data/ (reg
                    features.py, metrics.py, experiments/ (tables, figures), cli.py
 tests/             pytest (incl. a JavaScript-vs-Python parity test for the browser demo)
 data/benchmarks/   committed manifests (images are downloaded by tools/download_data.sh)
-docs/              project page, browser demo (int8 ONNX of FLAIR's vision tower), figures, results
-paper/             PROTON+ manuscript (Overleaf-synced)   figures_src/  editable figure sources
+docs/              project page, browser demo (int8 ONNX of FLAIR's vision tower), figures, results, preprint PDF
+figures_src/       editable sources of every figure (TikZ method figure, matplotlib result figures)
 REPORT.md          short pointer to the preprint and the method changes
 ```
 
