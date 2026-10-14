@@ -44,7 +44,7 @@ def overlap_fraction(s_id, s_ood):
 def fig1_blind_spot(benchmarks=("ophthalmology", "radiology", "pathology")):
     rows = [b for b in benchmarks if os.path.exists(os.path.join(ROOT, "outputs", "features",
                                                                   f"{b}__{load_benchmark(b).vlm}.npz"))]
-    fig, axes = plt.subplots(len(rows), 3, figsize=(7.0, 2.1 * len(rows)), squeeze=False)
+    fig, axes = plt.subplots(len(rows), 3, figsize=(7.2, 2.3 * len(rows)), squeeze=False, constrained_layout=True)
     stats = {}
     for r, bname in enumerate(rows):
         bench = load_benchmark(bname)
@@ -63,7 +63,8 @@ def fig1_blind_spot(benchmarks=("ophthalmology", "radiology", "pathology")):
         ax = axes[r, 1]
         pool, n_id = P.pool("covariate")
         order, is_ood = make_stream(n_id, len(pool) - n_id, seed=0)
-        run = run_proton_stream(P, pool, order)
+        from ..online import proton_plus_config
+        run = run_proton_stream(P, pool, order, config=proton_plus_config())
         m = run["calibrated"]
         ax.scatter(-run["s_base"][m & (is_ood == 0)], run["s_proto"][m & (is_ood == 0)], s=4, c=COL["id0"], label="ID", alpha=.6)
         ax.scatter(-run["s_base"][m & (is_ood == 1)], run["s_proto"][m & (is_ood == 1)], s=4, c=COL["covariate"], label="Covariate OOD", alpha=.6)
@@ -71,9 +72,9 @@ def fig1_blind_spot(benchmarks=("ophthalmology", "radiology", "pathology")):
         caught = float(np.mean(run["s_proto"][m & (is_ood == 1)] > thr))
         ax.axhline(thr, ls="--", lw=.6, c="k")
         ax.text(0.02, 0.95, f"{100 * caught:.0f}% cov. caught\n(at 95% ID TNR on $S_{{proto}}$)", transform=ax.transAxes, va="top", fontsize=6)
-        ax.set_xlabel("max softmax (MCM)"); ax.set_ylabel("$S_{proto}$ (prototype distance)")
+        ax.set_xlabel("max softmax (MCM)"); ax.set_ylabel("$S_{proto}$ (PROTON+ bank)")
         ax.set_title("(b) MCM vs prototype dist." if r == 0 else "")
-        if r == 0: ax.legend(loc="lower left")
+        if r == 0: ax.legend(loc="upper left", bbox_to_anchor=(0.0, 0.78), frameon=False)
         # (c) t-SNE
         ax = axes[r, 2]
         try:
@@ -90,11 +91,11 @@ def fig1_blind_spot(benchmarks=("ophthalmology", "radiology", "pathology")):
                 mm = lab == name
                 ax.scatter(Z[mm, 0], Z[mm, 1], s=3, c=COL[name], label=names[name], alpha=.7)
             ax.set_xticks([]); ax.set_yticks([])
-            if r == 0: ax.legend(loc="best", markerscale=2)
+            if r == 0: ax.legend(loc="upper center", bbox_to_anchor=(0.5, -0.02), ncol=3, markerscale=2, frameon=False, fontsize=5.5)
         except Exception as e:  # pragma: no cover
             ax.text(.5, .5, f"t-SNE failed: {e}", ha="center")
         ax.set_title("(c) t-SNE embeddings" if r == 0 else "")
-        ax.text(1.02, 0.5, f"{bname.title()}\n({bench.vlm})", transform=ax.transAxes, rotation=270, va="center", fontsize=7)
+        ax.text(1.02, 0.5, f"{bname.title()}\n({ {'flair': 'FLAIR', 'unimedclip': 'UniMed-CLIP', 'quiltnet': 'QuiltNet'}[bench.vlm] })", transform=ax.transAxes, rotation=270, va="center", fontsize=7)
         stats[bname] = {"overlap": ov, "cov_caught_at_95tnr": caught}
     _save(fig, "fig1_blind_spot")
     os.makedirs(RES_DIR, exist_ok=True)
@@ -106,7 +107,7 @@ def fig1_blind_spot(benchmarks=("ophthalmology", "radiology", "pathology")):
 def fig3a_convergence(benchmarks=("ophthalmology", "radiology", "pathology")):
     rows = [b for b in benchmarks if os.path.exists(os.path.join(ROOT, "outputs", "features",
                                                                   f"{b}__{load_benchmark(b).vlm}.npz"))]
-    fig, axes = plt.subplots(len(rows), 3, figsize=(7.0, 1.9 * len(rows)), squeeze=False)
+    fig, axes = plt.subplots(len(rows), 3, figsize=(7.2, 2.0 * len(rows)), squeeze=False, constrained_layout=True)
     stats = {}
     for r, bname in enumerate(rows):
         bench = load_benchmark(bname)
@@ -162,7 +163,7 @@ def fig3a_convergence(benchmarks=("ophthalmology", "radiology", "pathology")):
 def fig3b_grid(benchmarks=("ophthalmology", "radiology", "pathology")):
     rows = [(b, os.path.join(RES_DIR, b, "fig3b_gamma_M.json")) for b in benchmarks]
     rows = [(b, p) for b, p in rows if os.path.exists(p)]
-    fig, axes = plt.subplots(1, len(rows), figsize=(2.4 * len(rows), 2.3), squeeze=False)
+    fig, axes = plt.subplots(1, len(rows), figsize=(2.6 * len(rows), 2.3), squeeze=False, constrained_layout=True)
     for ax, (b, p) in zip(axes[0], rows):
         d = json.load(open(p))
         g = np.array(d["delta_auroc"])
@@ -178,7 +179,7 @@ def fig3b_grid(benchmarks=("ophthalmology", "radiology", "pathology")):
         if gi is not None and mj is not None:
             ax.scatter(mj, gi, marker="*", s=60, c="gold", edgecolor="k", lw=.4)
         ax.set_xlabel("M"); ax.set_ylabel(r"$\gamma$")
-        ax.set_title(f"{b.title()} ({load_benchmark(b).vlm})")
+        ax.set_title(f"{b.title()} ({ {'flair': 'FLAIR', 'unimedclip': 'UniMed-CLIP', 'quiltnet': 'QuiltNet'}[load_benchmark(b).vlm] })")
         plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04).set_label(r"$\Delta$AUROC vs MCM", fontsize=6)
     _save(fig, "fig3b_gamma_M")
 
