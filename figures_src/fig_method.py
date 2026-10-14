@@ -71,7 +71,7 @@ arrow((28.4, 25.0), (36.0, 25.4), lw=1.0); txt(31.8, 26.6, r"$e_t$", size=6, col
 box(33.0, 3.0, 52.0, 17.5, fc=PEACH, ec=ACC, lw=0.9)
 badge(34.6, 16.0, 1); txt(43.6, 15.9, "domain-anchored prototypes", size=6.3, weight="bold", color=ACC, maxw=15.5)
 txt(42.5, 13.0, r"$\mu_{\mathrm{dom}}$: mean-shift mode of all queues", size=5.6, maxw=17.5)
-txt(42.5, 10.3, r"$w(e)=\exp\big((e^{\top}\mu_{\mathrm{dom}}-1)/h\big)$", size=5.6, maxw=17.5)
+txt(42.5, 10.3, r"$w(e)=\exp((e^{\top}\mu_{\mathrm{dom}}-1)/h)$", size=5.6, maxw=17.5)
 txt(42.5, 7.6, r"$\mu_c=\sum_{e\in\mathcal{D}_c} w(e)\,e\;/\;\|\cdot\|$", size=5.6, maxw=17.5)
 txt(42.5, 4.7, r"$S_{\mathrm{proto}}=1-\max_c\, e_t^{\top}\mu_c$", size=6.2, maxw=17.5)
 arrow((45.0, 21.6), (45.0, 17.7), lw=0.9)

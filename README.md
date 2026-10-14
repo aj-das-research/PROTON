@@ -38,6 +38,17 @@ AUROC (%) per shift type, mean ± SD over five random stream orders. Each stream
 All numbers are regenerated from `outputs/results/` by `scripts/readme_results.py`; nothing is copied from a paper.
 
 <!-- RESULTS:START -->
+| Benchmark (VLM) | Method | Semantic | Covariate | Far-OOD |
+|---|---|---|---|---|
+| Ophthalmology · FLAIR | MCM | 75.8 | 68.9 | 78.5 |
+| Ophthalmology · FLAIR | PROTON | 68.0 ± 0.9 | 46.7 ± 1.8 | 86.8 ± 3.6 |
+| Ophthalmology · FLAIR | **PROTON+** | **67.3 ± 0.7** | **85.3 ± 7.8** | **93.4 ± 0.5** |
+| Radiology · UniMed-CLIP | MCM | 54.2 | 46.6 | 27.6 |
+| Radiology · UniMed-CLIP | PROTON | 55.3 ± 0.9 | 61.2 ± 1.7 | 93.9 ± 2.3 |
+| Radiology · UniMed-CLIP | **PROTON+** | **61.4 ± 0.7** | **93.9 ± 0.6** | **91.5 ± 1.4** |
+| Pathology · QuiltNet | MCM | 59.8 | 66.1 | 67.1 |
+| Pathology · QuiltNet | PROTON | 64.9 ± 1.3 | 73.0 ± 3.7 | 75.2 ± 3.7 |
+| Pathology · QuiltNet | **PROTON+** | **82.4 ± 0.3** | **85.6 ± 0.9** | **92.1 ± 0.7** |
 <!-- RESULTS:END -->
 
 Benchmarks: ophthalmology = FIVES normal/DR vs glaucoma+AMD, DeepDRiD ultra-widefield, ImageNet; radiology = RSNA
