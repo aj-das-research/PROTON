@@ -5,7 +5,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RES = os.path.join(ROOT, "outputs", "results"); OUT = os.path.join(ROOT, "paper", "tables"); os.makedirs(OUT, exist_ok=True)
 SH = ("semantic", "covariate", "far")
 PRETTY = {"max_logit": "Max-Logits", "energy": "Energy", "gl_mcm": "GL-MCM", "mcm": "MCM", "entropy": "Entropy", "tag_mcm": "TAG-MCM",
-          "hier_l1": "MCM (L=1)", "hier_l5": "MCM (L=5)", "knn_id": "kNN-ID$^\\ddagger$", "mahalanobis_id": "Mahalanobis-ID$^\\ddagger$",
+          "hier_l1": "MCM (L=1)$^\\dagger$", "hier_l5": "MCM (L=5)$^\\dagger$", "knn_id": "kNN-ID$^\\ddagger$", "mahalanobis_id": "Mahalanobis-ID$^\\ddagger$",
           "proton": "PROTON", "hier_l5+proton": "MCM (L=5) + PROTON"}
 BENCH = {"ophthalmology": "Ophthalmology (FLAIR)", "radiology": "Radiology (UniMed-CLIP)", "pathology": "Pathology (QuiltNet)"}
 
@@ -40,7 +40,7 @@ def main_table(b):
     lines = ["\\begin{tabular}{l" + "ccc" * 3 + "}", "\\toprule",
              " & \\multicolumn{3}{c}{Semantic} & \\multicolumn{3}{c}{Covariate} & \\multicolumn{3}{c}{Far-OOD} \\\\",
              "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\\cmidrule(lr){8-10}",
-             "Method & AUC$\\uparrow$ & APR$\\uparrow$ & FPR$\\downarrow$ & AUC$\\uparrow$ & APR$\\uparrow$ & FPR$\\downarrow$ & AUC$\\uparrow$ & APR$\\uparrow$ & FPR$\\downarrow$ \\\\", "\\midrule"]
+             "Method & AUROC$\\uparrow$ & AUPR$\\uparrow$ & FPR@95$\\downarrow$ & AUROC$\\uparrow$ & AUPR$\\uparrow$ & FPR@95$\\downarrow$ & AUROC$\\uparrow$ & AUPR$\\uparrow$ & FPR@95$\\downarrow$ \\\\", "\\midrule"]
     for i, (name, _) in enumerate(rows):
         if name.startswith("PROTON~"): lines.append("\\midrule")
         lines.append(name + " & " + " & ".join(c[i] for c in cols) + " \\\\")
@@ -56,7 +56,7 @@ def main_table(b):
 def cross_domain():
     lines = ["\\begin{tabular}{llrrr|rrr|rrr}", "\\toprule",
              " & & \\multicolumn{3}{c|}{Semantic} & \\multicolumn{3}{c|}{Covariate} & \\multicolumn{3}{c}{Far-OOD} \\\\",
-             "Domain (VLM) & Method & AUC & APR & FPR & AUC & APR & FPR & AUC & APR & FPR \\\\", "\\midrule"]
+             "Domain (VLM) & Method & AUROC & AUPR & FPR@95 & AUROC & AUPR & FPR@95 & AUROC & AUPR & FPR@95 \\\\", "\\midrule"]
     for b in BENCH:
         d = load(b, "table2_main"); pp = load(b, "table_proton_plus")
         if d is None: continue
@@ -110,6 +110,8 @@ def base_scores(b):
     lines = ["\\begin{tabular}{lccc|ccc|ccc}", "\\toprule", " & \\multicolumn{3}{c|}{Base} & \\multicolumn{3}{c|}{+PROTON} & \\multicolumn{3}{c}{+\\protonp} \\\\",
              "Base score & Sem & Cov & Far & Sem & Cov & Far & Sem & Cov & Far \\\\", "\\midrule"]
     for k, r in d.items():
+        if k == "entropy":   # identical to MCM for C=2
+            continue
         plus = pp["bases"][k]["proton_plus"] if pp and k in pp.get("bases", {}) else None
         lines.append(PRETTY[k] + " & " + " & ".join(f1(r["base"][sh]["auroc"]) for sh in SH) + " & " + " & ".join(f1(r["proton"][sh]["auroc"]) for sh in SH) +
                      " & " + (" & ".join(f1(plus[sh]["auroc"]) for sh in SH) if plus else "-- & -- & --") + " \\\\")
@@ -126,6 +128,23 @@ def broader(b):
     lines += ["\\bottomrule", "\\end{tabular}"]
     open(os.path.join(OUT, f"broader_{b}.tex"), "w").write("\n".join(lines) + "\n")
 
+def ladder():
+    """S_proto alone, PROTON+ and PROTON+ with oracle admission, per modality, with ± over stream orders."""
+    rows = [("\\protonp", "+ domain-anchored prototypes (PROTON+)"), ("$\\sproto$ only (\\protonp bank)", "S_proto only (PROTON+ bank)"),
+            ("\\protonp, oracle admission", "PROTON+, oracle ID-only bank")]
+    short = {"ophthalmology": "Ophth.", "radiology": "Radio.", "pathology": "Patho."}
+    lines = ["\\begin{tabular}{llrrr}", "\\toprule", "Modality & Variant & Sem & Cov & Far \\\\", "\\midrule"]
+    for b in BENCH:
+        pp = load(b, "table_proton_plus")
+        if pp is None: continue
+        for k, (lab, key) in enumerate(rows):
+            lead = ("\\multirow{%d}{*}{%s}" % (len(rows), short[b])) if k == 0 else ""
+            lines.append(lead + " & " + lab + " & " + " & ".join(fpm(pp["variants"][key], sh, "auroc") for sh in SH) + " \\\\")
+        lines.append("\\midrule")
+    lines[-1] = "\\bottomrule"; lines.append("\\end{tabular}")
+    open(os.path.join(OUT, "ladder.tex"), "w").write("\n".join(lines) + "\n")
+
+
 def prompts(b):
     d = load(b, "table_prompt_sensitivity")
     if d is None: return
@@ -139,5 +158,5 @@ def prompts(b):
 if __name__ == "__main__":
     for b in BENCH:
         main_table(b); ablation(b); rho(b); base_scores(b); broader(b); prompts(b)
-    cross_domain()
+    cross_domain(); ladder()
     print("tables written:", sorted(os.listdir(OUT)))

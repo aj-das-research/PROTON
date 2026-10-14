@@ -137,8 +137,9 @@ class PROTON:
     # ------------------------------------------------------------------ core
     def _enqueue(self, c: int, e: np.ndarray):
         bank = self.banks[c]
+        e = np.asarray(e, dtype=np.float32)        # bank state is C*M*d float32 (0.41 MB for C=2, M=100, d=512)
         if self._sums[c] is None:
-            self._sums[c] = np.zeros_like(e, dtype=np.float64)
+            self._sums[c] = np.zeros(e.shape, dtype=np.float64)
         if len(bank) == bank.maxlen:               # evict oldest (FIFO)
             self._sums[c] -= bank[0]
         bank.append(e)

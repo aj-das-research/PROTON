@@ -160,9 +160,22 @@ def robustness_extras(P: Prepared, n_perm: int = 5) -> dict:
     t0 = time.perf_counter()
     r = run_proton_stream(P, pool, order)
     dt = (time.perf_counter() - t0) / len(order)
+    t0 = time.perf_counter()
+    rp = run_proton_stream(P, pool, order, config=proton_plus_config())
+    dtp = (time.perf_counter() - t0) / len(order)
     d = P.embeds.shape[1]
-    out["overhead"] = {"ms_per_sample": 1000 * dt,
+    out["overhead"] = {"ms_per_sample": 1000 * dt, "ms_per_sample_plus": 1000 * dtp,
                        "bank_mb": P.T.shape[0] * r["detector"].cfg.M * d * 4 / 1e6}
+    # paired comparison over stream orders: how often PROTON+ / PROTON beat MCM on the same stream
+    out["wins_vs_mcm"] = {}
+    for sh in SHIFTS:
+        pool, n_id = P.pool(sh); w = {"proton": 0, "proton_plus": 0}
+        for k in range(n_perm):
+            order, is_ood = make_stream(n_id, len(pool) - n_id, seed=k)
+            base = ood_metrics(P.base["mcm"][pool[order]], is_ood)["auroc"]
+            w["proton"] += int(ood_metrics(run_proton_stream(P, pool, order)["score"], is_ood)["auroc"] > base)
+            w["proton_plus"] += int(ood_metrics(run_proton_stream(P, pool, order, config=proton_plus_config())["score"], is_ood)["auroc"] > base)
+        out["wins_vs_mcm"][sh] = {k_: f"{v}/{n_perm}" for k_, v in w.items()}
     # shift-type triage from (S_base, S_proto): 3-way macro-F1 with 5-fold CV logistic regression
     try:
         from sklearn.linear_model import LogisticRegression
@@ -182,7 +195,8 @@ def robustness_extras(P: Prepared, n_perm: int = 5) -> dict:
         out["triage_macro_f1"] = f"failed: {e}"
     md = [f"sigma2_0 sweep mean AUROC: " + ", ".join(f"{k}: {v['mean_auroc']:.1f}" for k, v in out["sigma2_0"].items()),
           "misrouting (cov AUROC): " + ", ".join(f"{k}: {v['auroc']:.1f}" for k, v in out["misrouting"].items()),
-          f"overhead: {out['overhead']['ms_per_sample']:.3f} ms/sample, bank {out['overhead']['bank_mb']:.2f} MB",
+          f"overhead: PROTON {out['overhead']['ms_per_sample']:.3f} ms/sample, PROTON+ {out['overhead']['ms_per_sample_plus']:.3f} ms/sample, bank {out['overhead']['bank_mb']:.2f} MB",
+          "wins vs MCM over stream orders: " + str(out["wins_vs_mcm"]),
           f"triage macro-F1: {out['triage_macro_f1']}"]
     return _save(P.bench.name, "robustness_extras", out, "\n".join(md))
 
