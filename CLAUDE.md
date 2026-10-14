@@ -49,16 +49,21 @@ privileged kNN/Mahalanobis baselines.
 
 ## Paper and site (status 2026-10-14)
 
-- `paper/` holds the PROTON+ manuscript (arXiv article style). Compile with `~/.local/bin/tectonic -X compile --keep-logs main.tex`
-  (the conda `tex` env is broken). Regenerate tables with `python scripts/make_paper_tables.py`, figures with
-  `proton figures` + `cp outputs/figures/*.pdf paper/figures/`. Lint prose with
-  `.claude/skills/a-star-paper-writing/scripts/style_lint.py paper/sections/*.tex`.
-- `docs/` is the project page (GitHub Pages source) with the browser demo in `docs/demo/` (int8 ONNX of FLAIR's
-  vision tower, tracked in git; `scripts/export_demo_assets.py` regenerates it). `scripts/build_site.py` refreshes
-  `docs/results.html`, `docs/headline.json` and `docs/figures/`.
-- Pending human steps: make the GitHub repo public (or use a Pages-capable plan) and enable Pages from `docs/`;
-  optionally publish `docs/demo/models/flair_vision*.onnx` to the Hugging Face repo `abhijit2k01/proton-demo`
-  (the demo falls back to the GitHub-served copy).
+- `paper/` holds the PROTON+ preprint in LNCS format (`main.tex` + `lncs_sections/*.tex`, llncs.cls/splncs04.bst).
+  Compile with `~/.local/bin/tectonic -X compile --keep-logs main.tex` (the conda `tex` env is broken); check
+  `grep -c Overfull main.log` is 0 and render pages with PyMuPDF. Tables: `python scripts/make_paper_tables.py`.
+  Copy `main.pdf` to `docs/protonplus.pdf` after each build. Figures 2-5 (matplotlib, shared style
+  `figures_src/paper_style.py`, Liberation Sans in `figures_src/fonts/`, 4.80 in wide = LNCS text width):
+  `figures_src/fig2_embedding.py` -> fig1_blind_spot, `fig3_results_v2.py` -> fig3_results,
+  `fig4_convergence.py` -> fig3a_convergence, `fig5_gamma_M.py` -> fig3b_gamma_M (PROTON+ grid cached in
+  `outputs/results/<benchmark>/fig5_gamma_M_plus.json`, `--recompute` rebuilds). Each script's `save()` writes
+  `paper/figures/` and `docs/figures/`. Run with the proton env and `HF_HOME=/mnt/hdd2/Abhijit/.cache/huggingface`.
+  The older `proton figures` / `figures_src/fig_results.py` / `fig_method*.py` routes are superseded.
+- Abhijit removed the "AI assistance" paragraph from the conclusion on Overleaf (2026-10-14): do not re-add it.
+- `docs/` is the project page, live at https://aj-das-research.github.io/PROTON/ (Pages source main:/docs), with the
+  guided browser demo in `docs/demo/` (weight-only int8 ONNX of FLAIR's vision tower, tracked in git, mirrored on HF
+  `abhijit2k01/proton-demo`; `scripts/export_demo_assets.py` regenerates it). Visual QA: `scripts/screenshot.py URL OUT.png`.
+  Curated benchmarks are on HF `abhijit2k01/proton-benchmarks` (`scripts/push_hf_dataset.py`).
 - Prompt policy (2026-10-14, Abhijit's decision): one uniform rule, the modality-prefixed class prompt of the benchmark
   code (`flair_default`, radiology `l1`, pathology `l1`); all other prompt sets go to the appendix prompt-sensitivity table.
 

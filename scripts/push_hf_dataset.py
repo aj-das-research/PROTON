@@ -49,7 +49,7 @@ size_categories: [1K<n<10K]
 
 Curated test streams for test-time out-of-distribution detection with medical vision-language models, released with
 **PROTON+** (https://github.com/aj-das-research/PROTON, project page https://aj-das-research.github.io/PROTON/),
-the follow-up to PROTON (https://arxiv.org/abs/2606.20913).
+the follow-up to PROTON (MICCAI 2026, https://arxiv.org/abs/2606.20913).
 
 | File | Content |
 |---|---|
