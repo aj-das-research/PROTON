@@ -46,3 +46,16 @@ privileged kNN/Mahalanobis baselines.
 - Never copy numbers from the paper into results; everything in `outputs/results` is computed.
 - Git identity is repo-local (Abhijit Das). Push code to `origin` (github.com/aj-das-research/PROTON) and the paper
   to Overleaf via `git -C paper push` (pull first).
+
+## Paper and site (status 2026-10-14)
+
+- `paper/` holds the PROTON+ manuscript (arXiv article style). Compile with `~/.local/bin/tectonic -X compile --keep-logs main.tex`
+  (the conda `tex` env is broken). Regenerate tables with `python scripts/make_paper_tables.py`, figures with
+  `proton figures` + `cp outputs/figures/*.pdf paper/figures/`. Lint prose with
+  `.claude/skills/a-star-paper-writing/scripts/style_lint.py paper/sections/*.tex`.
+- `docs/` is the project page (GitHub Pages source) with the browser demo in `docs/demo/` (int8 ONNX of FLAIR's
+  vision tower, tracked in git; `scripts/export_demo_assets.py` regenerates it). `scripts/build_site.py` refreshes
+  `docs/results.html`, `docs/headline.json` and `docs/figures/`.
+- Pending human steps: make the GitHub repo public (or use a Pages-capable plan) and enable Pages from `docs/`;
+  optionally publish `docs/demo/models/flair_vision*.onnx` to the Hugging Face repo `abhijit2k01/proton-demo`
+  (the demo falls back to the GitHub-served copy).
