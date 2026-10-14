@@ -54,9 +54,15 @@ def extract_features(benchmark: str | Benchmark, model_name: str | None = None, 
                 arr[c, :len(plist)] = vlm.encode_text(list(plist))
         store[f"text/{pname}"] = arr
         counts[pname] = [len(x) for x in per_class]
-    tag = np.zeros((len(bench.classes), len(bench.tag_templates), vlm.embed_dim), np.float32)
-    for c, cls in enumerate(bench.classes):
-        tag[c] = vlm.encode_text([t.format(cls) for t in bench.tag_templates])
+    # TAG (Liu & Zach, 2024): K random word shuffles of each class prompt (the default prompt set), plus the original
+    K = 10
+    rng = np.random.default_rng(0)
+    base_prompts = [plist[0] for plist in bench.prompts[bench.default_prompts]]
+    tag = np.zeros((len(bench.classes), K + 1, vlm.embed_dim), np.float32)
+    for c, prompt in enumerate(base_prompts):
+        words = prompt.split()
+        variants = [prompt] + [" ".join(rng.permutation(words).tolist()) for _ in range(K)]
+        tag[c] = vlm.encode_text(variants)
     store["tag"] = tag
     store["text_counts"] = np.frombuffer(json.dumps(counts).encode(), dtype=np.uint8)
     np.savez_compressed(out, **store)
@@ -72,11 +78,12 @@ def load_features(benchmark: str, model: str, feat_dir: str = FEAT_DIR) -> dict:
 
 
 def class_text_embeds(feats: dict, prompt_set: str) -> np.ndarray:
-    """(C, d) per-class text embedding = l2-normalised mean over that class's prompts (single prompt -> itself)."""
+    """(C, d) per-class text embedding. Single prompt -> that embedding. Multi-prompt (hierarchical) sets -> the plain
+    mean of the prompt embeddings, so that logits are the mean of the per-prompt logits exactly as in Ju et al.'s
+    hierarchical MCM (no re-normalisation)."""
     arr = feats[f"text/{prompt_set}"]
     counts = feats["text_counts"][prompt_set]
-    T = np.stack([arr[c, :k].mean(0) for c, k in enumerate(counts)])
-    return T / np.linalg.norm(T, axis=1, keepdims=True)
+    return np.stack([arr[c, :k].mean(0) for c, k in enumerate(counts)]).astype(np.float32)
 
 
 def level_logits(feats: dict, prompt_set: str) -> list:

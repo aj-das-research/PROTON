@@ -21,7 +21,7 @@ from ..streams import make_stream
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 RES_DIR = os.path.join(ROOT, "outputs", "results")
 
-STATIC_ORDER = ["max_logit", "energy", "gl_mcm", "mcm", "entropy", "tag_mcm", "hier_l1", "hier_l5"]
+STATIC_ORDER = ["max_logit", "energy", "gl_mcm", "mcm", "tag_mcm", "hier_l1", "hier_l5"]  # entropy == MCM for C=2
 PRETTY = {"max_logit": "Max-Logits", "energy": "Energy", "gl_mcm": "GL-MCM", "mcm": "MCM", "entropy": "Entropy",
           "tag_mcm": "TAG-MCM", "hier_l1": "MCM (L=1)", "hier_l5": "MCM (L=5)", "hier_vanilla": "MCM (vanilla)",
           "knn_id": "kNN-ID", "mahalanobis_id": "Mahalanobis-ID", "proton": "PROTON"}
@@ -204,23 +204,29 @@ def gamma_M_grid(P: Prepared, n_perm: int = 3, gammas=(0.3, 0.4, 0.5, 0.6, 0.7, 
 def table_proton_plus(P: Prepared, n_perm: int = 5, rhos=(0.9, 0.7, 0.5, 0.3, 0.1)) -> dict:
     """PROTON+ vs PROTON vs MCM: main shifts, component ablation, ID-fraction sweep and gamma sensitivity."""
     mcm = evaluate_static(P, names=["mcm"])["mcm"]
+    plus = proton_plus_config()
     variants = {
         "MCM": None,
         "PROTON (paper)": dict(),
-        "+ z-scored fusion": dict(normalize="zscore"),
-        "+ consistency admission": dict(normalize="zscore", admission="consistency"),
-        "+ trimmed prototypes (PROTON+)": dict(normalize="zscore", admission="consistency", robust_proto=True),
-        "consistency only": dict(admission="consistency"),
-        "trimmed only": dict(robust_proto=True),
+        "+ z-scored fusion": dict(normalize=plus.normalize),
+        "+ consistency admission": dict(normalize=plus.normalize, admission=plus.admission, kappa=plus.kappa),
+        "+ domain-anchored prototypes (PROTON+)": dict(config=proton_plus_config()),
+        "domain-anchored only": dict(proto_mode=plus.proto_mode, bandwidth=plus.bandwidth),
+        "consistency only": dict(admission=plus.admission, kappa=plus.kappa),
+        "PROTON+ max-fusion": dict(config=proton_plus_config(fusion="max")),
+        "PROTON+ rejection-driven alpha": dict(config=proton_plus_config(alpha_mode="rejection")),
+        "S_proto only (PROTON bank)": dict(adaptive=False, fixed_alpha=0.0),
+        "S_proto only (PROTON+ bank)": dict(config=proton_plus_config(adaptive=False, fixed_alpha=0.0)),
+        "PROTON, oracle ID-only bank": dict(oracle_bank=True),
+        "PROTON+, oracle ID-only bank": dict(config=proton_plus_config(), oracle_bank=True),
     }
     res = {}
     for k, v in variants.items():
         res[k] = mcm if v is None else evaluate_proton(P, n_perm=n_perm, **v)
-    md = ["| Variant | Sem AUC | Cov AUC | Far AUC | Sem FPR | Cov FPR | Far FPR |", "|---|---|---|---|---|---|---|"]
+    md = ["| Variant | Sem AUC | Cov AUC | Far AUC | Sem FPR | Cov FPR | Far FPR | t_calib |", "|---|---|---|---|---|---|---|---|"]
     for k, r in res.items():
         md.append(f"| {k} | " + " | ".join(f"{r[s]['auroc']:.1f}" for s in SHIFTS) + " | " +
-                  " | ".join(f"{r[s]['fpr95']:.1f}" for s in SHIFTS) + " |")
-    plus = proton_plus_config()
+                  " | ".join(f"{r[s]['fpr95']:.1f}" for s in SHIFTS) + f" | {r.get('covariate', {}).get('t_calib', float('nan')):.0f} |")
     rho = {}
     for r_ in rhos:
         rho[str(r_)] = {"proton_plus": evaluate_proton(P, n_perm=n_perm, rho=r_, config=proton_plus_config()),

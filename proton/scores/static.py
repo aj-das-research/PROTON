@@ -60,12 +60,11 @@ def hierarchical_mcm(level_logits: list[np.ndarray]) -> np.ndarray:
 def tag_mcm(template_logits: np.ndarray) -> np.ndarray:
     """TAG-style text-prompt augmentation (Liu & Zach, 2024) with MCM read-out.
 
-    `template_logits` has shape (N, K, C): logits of the image against K augmented prompt variants of each class.
-    Following TAG, the class score is the mean over prompt variants of the per-variant softmax, which is then
-    read out with MCM. Higher = more OOD.
+    `template_logits` has shape (N, K, C): logits of the image against the K augmented variants (TAG: random word
+    shuffles of the prompt) of every class. TAG scores S = (1/K) sum_k max_c softmax(logits_k)_c, i.e. the mean
+    over augmentations of the per-augmentation maximum softmax probability. Returned negated (higher = more OOD).
     """
-    p = softmax(template_logits, axis=-1).mean(axis=1)
-    return -p.max(axis=-1)
+    return -softmax(template_logits, axis=-1).max(axis=-1).mean(axis=1)
 
 
 BASE_SCORES = {

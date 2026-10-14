@@ -1,4 +1,4 @@
-"""Pick QuiltNet prompts for PCam by ID zero-shot accuracy ONLY (no OOD information is used)."""
+"""Pick QuiltNet prompts for PCam by zero-shot accuracy on the disjoint labelled id_bank split ONLY (no OOD, no test-ID information)."""
 import numpy as np
 from proton.data import load_benchmark
 from proton.features import load_features
@@ -6,7 +6,7 @@ from proton.models import load_model
 from proton.scores.static import softmax
 b = load_benchmark("pathology"); f = load_features("pathology", "quiltnet"); m = load_model("quiltnet")
 E, s = f["embeds"], f["logit_scale"]; sets = b.manifest["set"].to_numpy(); labels = b.manifest["label"].to_numpy()
-i = np.where(sets == "id")[0]
+i = np.where(sets == "id_bank")[0]  # disjoint labelled split: never the evaluated ID test set
 cands = {
  "benign/malignant": ["benign", "malignant"],
  "normal/tumor": ["normal", "tumor"],

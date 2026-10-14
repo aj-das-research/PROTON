@@ -118,6 +118,7 @@ class PROTON:
         self._adm_stats = Welford()            # prototype distances of admitted samples (consistency admission)
         self.mu_dom = None
         self._rej = Welford()                  # indicator of consistency-admission rejections (alpha_mode="rejection")
+        self.t_calib = None                    # stream index at which the detector became calibrated
         self.t = 0
         self.history = []                      # per-step diagnostics (alpha, var, calibrated, ...)
 
@@ -213,6 +214,11 @@ class PROTON:
                 s = a * s_base + (1 - a) * s_proto
         else:
             s_proto, a, s = float("nan"), 1.0, s_base
+            if cfg.normalize == "zscore" or cfg.fusion == "max":   # keep one scale across the K_min boundary
+                self._base_stats.update(s_base)
+                s = (s_base - self._base_stats.mean) / (np.sqrt(self._base_stats.variance) + 1e-6)
+        if calibrated and self.t_calib is None:
+            self.t_calib = self.t
         # confidence-gated bank update (after scoring, Alg. 1 lines 11-12)
         conf = float(p.max())
         c_hat = int(p.argmax())

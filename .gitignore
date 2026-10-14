@@ -10,6 +10,7 @@ outputs/
 *.pt
 *.bin
 *.onnx
+!docs/demo/models/flair_vision_int8.onnx
 __pycache__/
 *.pyc
 .venv/
@@ -24,4 +25,4 @@ paper/
 .claude/skill-sources/
 .claude/settings.local.json
 # docs site artifacts
-docs/demo/models/
+docs/demo/models/flair_vision.onnx

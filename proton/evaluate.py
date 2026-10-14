@@ -107,19 +107,26 @@ def evaluate_privileged(P: Prepared, shifts=SHIFTS, k: int = 10) -> dict:
 
 # ----------------------------------------------------------------------------------------------- PROTON
 def run_proton_stream(P: Prepared, pool: np.ndarray, order: np.ndarray, base: str = "mcm",
-                      config: PROTONConfig | None = None, probs: np.ndarray | None = None, **overrides) -> dict:
-    """Run PROTON over pool[order]; returns dict of per-step arrays in stream order plus the detector."""
+                      config: PROTONConfig | None = None, probs: np.ndarray | None = None, oracle_bank: bool = False,
+                      **overrides) -> dict:
+    """Run PROTON over pool[order]; returns dict of per-step arrays in stream order plus the detector.
+    oracle_bank=True (analysis only): OOD samples are never admitted to the bank (their gate probabilities are set
+    to uniform), giving the ID-only-bank ceiling of the prototype signal."""
     idx = pool[order]
-    probs = P.probs if probs is None else probs
+    probs = (P.probs if probs is None else probs)[idx]
+    if oracle_bank:
+        n_id = int((P.sets[pool] == "id").sum())
+        probs = probs.copy(); probs[order >= n_id] = 1.0 / probs.shape[1]
     det = PROTON(P.T.shape[0], config, **overrides)
-    out = det.score_stream(P.embeds[idx], probs[idx], P.base[base][idx])
+    out = det.score_stream(P.embeds[idx], probs, P.base[base][idx])
     out["detector"] = det
     out["idx"] = idx
     return out
 
 
 def evaluate_proton(P: Prepared, shifts=SHIFTS, n_perm: int = 5, seed0: int = 0, base: str = "mcm",
-                    config: PROTONConfig | None = None, rho: float | None = None, probs=None, **overrides) -> dict:
+                    config: PROTONConfig | None = None, rho: float | None = None, probs=None, oracle_bank: bool = False,
+                    **overrides) -> dict:
     """{shift: {'auroc': mean, 'auroc_std': std, 'aupr':..., 'fpr95':..., 'per_seed': [...]}}"""
     out = {}
     for sh in shifts:
@@ -128,12 +135,15 @@ def evaluate_proton(P: Prepared, shifts=SHIFTS, n_perm: int = 5, seed0: int = 0,
         runs = []
         for k in range(n_perm):
             order, is_ood = make_stream(n_id, n_ood, rho=rho, seed=seed0 + k)
-            r = run_proton_stream(P, pool, order, base=base, config=config, probs=probs, **overrides)
-            runs.append(ood_metrics(r["score"], is_ood))
+            r = run_proton_stream(P, pool, order, base=base, config=config, probs=probs, oracle_bank=oracle_bank,
+                                  **overrides)
+            met = ood_metrics(r["score"], is_ood); met["t_calib"] = r["detector"].t_calib
+            runs.append(met)
         agg = {}
         for m in ("auroc", "aupr", "fpr95"):
             v = np.array([r[m] for r in runs])
             agg[m], agg[m + "_std"] = float(v.mean()), float(v.std())
+        agg["t_calib"] = float(np.mean([r["t_calib"] or np.nan for r in runs]))
         agg["per_seed"] = runs
         out[sh] = agg
     return out

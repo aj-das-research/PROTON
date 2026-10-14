@@ -1,0 +1,56 @@
+"""Build the static project page: copies figures, converts the result Markdown tables to HTML, writes docs/results.html.
+Run after `proton run` for every benchmark and `proton figures`."""
+import glob, html, os, re, shutil
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+RES, FIG, DOCS = (os.path.join(ROOT, "outputs", p) for p in ("results", "figures", "")); DOCS = os.path.join(ROOT, "docs")
+os.makedirs(os.path.join(DOCS, "figures"), exist_ok=True)
+for f in glob.glob(os.path.join(FIG, "*.png")): shutil.copy(f, os.path.join(DOCS, "figures", os.path.basename(f)))
+
+def md_table_to_html(md):
+    out, rows = [], [l for l in md.strip().splitlines()]
+    i = 0
+    while i < len(rows):
+        l = rows[i]
+        if l.startswith("|"):
+            block = []
+            while i < len(rows) and rows[i].startswith("|"): block.append(rows[i]); i += 1
+            cells = [[html.escape(c.strip()) for c in r.strip("|").split("|")] for r in block if not re.match(r"^\|?\s*:?-+", r)]
+            if not cells: continue
+            out.append("<table><thead><tr>" + "".join(f"<th>{c}</th>" for c in cells[0]) + "</tr></thead><tbody>" +
+                       "".join("<tr>" + "".join(f"<td>{c}</td>" for c in r) + "</tr>" for r in cells[1:]) + "</tbody></table>")
+        else:
+            if l.strip(): out.append(f"<p>{html.escape(l)}</p>")
+            i += 1
+    return "\n".join(out)
+
+TITLES = {"table2_main": "Main zero-shot table (Table 2)", "table_proton_plus": "PROTON+ vs PROTON (components, ID fraction, sensitivity, base scores)",
+          "table3_ablation": "Ablations (Table 3)", "table1a_rho": "Stream ID-fraction sweep (Table 1a)", "table4a_base_scores": "PROTON on six base scores (Table 4a)",
+          "table4b_broader": "Broader baselines incl. privileged (Table 4b)", "table_prompt_sensitivity": "Prompt sensitivity", "robustness_extras": "Robustness extras",
+          "fig3b_gamma_M": "gamma x M grid (delta AUROC vs MCM, covariate)"}
+parts = ["<!doctype html><html lang='en'><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>PROTON results</title>",
+         "<link rel='stylesheet' href='style.css'></head><body><div class='wrap'><h1>All reproduced results</h1><p class='muted'>Generated from <code>outputs/results/*/*.md</code> by <code>scripts/build_site.py</code>; every number is recomputed from cached features (nothing copied from the paper). <a href='./'>Back</a>.</p>"]
+for b in ("ophthalmology", "radiology", "pathology"):
+    d = os.path.join(RES, b)
+    if not os.path.isdir(d): continue
+    parts.append(f"<h2 id='{b}'>{b.title()}</h2>")
+    for name in TITLES:
+        p = os.path.join(d, name + ".md")
+        if os.path.exists(p): parts.append(f"<h3>{TITLES[name]}</h3>" + md_table_to_html(open(p).read()))
+parts.append("</div></body></html>")
+open(os.path.join(DOCS, "results.html"), "w").write("\n".join(parts))
+print("docs/results.html written; figures:", os.listdir(os.path.join(DOCS, "figures")))
+
+# headline.json (used by docs/index.html)
+import json
+names = {"ophthalmology": "Ophthalmology (FLAIR)", "radiology": "Radiology (UniMed-CLIP)", "pathology": "Pathology (QuiltNet)"}
+head = {}
+for b, n in names.items():
+    p2, pp = os.path.join(RES, b, "table2_main.json"), os.path.join(RES, b, "table_proton_plus.json")
+    if not (os.path.exists(p2) and os.path.exists(pp)): continue
+    d, e = json.load(open(p2)), json.load(open(pp))
+    key = [k for k in e["variants"] if k.startswith("+ domain-anchored")]
+    head[n] = {"MCM": {s: d["static"]["mcm"][s]["auroc"] for s in ("semantic", "covariate", "far")},
+               "PROTON": {s: d["proton"][s]["auroc"] for s in ("semantic", "covariate", "far")}}
+    if key: head[n]["PROTON+"] = {s: e["variants"][key[0]][s]["auroc"] for s in ("semantic", "covariate", "far")}
+json.dump(head, open(os.path.join(DOCS, "headline.json"), "w"), indent=1)
+print("headline.json:", list(head))
