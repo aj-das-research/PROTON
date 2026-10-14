@@ -8,17 +8,23 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 ap = argparse.ArgumentParser(); ap.add_argument("--repo", default="abhijit2k01/proton-benchmarks"); ap.add_argument("--no-upload", action="store_true")
 ap.add_argument("--out", default=os.path.join(ROOT, "outputs", "hf_dataset")); a = ap.parse_args()
 os.makedirs(a.out, exist_ok=True)
+def _encode(p):
+    im = Image.open(p).convert("RGB"); w, h = im.size; s = 1024 / max(w, h)
+    if s < 1: im = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
+    buf = io.BytesIO(); im.save(buf, format="PNG", compress_level=4); return buf.getvalue(), im.size
+
+
 from proton.data import load_benchmark, load_specs
 from proton.features import load_features
 specs = load_specs()
 for b in ["ophthalmology", "radiology", "pathology"]:
     bench = load_benchmark(b); df = bench.manifest.copy(); paths = bench.paths()
-    # images: re-encode as PNG bytes (lossless) with the long side capped at 1024 px to keep the parquet shards small
-    blobs, sizes = [], []
-    for p in paths:
-        im = Image.open(p).convert("RGB"); w, h = im.size; s = 1024 / max(w, h)
-        if s < 1: im = im.resize((round(w * s), round(h * s)), Image.LANCZOS)
-        buf = io.BytesIO(); im.save(buf, format="PNG", optimize=True); blobs.append(buf.getvalue()); sizes.append(im.size)
+    # images: re-encode as PNG bytes (lossless) with the long side capped at 1024 px, in parallel
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(16) as ex:
+        enc = list(ex.map(_encode, paths, chunksize=8))
+    blobs, sizes = [b for b, _ in enc], [sz for _, sz in enc]
+    print(b, "encoded", len(blobs), "images", flush=True)
     df["image"] = blobs; df["width"] = [s[0] for s in sizes]; df["height"] = [s[1] for s in sizes]; df["row_id"] = range(len(df))
     t = pa.Table.from_pandas(df[["row_id", "domain", "set", "label", "class_name", "source", "path", "width", "height", "image"]], preserve_index=False)
     pq.write_table(t, os.path.join(a.out, f"{b}.parquet"), compression="zstd"); print(b, "images parquet", len(df), "rows")
