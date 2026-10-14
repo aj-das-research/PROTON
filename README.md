@@ -10,6 +10,7 @@
 [![Browser demo](https://img.shields.io/badge/demo-run%20in%20browser-0f766e)](https://aj-das-research.github.io/PROTON/demo/)
 [![Preprint](https://img.shields.io/badge/PROTON%2B-preprint%20PDF-b31b1b)](https://aj-das-research.github.io/PROTON/protonplus.pdf)
 [![PROTON paper](https://img.shields.io/badge/PROTON-arXiv%3A2606.20913-b31b1b)](https://arxiv.org/abs/2606.20913)
+[![Data](https://img.shields.io/badge/data-Hugging%20Face-yellow)](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 <img src="docs/figures/fig2_method.png" width="100%" alt="PROTON+ method overview">
@@ -51,7 +52,7 @@ All numbers are regenerated from `outputs/results/` by `scripts/readme_results.p
 | Pathology · QuiltNet | **PROTON+** | **82.4 ± 0.3** | **85.6 ± 0.9** | **92.1 ± 0.7** |
 <!-- RESULTS:END -->
 
-Benchmarks: ophthalmology = FIVES normal/DR vs glaucoma+AMD, DeepDRiD ultra-widefield, ImageNet; radiology = RSNA
+The curated benchmarks (parquet images, cached embeddings, prompt embeddings, manifests) are on the Hugging Face Hub at [abhijit2k01/proton-benchmarks](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks), so every number can be recomputed on a CPU without downloading any source dataset. Benchmarks: ophthalmology = FIVES normal/DR vs glaucoma+AMD, DeepDRiD ultra-widefield, ImageNet; radiology = RSNA
 normal/opacity vs NIH ChestX-ray14 other findings, paediatric CXR, ImageNet; pathology = PatchCamelyon vs NCT-CRC
 tissue types, Camelyon17-WILDS other hospital, ImageNet. Every image list is a committed, seeded manifest.
 
