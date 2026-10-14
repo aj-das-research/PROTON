@@ -3,122 +3,172 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>PROTON+ live demo</title>
-<meta name="description" content="PROTON+ runs in your browser with the real FLAIR retina model: an online prototype bank flags the shifted images that the softmax misses.">
+<meta name="description" content="PROTON+ in your browser: load a frozen retina vision-language model, meet the data, then stream images and watch an online prototype bank flag the shifted ones the softmax misses.">
 <style>
-:root{--bg:#f6f7f9;--fg:#111418;--muted:#5d6670;--card:#fff;--line:#e3e6ea;--grid:#eef0f3;--acc:#d55e00;--acc-soft:#fff1e6;--id:#3b7dd8;--id2:#2e9e5b;--sem:#e69f00;--cov:#d64545;--far:#8a9099;--up:#9333ea;--ok:#146c2e;--ok-soft:#e3f6e8;--bad:#9f1239;--bad-soft:#fde2e2;--warn:#7a5200;--warn-soft:#fff4d6}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c}}
-:root[data-theme=dark]{--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c}
+:root{--bg:#f6f7f9;--fg:#14181d;--muted:#5d6670;--faint:#8a929c;--card:#fff;--line:#e4e7eb;--grid:#eef0f3;--acc:#d55e00;--acc-soft:#fff1e6;--id:#3b7dd8;--id2:#2e9e5b;--sem:#e69f00;--cov:#d64545;--far:#8a9099;--up:#9333ea;--ok:#146c2e;--ok-soft:#e3f5e9;--bad:#b42318;--bad-soft:#fde8e6;--warn:#7a5200;--warn-soft:#fff4d6;--shadow:0 1px 2px rgba(16,24,40,.05)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--faint:#6e7782;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c;--shadow:none}}
+:root[data-theme=dark]{--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--faint:#6e7782;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c;--shadow:none}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
-.app{max-width:1100px;margin:16px auto;padding:0 16px;display:flex;flex-direction:column;gap:10px}
-header{display:flex;align-items:center;gap:14px;min-width:0}
-.brand{font-weight:800;font-size:15px;white-space:nowrap;color:var(--fg)}.brand b{color:var(--acc)}
-.tag{color:var(--muted);font-size:13px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-nav{display:flex;gap:12px;font-size:12.5px;white-space:nowrap}nav a{color:var(--muted)}nav a:hover{color:var(--acc)}
-/* model loader */
-.loader{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:12px;color:var(--muted)}
-.loader .dot{width:8px;height:8px;border-radius:50%;background:#f0b429;flex:none}
-.loader.ok .dot{background:#2bb673}.loader.err .dot{background:#e5484d}
-.loader .bar{flex:1;max-width:260px;height:4px;border-radius:3px;background:var(--line);overflow:hidden}
-.loader .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .15s}
-.loader.ok .bar,.loader.err .bar{display:none}
-.loader .txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.loader button{margin-left:auto;display:none}.loader.err button{display:inline-block}
-main{display:grid;grid-template-columns:minmax(230px,0.95fr) minmax(250px,1fr) minmax(300px,1.25fr);gap:10px}
-@media (max-width:900px){main{grid-template-columns:1fr 1fr}main .c3{grid-column:1/-1}}
-@media (max-width:600px){main{grid-template-columns:1fr}.tag{display:none}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;height:430px;display:flex;flex-direction:column;min-width:0}
-@media (max-width:900px){.card{height:auto}}
-.card h2{margin:0 0 6px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
-.card h2 .n{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--acc);color:#fff;font-size:11px}
-/* gallery */
-.gal-wrap{flex:1;min-height:0;overflow:auto;margin:0 -2px;padding:0 2px}
-.grp{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:6px 0 3px;display:flex;align-items:center;gap:6px}
-.grp:first-child{margin-top:0}.grp i{width:8px;height:8px;border-radius:2px;display:inline-block}
-.gal{display:flex;flex-wrap:wrap;gap:4px}
-.gal img{width:42px;height:42px;object-fit:cover;border-radius:6px;border:2px solid transparent;cursor:pointer;background:#000;transition:transform .1s}
-.gal img:hover{transform:scale(1.08)}.gal img.active{outline:2px solid var(--fg);outline-offset:1px}
-.gal img.id0{border-color:var(--id)}.gal img.id1{border-color:var(--id2)}.gal img.semantic{border-color:var(--sem)}.gal img.covariate{border-color:var(--cov)}.gal img.far{border-color:var(--far)}
-.ctl{display:flex;gap:5px;margin-top:8px}
-button{font:inherit;cursor:pointer;border:0;border-radius:7px;padding:6px 9px;font-weight:600;font-size:12px;background:var(--acc);color:#fff;white-space:nowrap}
-button.sec{background:var(--card);color:var(--fg);border:1px solid var(--line)}button:disabled{opacity:.45;cursor:default}
-.up{margin-top:7px;font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
-.up input[type=file]{font-size:11px;max-width:100%}.up input:disabled{opacity:.5}
-.up label{display:flex;align-items:center;gap:5px}
-/* verdict */
-.vtop{display:flex;gap:10px;align-items:flex-start}
-.vtop canvas{width:96px;height:96px;border-radius:9px;background:#000;border:1px solid var(--line);flex:none}
-.badge{display:inline-block;padding:6px 9px;border-radius:9px;font-weight:800;font-size:13px;line-height:1.25}
-.badge.ood{background:var(--bad-soft);color:var(--bad)}.badge.ind{background:var(--ok-soft);color:var(--ok)}.badge.warm{background:var(--warn-soft);color:var(--warn)}.badge.idle{background:var(--line);color:var(--muted)}
+.app{max-width:1040px;margin:0 auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:8px}
+/* header + stepper */
+header{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+.brand{font-weight:800;font-size:16px;color:var(--fg);white-space:nowrap}.brand b{color:var(--acc)}
+.brand small{font-weight:500;color:var(--muted);font-size:13px;margin-left:4px}
+nav{margin-left:auto;display:flex;gap:16px;font-size:12.5px}nav a{color:var(--muted)}nav a:hover{color:var(--acc)}
+.stepper{display:flex;align-items:center;gap:8px;margin:4px 0 0;list-style:none;padding:0}
+.stepper li{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--faint);font-weight:600;white-space:nowrap}
+.stepper li .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;border:1.5px solid var(--line);font-size:11px;background:var(--card);color:var(--faint)}
+.stepper li.active{color:var(--fg)}.stepper li.active .n{border-color:var(--acc);color:var(--acc)}
+.stepper li.done{color:var(--muted)}.stepper li.done .n{background:var(--acc);border-color:var(--acc);color:#fff}
+.stepper .sep{flex:1;height:1.5px;background:var(--line);min-width:16px}
+.stepper .sep.done{background:var(--acc)}
+@media (max-width:560px){.stepper li:not(.active) .lb{display:none}}
+/* cards */
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;box-shadow:var(--shadow);min-width:0}
+.card.dim{opacity:.55}
+.card h2{margin:0;font-size:13.5px;font-weight:700;display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px}
+.card h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--acc);color:#fff;font-size:11px;flex:none}
+.card h2 .n.done{background:var(--ok)}
+.card .lead{margin:4px 0 0 28px;color:var(--muted);font-size:12.5px}
+/* step 1 */
+#s1 .row{display:flex;align-items:center;gap:12px;margin:8px 0 0 28px}
+#s1 .bar{flex:1;max-width:420px;height:6px;border-radius:4px;background:var(--line);overflow:hidden}
+#s1 .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .15s}
+#s1 .txt{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+#s1 #retry{display:none}#s1.err #retry{display:inline-block}#s1.err .txt{color:var(--bad)}
+#s1.ok{padding:8px 16px}#s1.ok .lead,#s1.ok .row{display:none}
+#s1 .okline{display:none;color:var(--muted);font-weight:500;font-size:12.5px}#s1.ok .okline{display:inline}#s1 .okline::before{content:"· "}
+@media (max-width:560px){#s1.ok .okline{flex-basis:100%;padding-left:28px}#s1 .okline::before{content:none}}
+/* step 2 */
+.groups{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:8px 0 0}
+@media (max-width:860px){.groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.grp{border:1px solid var(--line);border-radius:10px;padding:8px}
+.grp .t{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:650}
+.grp .t i{width:9px;height:9px;border-radius:3px;flex:none}
+.grp .k{font-size:11px;color:var(--muted);margin:1px 0 6px 15px}
+.grp .imgs{display:flex;gap:4px}
+.grp img{width:40px;height:40px;object-fit:cover;border-radius:6px;cursor:pointer;border:2px solid transparent;transition:transform .1s;background:#000}
+.grp img:hover{transform:scale(1.07)}.grp img.active{outline:2px solid var(--fg);outline-offset:1px}
+.s2foot{display:flex;align-items:center;gap:12px;margin-top:8px;font-size:12px;color:var(--muted)}
+.s2foot button{margin-left:auto}
+/* buttons */
+button,.btn{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:7px 12px;font-weight:600;font-size:12.5px;background:var(--acc);color:#fff;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+button.sec,.btn.sec{background:var(--card);color:var(--fg);border:1px solid var(--line)}
+button.ghost{background:transparent;color:var(--muted);border:1px solid transparent}
+button:disabled,.btn.disabled{opacity:.45;cursor:default;pointer-events:none}
+.btn input{display:none}
+/* step 3 */
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 0}
+.actions .hint{font-size:11.5px;color:var(--faint)}
+.results{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:20px;margin-top:12px;align-items:start}
+@media (max-width:860px){.results{grid-template-columns:1fr}}
+.vtop{display:flex;gap:12px;align-items:flex-start}
+.tile{width:112px;height:112px;border-radius:10px;flex:none;position:relative;overflow:hidden;border:1px solid var(--line);background:var(--bg)}
+.tile canvas{width:100%;height:100%;display:none}
+.tile.has canvas{display:block}
+.tile .ph{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-size:11px;color:var(--faint);border:1.5px dashed var(--line);border-radius:10px;padding:8px}
+.tile.has .ph{display:none}
+.badge{display:inline-block;padding:6px 10px;border-radius:8px;font-weight:800;font-size:13.5px;line-height:1.25}
+.badge.ood{background:var(--bad-soft);color:var(--bad)}.badge.ind{background:var(--ok-soft);color:var(--ok)}.badge.warm{background:var(--warn-soft);color:var(--warn)}.badge.idle{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
 .lbl{font-size:12px;color:var(--muted);margin-top:6px}.lbl b{color:var(--fg)}
-.sig{border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin-top:9px}
-.sig .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.chip{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line);font-variant-numeric:tabular-nums}
+.chip.a{background:var(--acc-soft);color:var(--acc);border-color:transparent;font-weight:600}
+.sigs{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}
+.sig{border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.sig .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .sig .k b{color:var(--fg);font-size:13px;letter-spacing:0;font-variant-numeric:tabular-nums}
-.sig .bar{height:5px;border-radius:4px;background:var(--line);overflow:hidden;margin:5px 0 4px}
+.sig .bar{height:5px;border-radius:4px;background:var(--line);overflow:hidden;margin:6px 0 5px}
 .sig .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s}.sig.mcm .bar>i{background:var(--id)}
 .sig .why{font-size:11.5px;color:var(--muted)}
-.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
-.chip{font-size:11px;padding:3px 7px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-weight:600}
-.chip.n{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
-/* plot */
-.plotbox{position:relative;width:100%;aspect-ratio:4/3;max-height:300px}
+.plotbox{position:relative;width:100%;aspect-ratio:4/3}
 .plotbox canvas{position:absolute;inset:0;width:100%;height:100%}
-.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:6px}
-.legend span{display:inline-flex;align-items:center;gap:4px}.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
-.summary{font-size:12px;color:var(--muted);margin-top:auto;padding-top:6px}
-footer{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:10.5px;color:var(--muted);margin-top:6px}
+.legend span{display:inline-flex;align-items:center;gap:4px}.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}.legend i.ring{width:10px;height:10px;box-sizing:border-box;border:1.5px solid var(--bad)}.legend [hidden]{display:none}
+.summary{font-size:12px;color:var(--muted);margin-top:4px;font-variant-numeric:tabular-nums}
+footer{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;font-size:11.5px;color:var(--faint);padding:0 4px}
 footer details summary{cursor:pointer;color:var(--acc);font-weight:600}
 footer details[open]{flex-basis:100%}
-.settings{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.settings{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-top:6px;color:var(--muted)}
 .settings label{display:inline-flex;align-items:center;gap:4px}
-.settings input{width:56px;font:inherit;font-size:11.5px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg)}
+.settings input[type=number]{width:58px;font:inherit;font-size:11.5px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg)}
+.settings p{margin:6px 0 0;flex-basis:100%;line-height:1.5}
 .settings code{background:var(--acc-soft);color:var(--acc);padding:0 4px;border-radius:4px}
 </style>
 </head>
 <body><div class="app">
 <header>
-  <a class="brand" href="../">PROTON<b>+</b> live demo</a>
-  <span class="tag">A frozen retina model runs in your browser; PROTON+ learns the clinic from the stream and flags the images the softmax accepts by mistake.</span>
+  <a class="brand" href="../">PROTON<b>+</b> <small>live demo</small></a>
   <nav><a href="../">Project page</a><a href="../protonplus.pdf">Paper</a><a href="https://github.com/aj-das-research/PROTON">Code</a></nav>
 </header>
-<div class="loader" id="loader"><span class="dot"></span><span class="txt" id="loadTxt">Preparing…</span><span class="bar"><i id="loadBar"></i></span><button class="sec" id="retry">Retry</button></div>
-<main>
-  <section class="card c1">
-    <h2><span class="n">1</span>Stream images</h2>
-    <div class="gal-wrap" id="gal"></div>
-    <div class="ctl"><button id="play">▶ Mixed stream</button><button class="sec" id="playcov">▶ Clinic → new camera</button><button class="sec" id="reset">Reset</button></div>
-    <div class="up"><input type="file" id="upload" accept="image/*" disabled><span id="upHint">Upload unlocks when the model is ready.</span><label><input type="checkbox" id="live" disabled> run the live model on examples too</label></div>
-  </section>
-  <section class="card c2">
-    <h2><span class="n">2</span>Verdict</h2>
-    <div class="vtop">
-      <canvas id="preview" width="192" height="192"></canvas>
-      <div><div id="flag" class="badge idle">Pick an image</div><div class="lbl">Zero-shot: <b id="pred">—</b> <span id="conf"></span></div></div>
+<ol class="stepper" id="stepper">
+  <li id="st1" class="active"><span class="n">1</span><span class="lb">Load the model</span></li><li class="sep" id="sep1" aria-hidden="true"></li>
+  <li id="st2"><span class="n">2</span><span class="lb">Meet the data</span></li><li class="sep" id="sep2" aria-hidden="true"></li>
+  <li id="st3"><span class="n">3</span><span class="lb">Stream &amp; detect</span></li>
+</ol>
+
+<section class="card" id="s1">
+  <h2><span class="n" id="s1n">1</span>Load the model <span class="okline" id="okline"></span></h2>
+  <p class="lead">A frozen retina vision-language model (FLAIR, 25 MB) runs entirely in your browser. Nothing is uploaded.</p>
+  <div class="row"><span class="bar"><i id="loadBar"></i></span><span class="txt" id="loadTxt">Preparing…</span><button class="sec" id="retry">Retry</button></div>
+</section>
+
+<section class="card" id="s2">
+  <h2><span class="n" id="s2n">2</span>Meet the data</h2>
+  <p class="lead">The model was prompted with two classes, <b>normal</b> and <b>diabetic retinopathy</b>. The stream also contains images it should flag. Click any image to send it into the stream.</p>
+  <div class="groups" id="groups"></div>
+  <div class="s2foot"><span>PROTON+ never sees these labels; colours are only for you. Each stream opens with the clinic’s own images, then shifted ones arrive.</span><button id="cont">Continue →</button></div>
+</section>
+
+<section class="card" id="s3">
+  <h2><span class="n" id="s3n">3</span>Stream &amp; detect</h2>
+  <p class="lead">Images arrive one at a time. PROTON+ builds a prototype bank from the stream itself and flags images that sit far from it, even when the softmax is confident.</p>
+  <div class="actions">
+    <button id="play">▶ Play a mixed stream</button>
+    <button class="sec" id="playcov">▶ Normal clinic, then a new camera</button>
+    <button class="ghost" id="reset">Reset</button>
+    <label class="btn sec disabled" id="upBtn" title="Upload unlocks when the model is ready">⬆ Upload your own fundus image<input type="file" id="upload" accept="image/*"></label>
+    <span class="hint" id="upHint">upload unlocks when the model is ready</span>
+  </div>
+  <div class="results">
+    <div>
+      <div class="vtop">
+        <div class="tile" id="tile"><canvas id="preview" width="224" height="224"></canvas><div class="ph">image appears here</div></div>
+        <div>
+          <div id="flag" class="badge idle">Press play or click an image</div>
+          <div class="lbl">Zero-shot label: <b id="pred">—</b> <span id="conf"></span></div>
+          <div class="chips"><span class="chip a" id="chipScore">fused score —</span><span class="chip" id="chipBank">bank 0 / 0</span><span class="chip" id="chipCal">warming up</span></div>
+        </div>
+      </div>
+      <div class="sigs">
+        <div class="sig mcm"><div class="k"><span>Softmax confidence (MCM)</span><b id="mcmv">—</b></div><div class="bar"><i id="mcmb"></i></div><div class="why" id="mcmw">How sure the model is about its label. High confidence looks in-distribution to MCM.</div></div>
+        <div class="sig"><div class="k"><span>Prototype distance (PROTON+)</span><b id="protov">—</b></div><div class="bar"><i id="protob"></i></div><div class="why" id="protow">1 − cosine similarity to the nearest class prototype in the bank.</div></div>
+      </div>
     </div>
-    <div class="sig mcm"><div class="k"><span>Softmax confidence (MCM)</span><b id="mcmv">—</b></div><div class="bar"><i id="mcmb"></i></div><div class="why" id="mcmw">High confidence looks in-distribution to MCM.</div></div>
-    <div class="sig"><div class="k"><span>Prototype distance (PROTON+)</span><b id="protov">—</b></div><div class="bar"><i id="protob"></i></div><div class="why" id="protow">1 − cosine similarity to the nearest class prototype.</div></div>
-    <div class="chips"><span class="chip" id="chipScore">fused score —</span><span class="chip n" id="chipBank">bank 0 / 0</span><span class="chip n" id="chipCal">warming up</span></div>
-  </section>
-  <section class="card c3">
-    <h2><span class="n">3</span>Stream so far</h2>
-    <div class="plotbox"><canvas id="scatter"></canvas></div>
-    <div class="legend"><span><i style="background:var(--id)"></i>normal</span><span><i style="background:var(--id2)"></i>DR</span><span><i style="background:var(--sem)"></i>glaucoma / AMD</span><span><i style="background:var(--cov)"></i>ultra-widefield</span><span><i style="background:var(--far)"></i>natural image</span><span><i style="background:var(--up)"></i>upload</span></div>
-    <div class="summary" id="summary">Shifted images land top-right: confident, yet far from every prototype.</div>
-  </section>
-</main>
+    <div>
+      <div class="plotbox"><canvas id="scatter"></canvas></div>
+      <div class="legend"><span><i style="background:var(--id)"></i>normal</span><span><i style="background:var(--id2)"></i>DR</span><span><i style="background:var(--cov)"></i>ultra-widefield</span><span><i style="background:var(--sem)"></i>glaucoma/AMD</span><span><i style="background:var(--far)"></i>natural</span><span id="lgUp" hidden><i style="background:var(--up)"></i>upload</span><span><i class="ring"></i>flagged</span></div>
+      <div class="summary" id="summary">Shifted images land top-right: confident, yet far from every prototype.</div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <details><summary>Settings &amp; how it works</summary>
     <div class="settings">
       <label>γ <input id="gamma" type="number" step="0.05" min="0.3" max="0.95" value="0.7"></label>
       <label>M <input id="M" type="number" step="10" min="5" max="500" value="100"></label>
       <label>K<sub>min</sub> <input id="kmin" type="number" step="1" min="1" max="50" value="5"></label>
-      <span>Domain-anchored prototypes, consistency admission (<code>max p ≥ γ</code>, <code>d ≤ m + κ·s</code>) and z-scored fusion. “Flagged” = fused score in the top 20% of the stream so far. Changing a value resets the stream.</span>
+      <label><input type="checkbox" id="live" disabled> embed example images with the live model</label>
+      <p><b>Domain-anchored prototypes:</b> a mean-shift step over the whole bank finds the dominant imaging-domain mode; class prototypes weight their members by <code>exp((e·μ_dom − 1)/h)</code>. <b>Consistency admission:</b> an image joins the bank only if <code>max p ≥ γ</code> and its distance to the class prototype is typical (<code>d ≤ m + κ·s</code>). <b>Fusion:</b> <code>α·z(S_MCM) + (1−α)·z(S_proto)</code> with online z-scores. “Flagged” (red ring in the plot) means the prototype distance is more than one standard deviation above its running mean, the online z-score PROTON+ fuses; the chip shows the full fused PROTON+ score and its rank in the stream. Streams open with in-distribution images because the bank only checks admissions once each class holds K<sub>min</sub> images.</p>
     </div>
   </details>
-  <span>FLAIR ResNet-50 (Apache-2.0), int8 ONNX · examples: FIVES (CC BY 4.0), DeepDRiD (CC BY-SA 4.0), Imagenette · follow-up to <a href="https://arxiv.org/abs/2606.20913">PROTON</a> (MICCAI 2026)</span>
+  <span>FLAIR ResNet-50 (Apache-2.0) as int8 ONNX · examples from FIVES (CC BY 4.0), DeepDRiD (CC BY-SA 4.0), Imagenette · follow-up to <a href="https://arxiv.org/abs/2606.20913">PROTON</a> (MICCAI 2026)</span>
 </footer>
 </div>
+
 <script type="module">
 import { PROTON, PLUS, softmax, preprocessToTensor } from "./proton.js";
 const ASSETS = "./assets/ophthalmology.json";
@@ -127,137 +177,170 @@ const ORT = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/";
 const CACHE = "proton-demo-v2";
 const $ = (id) => document.getElementById(id);
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-let spec, det, session = null, ort = null, stream = [], playing = false;
+let spec, det, session = null, ort = null, stream = [], playing = false, imgs = [];
 const colors = () => ({ id0: css("--id"), id1: css("--id2"), semantic: css("--sem"), covariate: css("--cov"), far: css("--far"), upload: css("--up") });
-const names = { id0: "normal (ID)", id1: "diabetic retinopathy (ID)", semantic: "glaucoma / AMD (semantic shift)", covariate: "ultra-widefield (covariate shift)", far: "natural image (far-OOD)" };
+const GROUPS = [["id0", "Normal", "in-distribution"], ["id1", "Diabetic retinopathy", "in-distribution"], ["covariate", "Ultra-widefield camera", "covariate shift"], ["semantic", "Glaucoma / AMD", "semantic shift"], ["far", "Natural images", "far shift"]];
 const cfg = () => Object.assign({ gamma: +$("gamma").value, M: +$("M").value, kMin: +$("kmin").value }, PLUS);
 const setClass = (ex) => ex.set === "id" ? (ex.class_name === "normal" ? "id0" : "id1") : ex.set;
 const pct = (arr, v) => arr.length ? arr.filter((s) => s <= v).length / arr.length : 0;
 const MB = (b) => (b / 1048576).toFixed(1);
+// flagged = prototype distance more than 1 sd above its running mean (the online z-score PROTON+ fuses; label-free)
+const zReady = () => det.protoStats.n >= 5;
+const isFlag = (rec) => rec.calibrated && zReady() && rec.zp > 1;
 
-// ---------------------------------------------------------------- model loader (progress, cache, retry)
+// ---------------------------------------------------------------- stepper
+const step = { 1: "active", 2: "", 3: "" };
+function setStep(n, state) {
+  step[n] = state; const li = $("st" + n); li.className = state; li.querySelector(".n").textContent = state === "done" ? "✓" : n;
+  $("sep1").className = "sep" + (step[1] === "done" ? " done" : ""); $("sep2").className = "sep" + (step[2] === "done" ? " done" : "");
+  const badge = $("s" + n + "n"); badge.textContent = state === "done" ? "✓" : n; badge.className = "n" + (state === "done" ? " done" : "");
+}
+function goStep3() { if (step[2] !== "done") setStep(2, "done"); if (step[3] !== "active") setStep(3, "active"); $("cont").style.visibility = "hidden"; }
+
+// ---------------------------------------------------------------- step 1: model loader (progress, cache, fallback, retry)
 function setLoader(state, text, frac) {
-  $("loader").className = "loader" + (state === "ok" ? " ok" : state === "err" ? " err" : "");
-  $("loadTxt").textContent = text; if (frac !== undefined) $("loadBar").style.width = (100 * frac).toFixed(1) + "%";
+  $("s1").classList.toggle("err", state === "err"); $("loadTxt").textContent = text;
+  if (frac !== undefined) $("loadBar").style.width = (100 * frac).toFixed(1) + "%";
 }
 async function fetchWithProgress(url) {
   let cache = null;
-  try { cache = await caches.open(CACHE); const hit = await cache.match(url); if (hit) { setLoader("load", "Loading FLAIR model from cache…", 1); return new Uint8Array(await hit.arrayBuffer()); } } catch (e) { cache = null; }
+  try { cache = await caches.open(CACHE); const hit = await cache.match(url); if (hit) { setLoader("load", "Loading from browser cache…", 1); return new Uint8Array(await hit.arrayBuffer()); } } catch (e) { cache = null; }
   const res = await fetch(url); if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const total = +res.headers.get("Content-Length") || 0; const reader = res.body.getReader(); const chunks = []; let got = 0;
   for (;;) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); got += value.length;
-    setLoader("load", total ? `Loading FLAIR model ${MB(got)} / ${MB(total)} MB` : `Loading FLAIR model ${MB(got)} MB`, total ? got / total : 0.5); }
+    setLoader("load", total ? `Downloading ${MB(got)} / ${MB(total)} MB` : `Downloading ${MB(got)} MB`, total ? got / total : 0.5); }
   const buf = new Uint8Array(got); let off = 0; for (const c of chunks) { buf.set(c, off); off += c.length; }
   try { if (cache) await cache.put(url, new Response(buf, { headers: { "Content-Type": "application/octet-stream" } })); } catch (e) {}
   return buf;
 }
 async function loadModel() {
-  session = null; $("upload").disabled = true; $("live").disabled = true; $("upHint").textContent = "Upload unlocks when the model is ready.";
-  setLoader("load", "Loading runtime…", 0.02);
+  session = null; setUploadEnabled(false); $("s1").classList.remove("ok"); setStep(1, "active");
+  setLoader("load", "Loading the runtime…", 0.02);
   try {
     if (!ort) { ort = await import(ORT + "ort.min.mjs"); ort.env.wasm.wasmPaths = ORT; ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1; }
     let lastErr = null;
     for (const url of MODEL_URLS) {
-      try { const bytes = await fetchWithProgress(url); setLoader("load", "Initialising…", 1); session = await ort.InferenceSession.create(bytes, { executionProviders: ["wasm"] }); break; }
+      try { const bytes = await fetchWithProgress(url); setLoader("load", "Initialising the model…", 1); session = await ort.InferenceSession.create(bytes, { executionProviders: ["wasm"] }); break; }
       catch (e) { lastErr = e; }
     }
     if (!session) throw lastErr || new Error("no model");
-    setLoader("ok", "Model ready · runs locally in your browser"); $("upload").disabled = false; $("live").disabled = false; $("upHint").textContent = "Upload a fundus photo (processed locally).";
+    $("okline").textContent = "FLAIR vision encoder ready, runs locally in your browser";
+    $("s1").classList.add("ok"); setStep(1, "done"); if (step[2] === "") setStep(2, "active"); setUploadEnabled(true);
   } catch (e) {
-    setLoader("err", "Model could not load (" + String(e && e.message || e).slice(0, 70) + "). Examples still work.");
+    setLoader("err", "The model could not load (" + String(e && e.message || e).slice(0, 60) + "). The examples still work.");
+    if (step[2] === "") setStep(2, "active");
   }
+}
+function setUploadEnabled(on) {
+  $("upload").disabled = !on; $("upBtn").classList.toggle("disabled", !on); $("live").disabled = !on;
+  $("upHint").textContent = on ? "processed locally, never uploaded" : "upload unlocks when the model is ready";
 }
 $("retry").onclick = loadModel;
 
-// ---------------------------------------------------------------- stream logic
+// ---------------------------------------------------------------- step 3: stream logic
 function newDet() {
-  det = new PROTON(2, cfg()); stream = []; draw(); $("summary").textContent = "Shifted images land top-right: confident, yet far from every prototype.";
-  $("flag").className = "badge idle"; $("flag").textContent = "Pick an image"; $("pred").textContent = "—"; $("conf").textContent = "";
+  det = new PROTON(2, cfg()); stream = []; $("lgUp").hidden = true; draw(); $("summary").textContent = "Shifted images land top-right: confident, yet far from every prototype.";
+  $("flag").className = "badge idle"; $("flag").textContent = "Press play or click an image"; $("pred").textContent = "—"; $("conf").textContent = "";
   $("mcmv").textContent = $("protov").textContent = "—"; $("mcmb").style.width = $("protob").style.width = "0";
+  $("mcmw").textContent = "How sure the model is about its label. High confidence looks in-distribution to MCM.";
+  $("protow").textContent = "1 − cosine similarity to the nearest class prototype in the bank.";
   $("chipScore").textContent = "fused score —"; $("chipBank").textContent = "bank 0 / 0"; $("chipCal").textContent = "warming up";
-  $("preview").getContext("2d").clearRect(0, 0, 192, 192); document.querySelectorAll("#gal img").forEach((im) => im.classList.remove("active"));
+  $("tile").classList.remove("has"); document.querySelectorAll("#groups img").forEach((im) => im.classList.remove("active"));
 }
 async function embed(img) { const { data, dims } = preprocessToTensor(img, spec.image_size); const out = await session.run({ image: new ort.Tensor("float32", data, dims) }); return Array.from(out.embedding.data); }
 function scoreEmbedding(e) { const logits = spec.text_embeds.map((t) => spec.logit_scale * t.reduce((s, v, i) => s + v * e[i], 0)); const p = softmax(logits); return { p, sBase: -Math.max(...p) }; }
-function show(rec, imgEl) {
-  const ctx = $("preview").getContext("2d"); ctx.clearRect(0, 0, 192, 192); if (imgEl) ctx.drawImage(imgEl, 0, 0, 192, 192);
-  $("pred").textContent = spec.classes[rec.pred]; $("conf").textContent = `(${rec.conf.toFixed(2)})`;
-  $("mcmv").textContent = rec.conf.toFixed(3); $("mcmb").style.width = (100 * rec.conf) + "%";
-  const sp = isNaN(rec.sProto) ? null : rec.sProto; $("protov").textContent = sp === null ? "—" : sp.toFixed(3); $("protob").style.width = sp === null ? "0%" : Math.min(100, 100 * sp / 0.9) + "%";
-  const rank = pct(det.history.map((h) => h.score), rec.score), mcmRank = pct(det.history.map((h) => h.sBase), rec.sBase), ood = det.calibrated && rank >= 0.8;
-  $("mcmw").textContent = mcmRank >= 0.8 ? "Low confidence: MCM alone would flag it." : "High confidence: MCM alone would accept it.";
-  $("protow").textContent = sp === null ? "Warming up: each class needs K_min admitted images." : (sp > 0.5 ? "Far from every prototype: unlike the clinic's images." : "Close to a prototype: like the clinic's images.");
-  if (!det.calibrated) { $("flag").className = "badge warm"; $("flag").textContent = "Warming up"; }
-  else if (ood) { $("flag").className = "badge ood"; $("flag").textContent = mcmRank < 0.8 ? "Flagged (softmax missed it)" : "Flagged as OOD"; }
+function show(rec, imgEl, exIndex) {
+  const cv = $("preview"), ctx = cv.getContext("2d"); ctx.clearRect(0, 0, cv.width, cv.height);
+  if (imgEl) { ctx.drawImage(imgEl, 0, 0, cv.width, cv.height); $("tile").classList.add("has"); }
+  $("pred").textContent = spec.classes[rec.pred]; $("conf").textContent = `(confidence ${rec.conf.toFixed(2)})`;
+  $("mcmv").textContent = rec.conf.toFixed(2); $("mcmb").style.width = (100 * rec.conf) + "%";
+  const sp = isNaN(rec.sProto) ? null : rec.sProto; $("protov").textContent = sp === null ? "—" : sp.toFixed(2); $("protob").style.width = sp === null ? "0%" : Math.min(100, 100 * sp / 0.9) + "%";
+  const rank = pct(det.history.map((h) => h.score), rec.score), mcmRank = pct(det.history.map((h) => h.sBase), rec.sBase), ood = isFlag(rec);
+  $("mcmw").textContent = mcmRank >= 0.8 ? "Low confidence: the softmax alone would flag this image." : "High confidence: the softmax alone would accept this image.";
+  $("protow").textContent = sp === null ? `Warming up: each class needs ${det.cfg.kMin} admitted images first.` : (rec.zp > 1 && zReady() ? "Unusually far from every prototype for this stream: unlike the clinic's images." : "Within the usual distance range for this stream.");
+  if (!rec.calibrated || !zReady()) { $("flag").className = "badge warm"; $("flag").textContent = "Warming up: building the bank"; }
+  else if (ood) { $("flag").className = "badge ood"; $("flag").textContent = mcmRank < 0.8 ? "Flagged by PROTON+ (softmax missed it)" : "Flagged as out-of-distribution"; }
   else { $("flag").className = "badge ind"; $("flag").textContent = "In-distribution"; }
   $("chipScore").textContent = `fused ${rec.score.toFixed(2)} · top ${Math.round(100 * (1 - rank))}%`;
   $("chipBank").textContent = "bank " + det.bankSizes().join(" / ") + (rec.updated ? " · admitted" : rec.rejected ? " · rejected" : "");
-  $("chipCal").textContent = det.calibrated ? `calibrated t=${det.tCalib}` : "warming up";
-  document.querySelectorAll("#gal img").forEach((im) => im.classList.remove("active")); if (imgEl && imgEl.classList) imgEl.classList.add("active");
+  $("chipCal").textContent = det.calibrated ? `calibrated at t=${det.tCalib}` : "warming up";
+  document.querySelectorAll("#groups img").forEach((im) => im.classList.toggle("active", exIndex !== undefined && +im.dataset.i === exIndex));
 }
 function draw() {
   const c = $("scatter"), box = c.parentElement.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   const W = Math.max(240, box.width), H = Math.max(180, box.height); c.width = W * dpr; c.height = H * dpr;
   const ctx = c.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
-  const L = 36, R = 8, T = 8, B = 30, x0 = 0.5, x1 = 1.0, y1 = 1.0;
+  const L = 48, R = 8, T = 8, B = 32, x0 = 0.5, x1 = 1.0, y1 = 1.0;
   const xs = (v) => L + (Math.min(Math.max(v, x0), x1) - x0) / (x1 - x0) * (W - L - R), ys = (v) => T + (1 - Math.min(Math.max(v, 0), y1) / y1) * (H - T - B);
   const muted = css("--muted"), grid = css("--grid"), line = css("--line"), col = colors();
-  // flag zone: above the 95th percentile of admitted prototype distances
-  const adm = stream.filter((s) => s.rec.updated && !isNaN(s.rec.sProto)).map((s) => s.rec.sProto).sort((a, b) => a - b);
-  let thr = null; if (adm.length > 5) thr = adm[Math.floor(0.95 * (adm.length - 1))];
-  if (thr !== null) { ctx.fillStyle = css("--bad-soft"); ctx.globalAlpha = 0.55; ctx.fillRect(L, T, W - L - R, ys(thr) - T); ctx.globalAlpha = 1; }
-  // grid and ticks
+  ctx.fillStyle = css("--card"); ctx.fillRect(L, T, W - L - R, H - T - B);
+  const ps = det.protoStats, thr = ps.n >= 5 ? ps.mean + Math.sqrt(ps.variance) : null;
+  if (thr !== null) { ctx.fillStyle = css("--bad-soft"); ctx.globalAlpha = 0.6; ctx.fillRect(L, T, W - L - R, ys(thr) - T); ctx.globalAlpha = 1; }
   ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.fillStyle = muted; ctx.font = "10.5px system-ui,sans-serif";
   ctx.textAlign = "center"; for (const v of [0.6, 0.8, 1.0]) { const x = xs(v); ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, H - B); ctx.stroke(); ctx.fillText(v.toFixed(1), x, H - B + 13); }
   ctx.textAlign = "right"; for (const v of [0.25, 0.5, 0.75]) { const y = ys(v); ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke(); ctx.fillText(v.toFixed(2), L - 5, y + 3.5); }
   ctx.strokeStyle = line; ctx.strokeRect(L + 0.5, T + 0.5, W - L - R - 1, H - T - B - 1);
-  ctx.font = "11px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.fillText("softmax confidence →", (L + W - R) / 2, H - 4);
-  ctx.save(); ctx.translate(11, (T + H - B) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("prototype distance →", 0, 0); ctx.restore();
+  ctx.font = "11px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.fillText("softmax confidence →", (L + W - R) / 2, H - 5);
+  ctx.save(); ctx.translate(10, (T + H - B) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("prototype distance →", 0, 0); ctx.restore();
   if (thr !== null) {
     const y = ys(thr); ctx.setLineDash([4, 4]); ctx.strokeStyle = muted; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke(); ctx.setLineDash([]);
-    ctx.font = "10px system-ui,sans-serif"; ctx.textAlign = "left"; ctx.fillStyle = muted; ctx.fillText("admission 95%", L + 5, y + 11);
-    ctx.fillStyle = css("--bad"); ctx.fillText("flag zone", L + 5, T + 12);
+    ctx.font = "10px system-ui,sans-serif"; ctx.textAlign = "left";
+    if (y - T > 20) { ctx.fillStyle = css("--bad"); ctx.fillText("flag zone", L + 6, T + 13); ctx.fillStyle = muted; ctx.fillText("running mean + 1 sd", L + 6, y + 12); }
+    else { ctx.fillStyle = muted; ctx.fillText("running mean + 1 sd (flag zone above)", L + 6, y + 12); }
   }
-  // points: white outline, newest ringed
+  if (!stream.some((s) => !isNaN(s.rec.sProto))) {
+    ctx.fillStyle = css("--faint"); ctx.font = "11.5px system-ui,sans-serif"; ctx.textAlign = "center";
+    ctx.fillText(stream.length ? `warming up: each class needs ${det.cfg.kMin} images` : "press ▶ to start the stream", (L + W - R) / 2, (T + H - B) / 2);
+  }
   stream.forEach((s, k) => {
     if (isNaN(s.rec.sProto)) return; const last = k === stream.length - 1;
     ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), last ? 5 : 3.6, 0, 2 * Math.PI); ctx.fillStyle = col[s.set] || col.upload; ctx.fill();
-    ctx.lineWidth = 1; ctx.strokeStyle = "#fff"; ctx.stroke();
+    ctx.lineWidth = 1; ctx.strokeStyle = css("--card"); ctx.stroke();
+    if (s.flag) { ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), last ? 7 : 6, 0, 2 * Math.PI); ctx.lineWidth = 1.4; ctx.strokeStyle = css("--bad"); ctx.stroke(); }
     if (last) { ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), 8.5, 0, 2 * Math.PI); ctx.lineWidth = 1.5; ctx.strokeStyle = css("--fg"); ctx.stroke(); }
   });
   const n = stream.length;
   if (n) { const sh = (s) => ["covariate", "far", "semantic"].includes(s.set); const shifted = stream.filter(sh).length, caught = stream.filter((s) => s.flag && sh(s)).length, fp = stream.filter((s) => s.flag && (s.set === "id0" || s.set === "id1")).length;
-    $("summary").textContent = `${n} streamed · ${caught}/${shifted} shifted flagged · ${fp} in-distribution flagged · bank ${det.bankSizes().join("/")}`; }
+    $("summary").textContent = `${n} streamed · flagged ${caught}/${shifted} shifted, ${fp}/${n - shifted - stream.filter((s) => s.set === "upload").length} in-distribution`; }
 }
 async function feedExample(i) {
-  const ex = spec.examples[i]; const imgEl = document.querySelector(`#gal img[data-i="${i}"]`); let e = ex.embedding;
-  if ($("live").checked && session) e = await embed(imgEl);
-  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); const flag = det.calibrated && pct(det.history.map((h) => h.score), rec.score) >= 0.8;
-  stream.push({ rec, set: setClass(ex), flag }); show(rec, imgEl); draw();
+  goStep3(); const ex = spec.examples[i]; const imgEl = imgs[i]; let e = ex.embedding;
+  if ($("live").checked && session) { try { await imgEl.decode(); e = await embed(imgEl); } catch (err) {} }
+  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); const flag = isFlag(rec);
+  stream.push({ rec, set: setClass(ex), flag }); show(rec, imgEl, i); draw();
 }
 $("upload").onchange = async (ev) => {
-  const f = ev.target.files[0]; if (!f || !session) return;
+  const f = ev.target.files[0]; if (!f || !session) return; goStep3();
   const img = new Image(); img.src = URL.createObjectURL(f); await img.decode(); const t0 = performance.now(); const e = await embed(img);
-  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); const flag = det.calibrated && pct(det.history.map((h) => h.score), rec.score) >= 0.8;
-  stream.push({ rec, set: "upload", flag }); show(rec, img); draw(); $("upHint").textContent = `Embedded locally in ${(performance.now() - t0).toFixed(0)} ms.`;
+  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); const flag = isFlag(rec);
+  stream.push({ rec, set: "upload", flag }); $("lgUp").hidden = false; show(rec, img); draw(); $("upHint").textContent = `your image was embedded locally in ${(performance.now() - t0).toFixed(0)} ms`;
 };
-async function play(order) { if (playing) return; playing = true; $("play").disabled = $("playcov").disabled = true;
-  for (const i of order) { if (!playing) break; await feedExample(i); await new Promise((r) => setTimeout(r, 120)); } playing = false; $("play").disabled = $("playcov").disabled = false; }
+async function play(order) {
+  if (playing) return; playing = true; goStep3(); $("play").disabled = $("playcov").disabled = true;
+  for (const i of order) { if (!playing) break; await feedExample(i); await new Promise((r) => setTimeout(r, 120)); }
+  playing = false; $("play").disabled = $("playcov").disabled = false;
+}
 const idx = (pred) => spec.examples.map((e, i) => [e, i]).filter(([e]) => pred(e)).map(([, i]) => i);
-$("play").onclick = () => { const a = idx(() => true); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } play(a); };
-$("playcov").onclick = () => { const id = idx((e) => e.set === "id"), cov = idx((e) => e.set === "covariate"); play([...id, ...id, ...cov, ...cov]); };
+const shuffle = (a) => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+$("play").onclick = () => { const id = idx((e) => e.set === "id"), shifted = idx((e) => e.set !== "id"); play([...shuffle([...id]), ...shuffle([...id]), ...shuffle([...id]), ...shuffle([...id, ...id, ...shifted])]); };
+$("playcov").onclick = () => { const id = idx((e) => e.set === "id"), cov = idx((e) => e.set === "covariate"); play([...shuffle([...id]), ...shuffle([...id]), ...shuffle([...id]), ...shuffle([...id, ...id, ...cov])]); };
 $("reset").onclick = () => { playing = false; newDet(); };
+$("cont").onclick = () => { goStep3(); $("s3").scrollIntoView({ behavior: "smooth", block: "nearest" }); };
 document.querySelectorAll("#gamma,#M,#kmin").forEach((el) => el.addEventListener("change", newDet));
 window.addEventListener("resize", draw); window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
 
+// ---------------------------------------------------------------- step 2: the data
 async function init() {
   spec = await (await fetch(ASSETS)).json();
-  const groups = [["id0", "normal (ID)"], ["id1", "diabetic retinopathy (ID)"], ["covariate", "ultra-widefield camera"], ["semantic", "glaucoma / AMD"], ["far", "natural images"]];
-  const gal = $("gal"), col = colors();
-  for (const [g, title] of groups) {
-    const h = document.createElement("div"); h.className = "grp"; h.innerHTML = `<i style="background:${col[g]}"></i>${title}`; gal.appendChild(h);
-    const row = document.createElement("div"); row.className = "gal"; gal.appendChild(row);
-    spec.examples.forEach((ex, i) => { if (setClass(ex) !== g) return; const im = document.createElement("img"); im.src = ex.file; im.className = g; im.title = names[g]; im.alt = names[g]; im.dataset.i = i; im.onclick = () => feedExample(i); row.appendChild(im); });
+  imgs = spec.examples.map((ex) => { const im = new Image(); im.src = ex.file; return im; });
+  const col = colors(), box = $("groups");
+  for (const [g, title, kind] of GROUPS) {
+    const members = idx((e) => setClass(e) === g);
+    const card = document.createElement("div"); card.className = "grp";
+    card.innerHTML = `<div class="t"><i style="background:${col[g]}"></i>${title}</div><div class="k">${kind} · ${members.length} images</div><div class="imgs"></div>`;
+    const row = card.querySelector(".imgs");
+    members.slice(0, 3).forEach((i) => { const im = document.createElement("img"); im.src = spec.examples[i].file; im.alt = title; im.title = `${title} (${kind}): click to stream`; im.dataset.i = i; im.style.borderColor = col[g]; im.onclick = () => feedExample(i); row.appendChild(im); });
+    box.appendChild(card);
   }
   newDet(); loadModel();
 }
