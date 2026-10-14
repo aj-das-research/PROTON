@@ -43,7 +43,7 @@ def main_table(b, pm=True):
     lines = ["\\begin{tabular}{l" + "ccc" * 3 + "}", "\\toprule",
              " & \\multicolumn{3}{c}{Semantic} & \\multicolumn{3}{c}{Covariate} & \\multicolumn{3}{c}{Far-OOD} \\\\",
              "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\\cmidrule(lr){8-10}",
-             "Method & AUROC$\\uparrow$ & AUPR$\\uparrow$ & FPR@95$\\downarrow$ & AUROC$\\uparrow$ & AUPR$\\uparrow$ & FPR@95$\\downarrow$ & AUROC$\\uparrow$ & AUPR$\\uparrow$ & FPR@95$\\downarrow$ \\\\", "\\midrule"]
+             "Method & AUC$\\uparrow$ & APR$\\uparrow$ & FPR$\\downarrow$ & AUC$\\uparrow$ & APR$\\uparrow$ & FPR$\\downarrow$ & AUC$\\uparrow$ & APR$\\uparrow$ & FPR$\\downarrow$ \\\\", "\\midrule"]
     for i, (name, _) in enumerate(rows):
         if name.startswith("PROTON~"): lines.append("\\midrule")
         lines.append(name + " & " + " & ".join(c[i] for c in cols) + " \\\\")
