@@ -25,7 +25,7 @@ def bold_best(vals, higher=True):
     if len(order) > 1: out[order[1]] = "\\second{" + out[order[1]] + "}"
     return out
 
-def main_table(b):
+def main_table(b, pm=True):
     d = load(b, "table2_main"); pp = load(b, "table_proton_plus")
     if d is None: return
     rows = []
@@ -36,7 +36,10 @@ def main_table(b):
     cols = []
     for sh in SH:
         for m, hi in (("auroc", True), ("aupr", True), ("fpr95", False)):
-            cols.append(bold_best([r[1][sh][m] for r in rows], hi))
+            col = bold_best([r[1][sh][m] for r in rows], hi)
+            if pm:
+                col = [c + (f"\\,$\\pm$\\,{r[1][sh][m + '_std']:.1f}" if m + "_std" in r[1][sh] else "") for c, r in zip(col, rows)]
+            cols.append(col)
     lines = ["\\begin{tabular}{l" + "ccc" * 3 + "}", "\\toprule",
              " & \\multicolumn{3}{c}{Semantic} & \\multicolumn{3}{c}{Covariate} & \\multicolumn{3}{c}{Far-OOD} \\\\",
              "\\cmidrule(lr){2-4}\\cmidrule(lr){5-7}\\cmidrule(lr){8-10}",
@@ -49,9 +52,10 @@ def main_table(b):
     for sh in SH:
         for m in ("auroc", "aupr", "fpr95"):
             v = last[sh][m] - mcm[sh][m]
-            delta.append(("\\up{" if (v >= 0) == (m != "fpr95") else "\\down{") + f"{abs(v):.1f}" + "}")
+            better = (v >= 0) == (m != "fpr95")
+            delta.append(("\\dpos{" if better else "\\dneg{") + f"{v:+.1f}" + "}")
     lines += ["\\midrule", "$\\Delta$ \\protonp vs.\\ MCM & " + " & ".join(delta) + " \\\\", "\\bottomrule", "\\end{tabular}"]
-    open(os.path.join(OUT, f"main_{b}.tex"), "w").write("\n".join(lines) + "\n")
+    open(os.path.join(OUT, f"main_{b}{'' if pm else '_nopm'}.tex"), "w").write("\n".join(lines) + "\n")
 
 def cross_domain():
     lines = ["\\begin{tabular}{llrrr|rrr|rrr}", "\\toprule",
@@ -157,6 +161,6 @@ def prompts(b):
 
 if __name__ == "__main__":
     for b in BENCH:
-        main_table(b); ablation(b); rho(b); base_scores(b); broader(b); prompts(b)
+        main_table(b); main_table(b, pm=False); ablation(b); rho(b); base_scores(b); broader(b); prompts(b)
     cross_domain(); ladder()
     print("tables written:", sorted(os.listdir(OUT)))
