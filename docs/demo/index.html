@@ -5,162 +5,229 @@
 <title>PROTON+ live demo</title>
 <meta name="description" content="PROTON+ runs in your browser with the real FLAIR retina model: an online prototype bank flags the shifted images that the softmax misses.">
 <style>
-:root{--bg:#f6f7f9;--fg:#111418;--muted:#5d6670;--card:#ffffff;--line:#e3e6ea;--acc:#d55e00;--acc-soft:#fff1e6;--id:#0072b2;--id2:#2ca02c;--sem:#e69f00;--cov:#d62728;--far:#7f7f7f;--ok:#146c2e;--ok-soft:#e3f6e8;--bad:#9f1239;--bad-soft:#fde2e2;--warn:#7a5200;--warn-soft:#fff4d6}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c}}
-:root[data-theme=dark]{--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c}
+:root{--bg:#f6f7f9;--fg:#111418;--muted:#5d6670;--card:#fff;--line:#e3e6ea;--grid:#eef0f3;--acc:#d55e00;--acc-soft:#fff1e6;--id:#3b7dd8;--id2:#2e9e5b;--sem:#e69f00;--cov:#d64545;--far:#8a9099;--up:#9333ea;--ok:#146c2e;--ok-soft:#e3f6e8;--bad:#9f1239;--bad-soft:#fde2e2;--warn:#7a5200;--warn-soft:#fff4d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c}}
+:root[data-theme=dark]{--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c}
 *{box-sizing:border-box}
-html,body{height:100%;margin:0;background:var(--bg);color:var(--fg);font:13.5px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--fg);font:13px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
-.app{height:100vh;display:grid;grid-template-rows:auto 1fr auto;gap:8px;padding:8px 10px;max-width:1500px;margin:0 auto}
-header{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.brand{font-weight:800;font-size:1.05rem}.brand b{color:var(--acc)}
-.tag{color:var(--muted);font-size:.9rem;flex:1 1 320px;min-width:200px}
-.pill{display:inline-flex;align-items:center;gap:7px;padding:4px 10px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:.78rem;color:var(--muted);white-space:nowrap}
-.pill .dot{width:7px;height:7px;border-radius:50%;background:#f0b429}.pill.ok .dot{background:#2bb673}
-.links{display:flex;gap:12px;font-size:.85rem}.links a{color:var(--muted)}
-main{display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.1fr) minmax(320px,1.4fr);gap:8px;min-height:0}
-@media (max-width:980px){.app{height:auto}main{grid-template-columns:1fr 1fr}main .c3{grid-column:1/-1}}
-@media (max-width:640px){main{grid-template-columns:1fr}}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;min-height:0;display:flex;flex-direction:column;overflow:hidden}
-.card h2{margin:0 0 2px;font-size:.95rem;display:flex;align-items:center;gap:8px}.card h2 .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--acc);color:#fff;font-size:.72rem}
-.sub{color:var(--muted);font-size:.78rem;margin:0 0 6px}
-.gal-wrap{overflow:auto;min-height:0;flex:1}
-.group{margin:6px 0 3px;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}.group i{width:9px;height:9px;border-radius:3px;display:inline-block}
-.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:5px}
-.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;border:2px solid transparent;cursor:pointer;background:#000;transition:transform .1s}.gal img:hover{transform:scale(1.07)}.gal img.active{outline:2.5px solid var(--acc);outline-offset:1px}
+.app{max-width:1100px;margin:16px auto;padding:0 16px;display:flex;flex-direction:column;gap:10px}
+header{display:flex;align-items:center;gap:14px;min-width:0}
+.brand{font-weight:800;font-size:15px;white-space:nowrap;color:var(--fg)}.brand b{color:var(--acc)}
+.tag{color:var(--muted);font-size:13px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+nav{display:flex;gap:12px;font-size:12.5px;white-space:nowrap}nav a{color:var(--muted)}nav a:hover{color:var(--acc)}
+/* model loader */
+.loader{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:7px 12px;font-size:12px;color:var(--muted)}
+.loader .dot{width:8px;height:8px;border-radius:50%;background:#f0b429;flex:none}
+.loader.ok .dot{background:#2bb673}.loader.err .dot{background:#e5484d}
+.loader .bar{flex:1;max-width:260px;height:4px;border-radius:3px;background:var(--line);overflow:hidden}
+.loader .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .15s}
+.loader.ok .bar,.loader.err .bar{display:none}
+.loader .txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loader button{margin-left:auto;display:none}.loader.err button{display:inline-block}
+main{display:grid;grid-template-columns:minmax(230px,0.95fr) minmax(250px,1fr) minmax(300px,1.25fr);gap:10px}
+@media (max-width:900px){main{grid-template-columns:1fr 1fr}main .c3{grid-column:1/-1}}
+@media (max-width:600px){main{grid-template-columns:1fr}.tag{display:none}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px;height:430px;display:flex;flex-direction:column;min-width:0}
+@media (max-width:900px){.card{height:auto}}
+.card h2{margin:0 0 6px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:7px}
+.card h2 .n{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--acc);color:#fff;font-size:11px}
+/* gallery */
+.gal-wrap{flex:1;min-height:0;overflow:auto;margin:0 -2px;padding:0 2px}
+.grp{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:6px 0 3px;display:flex;align-items:center;gap:6px}
+.grp:first-child{margin-top:0}.grp i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.gal{display:flex;flex-wrap:wrap;gap:4px}
+.gal img{width:42px;height:42px;object-fit:cover;border-radius:6px;border:2px solid transparent;cursor:pointer;background:#000;transition:transform .1s}
+.gal img:hover{transform:scale(1.08)}.gal img.active{outline:2px solid var(--fg);outline-offset:1px}
 .gal img.id0{border-color:var(--id)}.gal img.id1{border-color:var(--id2)}.gal img.semantic{border-color:var(--sem)}.gal img.covariate{border-color:var(--cov)}.gal img.far{border-color:var(--far)}
-.ctl{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;align-items:center}
-button{font:inherit;cursor:pointer;border:0;border-radius:8px;padding:7px 11px;font-weight:600;background:var(--acc);color:#fff;font-size:.82rem}
+.ctl{display:flex;gap:5px;margin-top:8px}
+button{font:inherit;cursor:pointer;border:0;border-radius:7px;padding:6px 9px;font-weight:600;font-size:12px;background:var(--acc);color:#fff;white-space:nowrap}
 button.sec{background:var(--card);color:var(--fg);border:1px solid var(--line)}button:disabled{opacity:.45;cursor:default}
-.up{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:6px;margin-top:6px}.up input{font-size:.75rem;max-width:180px}
-.verdict{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:start}
-.verdict canvas{width:120px;height:120px;border-radius:10px;background:#000;border:1px solid var(--line)}
-.badge{display:inline-block;padding:7px 11px;border-radius:10px;font-weight:800;font-size:.95rem;line-height:1.25}
+.up{margin-top:7px;font-size:11.5px;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.up input[type=file]{font-size:11px;max-width:100%}.up input:disabled{opacity:.5}
+.up label{display:flex;align-items:center;gap:5px}
+/* verdict */
+.vtop{display:flex;gap:10px;align-items:flex-start}
+.vtop canvas{width:96px;height:96px;border-radius:9px;background:#000;border:1px solid var(--line);flex:none}
+.badge{display:inline-block;padding:6px 9px;border-radius:9px;font-weight:800;font-size:13px;line-height:1.25}
 .badge.ood{background:var(--bad-soft);color:var(--bad)}.badge.ind{background:var(--ok-soft);color:var(--ok)}.badge.warm{background:var(--warn-soft);color:var(--warn)}.badge.idle{background:var(--line);color:var(--muted)}
-.lbl{font-size:.8rem;color:var(--muted);margin-top:6px}
-.sig{border:1px solid var(--line);border-radius:10px;padding:7px 9px;margin-top:8px}
-.sig .k{font-size:.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;display:flex;justify-content:space-between}.sig .k b{color:var(--fg);font-size:.9rem}
-.sig .bar{height:6px;border-radius:5px;background:var(--line);overflow:hidden;margin:4px 0}.sig .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s}.sig.mcm .bar>i{background:var(--id)}
-.sig .why{font-size:.75rem;color:var(--muted)}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.chip{font-size:.72rem;padding:3px 8px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-weight:600}.chip.n{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
-.plotwrap{flex:1;min-height:0;position:relative}canvas.plot{width:100%;height:100%;display:block;border:1px solid var(--line);border-radius:10px;background:var(--card)}
-.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.72rem;color:var(--muted);margin-top:5px}.legend i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:-1px}
-footer{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:.75rem;color:var(--muted)}
-footer details{display:inline}footer summary{cursor:pointer;color:var(--acc);font-weight:600;display:inline}
-.how{position:absolute;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:10px 14px;font-size:.8rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;z-index:3;box-shadow:0 -8px 24px rgba(0,0,0,.08)}
-.how code{background:var(--acc-soft);color:var(--acc);padding:0 4px;border-radius:4px;font-size:.75rem}
-label.opt{display:inline-flex;align-items:center;gap:4px;color:var(--muted)}input[type=number]{width:52px;font:inherit;font-size:.75rem;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg)}
+.lbl{font-size:12px;color:var(--muted);margin-top:6px}.lbl b{color:var(--fg)}
+.sig{border:1px solid var(--line);border-radius:9px;padding:7px 9px;margin-top:9px}
+.sig .k{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700;display:flex;justify-content:space-between;align-items:baseline}
+.sig .k b{color:var(--fg);font-size:13px;letter-spacing:0;font-variant-numeric:tabular-nums}
+.sig .bar{height:5px;border-radius:4px;background:var(--line);overflow:hidden;margin:5px 0 4px}
+.sig .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s}.sig.mcm .bar>i{background:var(--id)}
+.sig .why{font-size:11.5px;color:var(--muted)}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto;padding-top:8px}
+.chip{font-size:11px;padding:3px 7px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-weight:600}
+.chip.n{background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+/* plot */
+.plotbox{position:relative;width:100%;aspect-ratio:4/3;max-height:300px}
+.plotbox canvas{position:absolute;inset:0;width:100%;height:100%}
+.legend{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--muted);margin-top:6px}
+.legend span{display:inline-flex;align-items:center;gap:4px}.legend i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.summary{font-size:12px;color:var(--muted);margin-top:auto;padding-top:6px}
+footer{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+footer details summary{cursor:pointer;color:var(--acc);font-weight:600}
+footer details[open]{flex-basis:100%}
+.settings{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.settings label{display:inline-flex;align-items:center;gap:4px}
+.settings input{width:56px;font:inherit;font-size:11.5px;padding:2px 4px;border:1px solid var(--line);border-radius:5px;background:var(--card);color:var(--fg)}
+.settings code{background:var(--acc-soft);color:var(--acc);padding:0 4px;border-radius:4px}
 </style>
 </head>
 <body><div class="app">
 <header>
   <a class="brand" href="../">PROTON<b>+</b> live demo</a>
-  <span class="tag">Stream fundus photographs through a frozen retina model. PROTON+ builds a prototype bank from the stream itself and flags the images the softmax accepts by mistake. Runs locally, no labels, no training.</span>
-  <span class="pill" id="status"><span class="dot"></span><span id="statusText">Loading…</span></span>
-  <nav class="links"><a href="../">Project page</a><a href="../protonplus.pdf">Paper</a><a href="https://github.com/aj-das-research/PROTON">Code</a></nav>
+  <span class="tag">A frozen retina model runs in your browser; PROTON+ learns the clinic from the stream and flags the images the softmax accepts by mistake.</span>
+  <nav><a href="../">Project page</a><a href="../protonplus.pdf">Paper</a><a href="https://github.com/aj-das-research/PROTON">Code</a></nav>
 </header>
+<div class="loader" id="loader"><span class="dot"></span><span class="txt" id="loadTxt">Preparing…</span><span class="bar"><i id="loadBar"></i></span><button class="sec" id="retry">Retry</button></div>
 <main>
   <section class="card c1">
-    <h2><span class="n">1</span>Stream images</h2><p class="sub">Click thumbnails (colour = true group, hidden from the detector) or play a stream.</p>
+    <h2><span class="n">1</span>Stream images</h2>
     <div class="gal-wrap" id="gal"></div>
-    <div class="ctl"><button id="play">▶ Mixed stream</button><button class="sec" id="playcov">▶ Clinic, then new camera</button><button class="sec" id="reset">Reset</button></div>
-    <div class="up">📷 <input type="file" id="upload" accept="image/*"><label class="opt"><input type="checkbox" id="live"> live model for examples</label></div>
+    <div class="ctl"><button id="play">▶ Mixed stream</button><button class="sec" id="playcov">▶ Clinic → new camera</button><button class="sec" id="reset">Reset</button></div>
+    <div class="up"><input type="file" id="upload" accept="image/*" disabled><span id="upHint">Upload unlocks when the model is ready.</span><label><input type="checkbox" id="live" disabled> run the live model on examples too</label></div>
   </section>
   <section class="card c2">
-    <h2><span class="n">2</span>Live verdict</h2><p class="sub">What the softmax says, what PROTON+ says, and why.</p>
-    <div class="verdict">
-      <canvas id="preview" width="240" height="240"></canvas>
-      <div>
-        <div id="flag" class="badge idle">Pick an image to start</div>
-        <div class="lbl">Zero-shot label: <b id="pred">—</b> <span id="conf"></span></div>
-      </div>
+    <h2><span class="n">2</span>Verdict</h2>
+    <div class="vtop">
+      <canvas id="preview" width="192" height="192"></canvas>
+      <div><div id="flag" class="badge idle">Pick an image</div><div class="lbl">Zero-shot: <b id="pred">—</b> <span id="conf"></span></div></div>
     </div>
-    <div class="sig mcm"><div class="k"><span>Softmax alone (MCM)</span><b id="mcmv">—</b></div><div class="bar"><i id="mcmb"></i></div><div class="why" id="mcmw">Confidence of the predicted class. High confidence looks in-distribution to MCM.</div></div>
-    <div class="sig"><div class="k"><span>PROTON+ prototype distance</span><b id="protov">—</b></div><div class="bar"><i id="protob"></i></div><div class="why" id="protow">1 − cosine similarity to the nearest class prototype of the bank.</div></div>
+    <div class="sig mcm"><div class="k"><span>Softmax confidence (MCM)</span><b id="mcmv">—</b></div><div class="bar"><i id="mcmb"></i></div><div class="why" id="mcmw">High confidence looks in-distribution to MCM.</div></div>
+    <div class="sig"><div class="k"><span>Prototype distance (PROTON+)</span><b id="protov">—</b></div><div class="bar"><i id="protob"></i></div><div class="why" id="protow">1 − cosine similarity to the nearest class prototype.</div></div>
     <div class="chips"><span class="chip" id="chipScore">fused score —</span><span class="chip n" id="chipBank">bank 0 / 0</span><span class="chip n" id="chipCal">warming up</span></div>
   </section>
   <section class="card c3">
-    <h2><span class="n">3</span>Stream so far</h2><p class="sub">x: softmax confidence · y: prototype distance. Shifted images pile up top-right: confident, yet far from every prototype. Dashed: 95th percentile of admitted images.</p>
-    <div class="plotwrap"><canvas id="scatter" class="plot"></canvas></div>
-    <div class="legend"><span><i style="background:var(--id)"></i>normal (ID)</span><span><i style="background:var(--id2)"></i>diabetic retinopathy (ID)</span><span><i style="background:var(--sem)"></i>glaucoma / AMD (semantic)</span><span><i style="background:var(--cov)"></i>ultra-widefield (covariate)</span><span><i style="background:var(--far)"></i>natural image (far)</span><span><i style="background:#9333ea"></i>your upload</span></div>
-    <div id="summary" class="sub" style="margin:6px 0 0"></div>
+    <h2><span class="n">3</span>Stream so far</h2>
+    <div class="plotbox"><canvas id="scatter"></canvas></div>
+    <div class="legend"><span><i style="background:var(--id)"></i>normal</span><span><i style="background:var(--id2)"></i>DR</span><span><i style="background:var(--sem)"></i>glaucoma / AMD</span><span><i style="background:var(--cov)"></i>ultra-widefield</span><span><i style="background:var(--far)"></i>natural image</span><span><i style="background:var(--up)"></i>upload</span></div>
+    <div class="summary" id="summary">Shifted images land top-right: confident, yet far from every prototype.</div>
   </section>
 </main>
 <footer>
-  <details><summary>How it works</summary>
-    <div class="how">
-      <div><b>Domain-anchored prototypes.</b> A mean-shift step over the whole bank finds the dominant imaging-domain mode <code>μ_dom</code>; each class prototype is the mean of its queue weighted by <code>exp((e·μ_dom − 1)/h)</code>, so a shifted cluster that sneaked in gets almost no weight.</div>
-      <div><b>Consistency admission.</b> An image joins the bank only if the softmax is confident (<code>max p ≥ γ</code>) and its distance to the predicted-class prototype is typical of previously admitted images (<code>d ≤ m + κ·s</code>).</div>
-      <div><b>Scale-free fusion.</b> Verdict = <code>α·z(S_MCM) + (1−α)·z(S_proto)</code> with online z-scores. “Flagged” = fused score in the top 20% of the stream so far. Advanced: <label class="opt">γ <input id="gamma" type="number" step="0.05" min="0.3" max="0.95" value="0.7"></label> <label class="opt">M <input id="M" type="number" step="10" min="5" max="500" value="100"></label> <label class="opt">K<sub>min</sub> <input id="kmin" type="number" step="1" min="1" max="50" value="5"></label></div>
+  <details><summary>Settings &amp; how it works</summary>
+    <div class="settings">
+      <label>γ <input id="gamma" type="number" step="0.05" min="0.3" max="0.95" value="0.7"></label>
+      <label>M <input id="M" type="number" step="10" min="5" max="500" value="100"></label>
+      <label>K<sub>min</sub> <input id="kmin" type="number" step="1" min="1" max="50" value="5"></label>
+      <span>Domain-anchored prototypes, consistency admission (<code>max p ≥ γ</code>, <code>d ≤ m + κ·s</code>) and z-scored fusion. “Flagged” = fused score in the top 20% of the stream so far. Changing a value resets the stream.</span>
     </div>
   </details>
-  <span>FLAIR ResNet-50 (Apache-2.0) as int8 ONNX, 24.7 MB · examples from FIVES (CC BY 4.0), DeepDRiD (CC BY-SA 4.0), Imagenette · follow-up to <a href="https://arxiv.org/abs/2606.20913">PROTON</a></span>
+  <span>FLAIR ResNet-50 (Apache-2.0), int8 ONNX · examples: FIVES (CC BY 4.0), DeepDRiD (CC BY-SA 4.0), Imagenette · follow-up to <a href="https://arxiv.org/abs/2606.20913">PROTON</a> (MICCAI 2026)</span>
 </footer>
 </div>
 <script type="module">
 import { PROTON, PLUS, softmax, preprocessToTensor } from "./proton.js";
 const ASSETS = "./assets/ophthalmology.json";
 const MODEL_URLS = ["./models/flair_vision_int8.onnx", "https://huggingface.co/abhijit2k01/proton-demo/resolve/main/flair_vision_int8.onnx"];
+const ORT = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/";
+const CACHE = "proton-demo-v2";
 const $ = (id) => document.getElementById(id);
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-let spec, det, session = null, stream = [], playing = false;
-const colors = () => ({ id0: css("--id"), id1: css("--id2"), semantic: css("--sem"), covariate: css("--cov"), far: css("--far"), upload: "#9333ea" });
+let spec, det, session = null, ort = null, stream = [], playing = false;
+const colors = () => ({ id0: css("--id"), id1: css("--id2"), semantic: css("--sem"), covariate: css("--cov"), far: css("--far"), upload: css("--up") });
 const names = { id0: "normal (ID)", id1: "diabetic retinopathy (ID)", semantic: "glaucoma / AMD (semantic shift)", covariate: "ultra-widefield (covariate shift)", far: "natural image (far-OOD)" };
-function cfg() { return Object.assign({ gamma: +$("gamma").value, M: +$("M").value, kMin: +$("kmin").value }, PLUS); }
-function setClass(ex) { return ex.set === "id" ? (ex.class_name === "normal" ? "id0" : "id1") : ex.set; }
-function newDet() { det = new PROTON(2, cfg()); stream = []; draw(); $("summary").textContent = ""; $("flag").className = "badge idle"; $("flag").textContent = "Pick an image to start"; $("chipBank").textContent = "bank 0 / 0"; $("chipCal").textContent = "warming up"; $("chipScore").textContent = "fused score —"; $("mcmv").textContent = $("protov").textContent = "—"; $("mcmb").style.width = $("protob").style.width = "0"; $("pred").textContent = "—"; $("conf").textContent = ""; }
-function setStatus(t, ok) { $("statusText").textContent = t; $("status").className = "pill" + (ok ? " ok" : ""); }
-async function init() {
-  spec = await (await fetch(ASSETS)).json();
-  const groups = [["id0", "normal (ID)"], ["id1", "diabetic retinopathy (ID)"], ["covariate", "ultra-widefield camera (covariate shift)"], ["semantic", "glaucoma / AMD (semantic shift)"], ["far", "natural images (far-OOD)"]];
-  const gal = $("gal"); const col = colors();
-  for (const [g, title] of groups) {
-    const h = document.createElement("div"); h.className = "group"; h.innerHTML = `<i style="background:${col[g]}"></i>${title}`; gal.appendChild(h);
-    const row = document.createElement("div"); row.className = "gal"; gal.appendChild(row);
-    spec.examples.forEach((ex, i) => { if (setClass(ex) !== g) return; const im = document.createElement("img"); im.src = ex.file; im.className = g; im.title = names[g]; im.dataset.i = i; im.onclick = () => feedExample(i); row.appendChild(im); });
-  }
-  newDet(); setStatus("Examples ready · loading model (24.7 MB)…", false);
-  try {
-    const ort = await import("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.mjs");
-    ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/";
-    let lastErr = null; for (const url of MODEL_URLS) { try { session = await ort.InferenceSession.create(url, { executionProviders: ["wasm"] }); break; } catch (e) { lastErr = e; } }
-    if (!session) throw lastErr; window.__ort = ort; setStatus("Model ready · runs locally", true);
-  } catch (e) { setStatus("Examples work · live model unavailable", false); }
+const cfg = () => Object.assign({ gamma: +$("gamma").value, M: +$("M").value, kMin: +$("kmin").value }, PLUS);
+const setClass = (ex) => ex.set === "id" ? (ex.class_name === "normal" ? "id0" : "id1") : ex.set;
+const pct = (arr, v) => arr.length ? arr.filter((s) => s <= v).length / arr.length : 0;
+const MB = (b) => (b / 1048576).toFixed(1);
+
+// ---------------------------------------------------------------- model loader (progress, cache, retry)
+function setLoader(state, text, frac) {
+  $("loader").className = "loader" + (state === "ok" ? " ok" : state === "err" ? " err" : "");
+  $("loadTxt").textContent = text; if (frac !== undefined) $("loadBar").style.width = (100 * frac).toFixed(1) + "%";
 }
-async function embed(img) { const { data, dims } = preprocessToTensor(img, spec.image_size); const ort = window.__ort; const out = await session.run({ image: new ort.Tensor("float32", data, dims) }); return Array.from(out.embedding.data); }
+async function fetchWithProgress(url) {
+  let cache = null;
+  try { cache = await caches.open(CACHE); const hit = await cache.match(url); if (hit) { setLoader("load", "Loading FLAIR model from cache…", 1); return new Uint8Array(await hit.arrayBuffer()); } } catch (e) { cache = null; }
+  const res = await fetch(url); if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const total = +res.headers.get("Content-Length") || 0; const reader = res.body.getReader(); const chunks = []; let got = 0;
+  for (;;) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); got += value.length;
+    setLoader("load", total ? `Loading FLAIR model ${MB(got)} / ${MB(total)} MB` : `Loading FLAIR model ${MB(got)} MB`, total ? got / total : 0.5); }
+  const buf = new Uint8Array(got); let off = 0; for (const c of chunks) { buf.set(c, off); off += c.length; }
+  try { if (cache) await cache.put(url, new Response(buf, { headers: { "Content-Type": "application/octet-stream" } })); } catch (e) {}
+  return buf;
+}
+async function loadModel() {
+  session = null; $("upload").disabled = true; $("live").disabled = true; $("upHint").textContent = "Upload unlocks when the model is ready.";
+  setLoader("load", "Loading runtime…", 0.02);
+  try {
+    if (!ort) { ort = await import(ORT + "ort.min.mjs"); ort.env.wasm.wasmPaths = ORT; ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1; }
+    let lastErr = null;
+    for (const url of MODEL_URLS) {
+      try { const bytes = await fetchWithProgress(url); setLoader("load", "Initialising…", 1); session = await ort.InferenceSession.create(bytes, { executionProviders: ["wasm"] }); break; }
+      catch (e) { lastErr = e; }
+    }
+    if (!session) throw lastErr || new Error("no model");
+    setLoader("ok", "Model ready · runs locally in your browser"); $("upload").disabled = false; $("live").disabled = false; $("upHint").textContent = "Upload a fundus photo (processed locally).";
+  } catch (e) {
+    setLoader("err", "Model could not load (" + String(e && e.message || e).slice(0, 70) + "). Examples still work.");
+  }
+}
+$("retry").onclick = loadModel;
+
+// ---------------------------------------------------------------- stream logic
+function newDet() {
+  det = new PROTON(2, cfg()); stream = []; draw(); $("summary").textContent = "Shifted images land top-right: confident, yet far from every prototype.";
+  $("flag").className = "badge idle"; $("flag").textContent = "Pick an image"; $("pred").textContent = "—"; $("conf").textContent = "";
+  $("mcmv").textContent = $("protov").textContent = "—"; $("mcmb").style.width = $("protob").style.width = "0";
+  $("chipScore").textContent = "fused score —"; $("chipBank").textContent = "bank 0 / 0"; $("chipCal").textContent = "warming up";
+  $("preview").getContext("2d").clearRect(0, 0, 192, 192); document.querySelectorAll("#gal img").forEach((im) => im.classList.remove("active"));
+}
+async function embed(img) { const { data, dims } = preprocessToTensor(img, spec.image_size); const out = await session.run({ image: new ort.Tensor("float32", data, dims) }); return Array.from(out.embedding.data); }
 function scoreEmbedding(e) { const logits = spec.text_embeds.map((t) => spec.logit_scale * t.reduce((s, v, i) => s + v * e[i], 0)); const p = softmax(logits); return { p, sBase: -Math.max(...p) }; }
-function pct(arr, v) { return arr.length ? arr.filter((s) => s <= v).length / arr.length : 0; }
 function show(rec, imgEl) {
-  const ctx = $("preview").getContext("2d"); ctx.clearRect(0, 0, 240, 240); if (imgEl) ctx.drawImage(imgEl, 0, 0, 240, 240);
-  $("pred").textContent = spec.classes[rec.pred]; $("conf").textContent = `(confidence ${rec.conf.toFixed(2)})`;
+  const ctx = $("preview").getContext("2d"); ctx.clearRect(0, 0, 192, 192); if (imgEl) ctx.drawImage(imgEl, 0, 0, 192, 192);
+  $("pred").textContent = spec.classes[rec.pred]; $("conf").textContent = `(${rec.conf.toFixed(2)})`;
   $("mcmv").textContent = rec.conf.toFixed(3); $("mcmb").style.width = (100 * rec.conf) + "%";
   const sp = isNaN(rec.sProto) ? null : rec.sProto; $("protov").textContent = sp === null ? "—" : sp.toFixed(3); $("protob").style.width = sp === null ? "0%" : Math.min(100, 100 * sp / 0.9) + "%";
-  const rank = pct(det.history.map((h) => h.score), rec.score); const mcmRank = pct(det.history.map((h) => h.sBase), rec.sBase); const ood = det.calibrated && rank >= 0.8;
-  $("mcmw").textContent = mcmRank >= 0.8 ? "Low confidence: MCM alone would flag this image." : "High confidence: MCM alone would accept this image.";
-  $("protow").textContent = sp === null ? "Not calibrated yet: every class needs K_min admitted images." : (sp > 0.5 ? "Far from every prototype: unlike the clinic's images." : "Close to a prototype: consistent with the clinic's images.");
-  if (!det.calibrated) { $("flag").className = "badge warm"; $("flag").textContent = "Warming up · softmax only"; }
-  else if (ood) { $("flag").className = "badge ood"; $("flag").textContent = mcmRank < 0.8 ? "Flagged by PROTON+ (softmax missed it)" : "Flagged as out-of-distribution"; }
+  const rank = pct(det.history.map((h) => h.score), rec.score), mcmRank = pct(det.history.map((h) => h.sBase), rec.sBase), ood = det.calibrated && rank >= 0.8;
+  $("mcmw").textContent = mcmRank >= 0.8 ? "Low confidence: MCM alone would flag it." : "High confidence: MCM alone would accept it.";
+  $("protow").textContent = sp === null ? "Warming up: each class needs K_min admitted images." : (sp > 0.5 ? "Far from every prototype: unlike the clinic's images." : "Close to a prototype: like the clinic's images.");
+  if (!det.calibrated) { $("flag").className = "badge warm"; $("flag").textContent = "Warming up"; }
+  else if (ood) { $("flag").className = "badge ood"; $("flag").textContent = mcmRank < 0.8 ? "Flagged (softmax missed it)" : "Flagged as OOD"; }
   else { $("flag").className = "badge ind"; $("flag").textContent = "In-distribution"; }
-  $("chipScore").textContent = `fused score ${rec.score.toFixed(2)} · top ${Math.round(100 * (1 - rank))}%`;
-  $("chipBank").textContent = "bank " + det.bankSizes().join(" / ") + (rec.updated ? " · admitted" : rec.rejected ? " · rejected" : " · not admitted");
-  $("chipCal").textContent = det.calibrated ? `calibrated at t=${det.tCalib}` : "warming up";
+  $("chipScore").textContent = `fused ${rec.score.toFixed(2)} · top ${Math.round(100 * (1 - rank))}%`;
+  $("chipBank").textContent = "bank " + det.bankSizes().join(" / ") + (rec.updated ? " · admitted" : rec.rejected ? " · rejected" : "");
+  $("chipCal").textContent = det.calibrated ? `calibrated t=${det.tCalib}` : "warming up";
   document.querySelectorAll("#gal img").forEach((im) => im.classList.remove("active")); if (imgEl && imgEl.classList) imgEl.classList.add("active");
 }
-function fitCanvas() { const c = $("scatter"); const r = c.parentElement.getBoundingClientRect(); const dpr = window.devicePixelRatio || 1; c.width = Math.max(300, r.width) * dpr; c.height = Math.max(180, r.height) * dpr; }
 function draw() {
-  fitCanvas(); const c = $("scatter"), ctx = c.getContext("2d"); const dpr = window.devicePixelRatio || 1; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const W = c.width / dpr, H = c.height / dpr; const col = colors(); ctx.clearRect(0, 0, W, H);
-  const L = 44, R = 12, T = 10, B = 30; ctx.strokeStyle = css("--line"); ctx.lineWidth = 1; ctx.strokeRect(L, T, W - L - R, H - T - B);
-  ctx.fillStyle = css("--muted"); ctx.font = "11px system-ui,sans-serif"; ctx.textAlign = "center";
-  ctx.fillText("softmax confidence →", (L + W - R) / 2, H - 9); ctx.save(); ctx.translate(13, (T + H - B) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("prototype distance →", 0, 0); ctx.restore();
-  for (const v of [0.5, 0.75, 1.0]) { ctx.fillText(v.toFixed(2), L + (v - 0.5) / 0.5 * (W - L - R), H - B + 13); }
-  const xs = (v) => L + (Math.max(0.5, v) - 0.5) / 0.5 * (W - L - R), ys = (v) => T + (1 - Math.min(v, 1)) * (H - T - B);
+  const c = $("scatter"), box = c.parentElement.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  const W = Math.max(240, box.width), H = Math.max(180, box.height); c.width = W * dpr; c.height = H * dpr;
+  const ctx = c.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const L = 36, R = 8, T = 8, B = 30, x0 = 0.5, x1 = 1.0, y1 = 1.0;
+  const xs = (v) => L + (Math.min(Math.max(v, x0), x1) - x0) / (x1 - x0) * (W - L - R), ys = (v) => T + (1 - Math.min(Math.max(v, 0), y1) / y1) * (H - T - B);
+  const muted = css("--muted"), grid = css("--grid"), line = css("--line"), col = colors();
+  // flag zone: above the 95th percentile of admitted prototype distances
   const adm = stream.filter((s) => s.rec.updated && !isNaN(s.rec.sProto)).map((s) => s.rec.sProto).sort((a, b) => a - b);
-  if (adm.length > 5) { const thr = adm[Math.floor(0.95 * (adm.length - 1))]; ctx.setLineDash([5, 5]); ctx.strokeStyle = css("--muted"); ctx.beginPath(); ctx.moveTo(L, ys(thr)); ctx.lineTo(W - R, ys(thr)); ctx.stroke(); ctx.setLineDash([]); }
-  stream.forEach((s, k) => { if (isNaN(s.rec.sProto)) return; ctx.fillStyle = col[s.set] || col.upload; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), k === stream.length - 1 ? 6.5 : 4, 0, 2 * Math.PI); ctx.fill(); if (k === stream.length - 1) { ctx.strokeStyle = css("--fg"); ctx.lineWidth = 1.5; ctx.stroke(); } });
-  ctx.globalAlpha = 1;
-  const n = stream.length; if (n) { const sh = (s) => ["covariate", "far", "semantic"].includes(s.set); const shifted = stream.filter(sh).length, caught = stream.filter((s) => s.flag && sh(s)).length, fp = stream.filter((s) => s.flag && (s.set === "id0" || s.set === "id1")).length;
-    $("summary").textContent = `${n} streamed · bank ${det.bankSizes().join("/")} · calibrated at t=${det.tCalib ?? "—"} · ${caught} of ${shifted} shifted images flagged, ${fp} in-distribution images flagged.`; }
+  let thr = null; if (adm.length > 5) thr = adm[Math.floor(0.95 * (adm.length - 1))];
+  if (thr !== null) { ctx.fillStyle = css("--bad-soft"); ctx.globalAlpha = 0.55; ctx.fillRect(L, T, W - L - R, ys(thr) - T); ctx.globalAlpha = 1; }
+  // grid and ticks
+  ctx.strokeStyle = grid; ctx.lineWidth = 1; ctx.fillStyle = muted; ctx.font = "10.5px system-ui,sans-serif";
+  ctx.textAlign = "center"; for (const v of [0.6, 0.8, 1.0]) { const x = xs(v); ctx.beginPath(); ctx.moveTo(x, T); ctx.lineTo(x, H - B); ctx.stroke(); ctx.fillText(v.toFixed(1), x, H - B + 13); }
+  ctx.textAlign = "right"; for (const v of [0.25, 0.5, 0.75]) { const y = ys(v); ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke(); ctx.fillText(v.toFixed(2), L - 5, y + 3.5); }
+  ctx.strokeStyle = line; ctx.strokeRect(L + 0.5, T + 0.5, W - L - R - 1, H - T - B - 1);
+  ctx.font = "11px system-ui,sans-serif"; ctx.textAlign = "center"; ctx.fillText("softmax confidence →", (L + W - R) / 2, H - 4);
+  ctx.save(); ctx.translate(11, (T + H - B) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("prototype distance →", 0, 0); ctx.restore();
+  if (thr !== null) {
+    const y = ys(thr); ctx.setLineDash([4, 4]); ctx.strokeStyle = muted; ctx.beginPath(); ctx.moveTo(L, y); ctx.lineTo(W - R, y); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font = "10px system-ui,sans-serif"; ctx.textAlign = "left"; ctx.fillStyle = muted; ctx.fillText("admission 95%", L + 5, y + 11);
+    ctx.fillStyle = css("--bad"); ctx.fillText("flag zone", L + 5, T + 12);
+  }
+  // points: white outline, newest ringed
+  stream.forEach((s, k) => {
+    if (isNaN(s.rec.sProto)) return; const last = k === stream.length - 1;
+    ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), last ? 5 : 3.6, 0, 2 * Math.PI); ctx.fillStyle = col[s.set] || col.upload; ctx.fill();
+    ctx.lineWidth = 1; ctx.strokeStyle = "#fff"; ctx.stroke();
+    if (last) { ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), 8.5, 0, 2 * Math.PI); ctx.lineWidth = 1.5; ctx.strokeStyle = css("--fg"); ctx.stroke(); }
+  });
+  const n = stream.length;
+  if (n) { const sh = (s) => ["covariate", "far", "semantic"].includes(s.set); const shifted = stream.filter(sh).length, caught = stream.filter((s) => s.flag && sh(s)).length, fp = stream.filter((s) => s.flag && (s.set === "id0" || s.set === "id1")).length;
+    $("summary").textContent = `${n} streamed · ${caught}/${shifted} shifted flagged · ${fp} in-distribution flagged · bank ${det.bankSizes().join("/")}`; }
 }
 async function feedExample(i) {
   const ex = spec.examples[i]; const imgEl = document.querySelector(`#gal img[data-i="${i}"]`); let e = ex.embedding;
@@ -169,19 +236,31 @@ async function feedExample(i) {
   stream.push({ rec, set: setClass(ex), flag }); show(rec, imgEl); draw();
 }
 $("upload").onchange = async (ev) => {
-  const f = ev.target.files[0]; if (!f) return; if (!session) { setStatus("Model not loaded yet", false); return; }
+  const f = ev.target.files[0]; if (!f || !session) return;
   const img = new Image(); img.src = URL.createObjectURL(f); await img.decode(); const t0 = performance.now(); const e = await embed(img);
   const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); const flag = det.calibrated && pct(det.history.map((h) => h.score), rec.score) >= 0.8;
-  stream.push({ rec, set: "upload", flag }); show(rec, img); draw(); setStatus(`Your image embedded in ${(performance.now() - t0).toFixed(0)} ms, locally`, true);
+  stream.push({ rec, set: "upload", flag }); show(rec, img); draw(); $("upHint").textContent = `Embedded locally in ${(performance.now() - t0).toFixed(0)} ms.`;
 };
 async function play(order) { if (playing) return; playing = true; $("play").disabled = $("playcov").disabled = true;
-  for (const i of order) { if (!playing) break; await feedExample(i); await new Promise((r) => setTimeout(r, 130)); } playing = false; $("play").disabled = $("playcov").disabled = false; }
+  for (const i of order) { if (!playing) break; await feedExample(i); await new Promise((r) => setTimeout(r, 120)); } playing = false; $("play").disabled = $("playcov").disabled = false; }
 const idx = (pred) => spec.examples.map((e, i) => [e, i]).filter(([e]) => pred(e)).map(([, i]) => i);
 $("play").onclick = () => { const a = idx(() => true); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } play(a); };
 $("playcov").onclick = () => { const id = idx((e) => e.set === "id"), cov = idx((e) => e.set === "covariate"); play([...id, ...id, ...cov, ...cov]); };
-$("reset").onclick = () => { playing = false; newDet(); setStatus(session ? "Stream reset · model ready" : "Stream reset", !!session); };
-document.querySelectorAll("#gamma,#M,#kmin").forEach((el) => el.addEventListener("change", () => newDet()));
+$("reset").onclick = () => { playing = false; newDet(); };
+document.querySelectorAll("#gamma,#M,#kmin").forEach((el) => el.addEventListener("change", newDet));
 window.addEventListener("resize", draw); window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+
+async function init() {
+  spec = await (await fetch(ASSETS)).json();
+  const groups = [["id0", "normal (ID)"], ["id1", "diabetic retinopathy (ID)"], ["covariate", "ultra-widefield camera"], ["semantic", "glaucoma / AMD"], ["far", "natural images"]];
+  const gal = $("gal"), col = colors();
+  for (const [g, title] of groups) {
+    const h = document.createElement("div"); h.className = "grp"; h.innerHTML = `<i style="background:${col[g]}"></i>${title}`; gal.appendChild(h);
+    const row = document.createElement("div"); row.className = "gal"; gal.appendChild(row);
+    spec.examples.forEach((ex, i) => { if (setClass(ex) !== g) return; const im = document.createElement("img"); im.src = ex.file; im.className = g; im.title = names[g]; im.alt = names[g]; im.dataset.i = i; im.onclick = () => feedExample(i); row.appendChild(im); });
+  }
+  newDet(); loadModel();
+}
 init();
 </script>
 </body></html>
