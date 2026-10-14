@@ -2,73 +2,72 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PROTON+ project page</title>
+<title>PROTON+</title>
 <meta name="description" content="PROTON+: contamination-robust prototype banks for test-time online out-of-distribution detection with medical vision-language models. Paper, code, benchmarks and a live browser demo.">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
 
-<header class="hero">
+<header class="hero wrap">
+  <p class="eyebrow">A follow-up to PROTON</p>
   <h1>PROTON+: Contamination-Robust Prototype Banks for Test-Time Online OOD Detection with Medical VLMs</h1>
-  <p class="subtitle">A follow-up to PROTON</p>
   <p class="authors">Abhijit Das<sup>1</sup>, Nichula Wasalathilaka<sup>2</sup>, Yifan Lu<sup>1</sup>, Adinath Dukre<sup>1</sup>, Dwarikanath Mahapatra<sup>3</sup>, Shadab Khan<sup>4</sup>, Imran Razzak<sup>1,5</sup></p>
-  <p class="affil"><sup>1</sup>MBZUAI &nbsp;·&nbsp; <sup>2</sup>University of Peradeniya &nbsp;·&nbsp; <sup>3</sup>Khalifa University &nbsp;·&nbsp; <sup>4</sup>ADIA Lab &nbsp;·&nbsp; <sup>5</sup>MedOS</p>
-  <div class="btns">
-    <a class="btn" href="protonplus.pdf">📄 Paper PDF</a>
-    <a class="btn" href="https://github.com/aj-das-research/PROTON">💻 Code</a>
-    <a class="btn acc" href="demo/">▶ Live demo</a>
-    <a class="btn sec" href="https://huggingface.co/datasets/abhijit2k01/proton-benchmarks">🤗 Data (Hugging Face)</a>
-    <a class="btn sec" href="https://arxiv.org/abs/2606.20913">PROTON (arXiv)</a>
-  </div>
+  <p class="affil"><sup>1</sup>MBZUAI · <sup>2</sup>University of Peradeniya · <sup>3</sup>Khalifa University · <sup>4</sup>ADIA Lab · <sup>5</sup>MedOS</p>
+  <nav class="links">
+    <a class="pill" href="protonplus.pdf">Paper</a>
+    <a class="pill" href="https://github.com/aj-das-research/PROTON">Code</a>
+    <a class="pill acc" href="demo/">Live demo</a>
+    <a class="pill" href="https://huggingface.co/datasets/abhijit2k01/proton-benchmarks">Data</a>
+    <a class="pill" href="https://arxiv.org/abs/2606.20913">PROTON (arXiv)</a>
+  </nav>
 </header>
 
-<section>
-  <p class="lead">Medical vision-language models classify images from text prompts alone, and the softmax they produce cannot tell that an image comes from a new camera or a new population. PROTON+ keeps an online bank of class prototypes built from the test stream itself, anchors every prototype to the dominant imaging domain of the bank, and admits only samples that are consistent with their class, so confidently misclassified shifted inputs no longer corrupt the prototypes. With PROTON's hyper-parameters unchanged, it improves over MCM on the covariate and far shifts of retinal photographs, chest radiographs and histopathology, on every stream order, with no labels and no training.</p>
+<main class="wrap">
+
+<section class="tldr">
+  <p>Medical vision-language models classify images from text prompts alone, and their softmax cannot tell that an image comes from a new camera or population. PROTON+ builds class prototypes from the test stream itself, anchors them to the dominant imaging domain, and admits only class-consistent samples, so confidently misclassified shifted inputs no longer corrupt the bank. With PROTON's hyper-parameters unchanged, it improves over MCM on covariate and far shifts across retinal photographs, chest radiographs and histopathology, with no labels and no training.</p>
 </section>
 
 <section>
   <h2>Method</h2>
-  <figure>
+  <figure class="wide">
     <img src="figures/fig2_method.png" alt="PROTON+ method overview">
-    <figcaption>A frozen VLM scores each stream image with its softmax (what MCM reads) and with the distance to online class prototypes; PROTON+ changes the three orange parts and leaves the rest of PROTON untouched.</figcaption>
+    <figcaption>A frozen VLM scores each image by its softmax and by its distance to online class prototypes; PROTON+ changes the three orange parts.</figcaption>
   </figure>
   <div class="cards">
-    <div class="card"><span class="n">1</span><h3>Domain-anchored prototypes</h3><p>A mean-shift step over the whole bank finds the dominant imaging-domain mode; each class prototype is the mean of its queue weighted by proximity to that mode, so a shifted cluster gets almost no weight.</p></div>
-    <div class="card"><span class="n">2</span><h3>Consistency admission</h3><p>A sample joins the bank only if it is confident and within the typical prototype distance of previously admitted samples.</p></div>
-    <div class="card"><span class="n">3</span><h3>Scale-free fusion</h3><p>Softmax score and prototype distance are fused as online z-scores with PROTON's variance-driven weight, so neither signal dominates by scale.</p></div>
+    <div class="card"><h3><span class="n">1</span>Domain-anchored prototypes</h3><p>A mean-shift step finds the dominant imaging-domain mode of the bank, and each prototype weights its members by proximity to it.</p></div>
+    <div class="card"><h3><span class="n">2</span>Consistency admission</h3><p>A sample joins the bank only if it is confident and within the typical prototype distance of earlier admissions.</p></div>
+    <div class="card"><h3><span class="n">3</span>Scale-free fusion</h3><p>Softmax score and prototype distance are fused as online z-scores, so neither signal dominates by scale.</p></div>
   </div>
 </section>
 
 <section>
   <h2>Results</h2>
-  <p class="muted">AUROC (%) per shift type, mean over five random stream orders. Each stream is the in-distribution test set plus one OOD split. Full tables with AUPR, FPR@95, ablations and sensitivity sweeps are on the <a href="results.html">results page</a>.</p>
+  <p class="note">AUROC (%) per shift type, mean over five random stream orders. Full tables are on the <a href="results.html">results page</a>.</p>
   <div class="tablewrap" id="headline"></div>
-  <figure>
+  <figure class="wide">
     <img src="figures/fig3_results.png" alt="ID-fraction sweep, gate sweep and bank contamination">
-    <figcaption>(a) Covariate AUROC against the in-distribution fraction of the stream (solid: PROTON+, dashed: MCM). (b) PROTON+ against the confidence gate. (c) Shifted share of the most contaminated class bank, PROTON versus PROTON+.</figcaption>
+    <figcaption>(a) Covariate AUROC against the in-distribution fraction of the stream. (b) Sensitivity to the confidence gate. (c) Shifted share of the class bank, PROTON versus PROTON+.</figcaption>
   </figure>
 </section>
 
-<section>
-  <div class="callout">
-    <p><b>Try it in your browser.</b> The real FLAIR retina model runs locally; stream fundus photographs and watch PROTON+ flag what the softmax accepts.</p>
-    <a class="btn acc" href="demo/">▶ Open the live demo</a>
-  </div>
+<section class="callout">
+  <p><b>Try it in your browser.</b> The real FLAIR retina model runs locally; stream images and watch PROTON+ flag what the softmax accepts.</p>
+  <a class="pill acc" href="demo/">Open demo →</a>
 </section>
 
 <section>
   <h2>Use it on your own data</h2>
-  <pre>pip install -e ".[models,data,plots]"
+  <pre><code>pip install -e ".[models,data,plots]"
 proton make-benchmark --name mydata --vlm flair --id normal=/d/id/normal --id "diabetic retinopathy=/d/id/dr" \
     --ood semantic=/d/glaucoma --ood covariate=/d/uwf --ood far=/d/natural --prompt "A fundus photograph of {}"
-proton extract --benchmark mydata && proton run --benchmark mydata      # every table in outputs/results/mydata/</pre>
-  <p class="muted">Any <code>open_clip</code> checkpoint works as the VLM; a new model is a four-method subclass of <code>proton.models.base.VLM</code>. PROTON+ is <code>score_stream(..., config=proton_plus_config())</code>; the original PROTON remains the default configuration.</p>
+proton extract --benchmark mydata && proton run --benchmark mydata      # every table in outputs/results/mydata/</code></pre>
+  <p class="note">Any <code>open_clip</code> checkpoint works as the VLM; a new model is a four-method subclass of <code>proton.models.base.VLM</code>. PROTON+ is <code>score_stream(..., config=proton_plus_config())</code>; the original PROTON remains the default configuration.</p>
 </section>
 
 <section>
   <h2>Citation</h2>
-  <pre>@article{das2026proton,
+  <pre><code>@article{das2026proton,
   title   = {PROTON: Prototype-Based Test-Time Online OOD Detection for Medical VLMs},
   author  = {Das, Abhijit and Wasalathilaka, Nichula and Lu, Yifan and Dukre, Adinath and Mahapatra, Dwarikanath and Khan, Shadab and Razzak, Imran},
   journal = {arXiv preprint arXiv:2606.20913},
@@ -79,21 +78,27 @@ proton extract --benchmark mydata && proton run --benchmark mydata      # every 
   author = {Das, Abhijit and Wasalathilaka, Nichula and Lu, Yifan and Dukre, Adinath and Mahapatra, Dwarikanath and Khan, Shadab and Razzak, Imran},
   year   = {2026},
   note   = {Preprint, https://github.com/aj-das-research/PROTON}
-}</pre>
+}</code></pre>
 </section>
 
-<footer>
+</main>
+
+<footer class="wrap">
   Models: FLAIR (Apache-2.0), UniMed-CLIP, QuiltNet, used frozen. Datasets: FIVES (CC BY 4.0), DeepDRiD (CC BY-SA 4.0), Imagenette, RSNA Pneumonia, NIH ChestX-ray14, Kermany et al. paediatric CXR, PatchCamelyon, Camelyon17-WILDS, NCT-CRC-HE, under their own licenses. Benchmark construction follows Ju et al. (MICCAI 2025).
 </footer>
 
-</div>
 <script>
 fetch("headline.json").then(r => r.json()).then(d => {
   const sh = ["semantic", "covariate", "far"];
   let h = "<table><thead><tr><th>Benchmark (VLM)</th><th>Method</th><th>Semantic</th><th>Covariate</th><th>Far-OOD</th></tr></thead><tbody>";
-  for (const b of Object.keys(d)) for (const m of Object.keys(d[b])) h += `<tr class="${m === "PROTON+" ? "ours" : ""}"><td>${b}</td><td>${m}</td>` + sh.map(s => `<td>${d[b][m][s].toFixed(1)}</td>`).join("") + "</tr>";
+  for (const b of Object.keys(d)) {
+    const ms = Object.keys(d[b]);
+    ms.forEach((m, i) => {
+      h += `<tr class="${m === "PROTON+" ? "ours" : ""}${i === 0 ? " grp" : ""}">` + (i === 0 ? `<td rowspan="${ms.length}" class="bench">${b}</td>` : "") + `<td>${m}</td>` + sh.map(s => `<td class="num">${d[b][m][s].toFixed(1)}</td>`).join("") + "</tr>";
+    });
+  }
   document.getElementById("headline").innerHTML = h + "</tbody></table>";
-}).catch(() => { document.getElementById("headline").innerHTML = "<p class='muted'>Results table unavailable.</p>"; });
+}).catch(() => { document.getElementById("headline").innerHTML = "<p class='note'>Results table unavailable.</p>"; });
 </script>
 </body>
 </html>
