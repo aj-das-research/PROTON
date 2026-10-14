@@ -8,7 +8,7 @@
 
 [![Project page](https://img.shields.io/badge/project%20page-live-1d4ed8)](https://aj-das-research.github.io/PROTON/)
 [![Browser demo](https://img.shields.io/badge/demo-run%20in%20browser-0f766e)](https://aj-das-research.github.io/PROTON/demo/)
-[![Report](https://img.shields.io/badge/PROTON%2B-technical%20report-b31b1b)](REPORT.md)
+[![Preprint](https://img.shields.io/badge/PROTON%2B-preprint%20PDF-b31b1b)](https://aj-das-research.github.io/PROTON/protonplus.pdf)
 [![PROTON paper](https://img.shields.io/badge/PROTON-arXiv%3A2606.20913-b31b1b)](https://arxiv.org/abs/2606.20913)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -30,7 +30,7 @@ confidently misclassified shifted inputs, so the prototypes absorb the shift. PR
 
 Use PROTON+ instead of PROTON: it is better on every covariate and far shift we measured, it costs 0.1 to 0.3 ms per
 sample on a CPU core, and the original algorithm remains available as the default configuration for comparison.
-The full story, the diagnosis and all tables are in the [technical report](REPORT.md).
+The full story, the diagnosis and all tables are in the [PROTON+ preprint](https://aj-das-research.github.io/PROTON/protonplus.pdf) (LNCS format, a follow-up to PROTON) and in `outputs/results/`.
 
 ## Results
 
@@ -120,7 +120,7 @@ tests/             pytest (incl. a JavaScript-vs-Python parity test for the brow
 data/benchmarks/   committed manifests (images are downloaded by tools/download_data.sh)
 docs/              project page, browser demo (int8 ONNX of FLAIR's vision tower), figures, results
 paper/             PROTON+ manuscript (Overleaf-synced)   figures_src/  editable figure sources
-REPORT.md          the PROTON+ follow-up report (generated numbers)
+REPORT.md          short pointer to the preprint and the method changes
 ```
 
 ## Citation

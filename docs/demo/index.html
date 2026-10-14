@@ -2,157 +2,222 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PROTON live demo</title>
-<meta name="description" content="Run PROTON / PROTON+ test-time OOD detection in your browser with the real FLAIR retina VLM (ONNX).">
+<title>PROTON+ live demo</title>
+<meta name="description" content="PROTON+ runs in your browser with the real FLAIR retina model: watch an online prototype bank flag the shifted images that the softmax misses.">
 <style>
-:root{--bg:#fafafa;--fg:#111;--muted:#666;--card:#fff;--line:#e5e5e5;--acc:#1d4ed8;--id0:#1f77b4;--id1:#2ca02c;--sem:#ff7f0e;--cov:#d62728;--far:#7f7f7f}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f1115;--fg:#eee;--muted:#aaa;--card:#171a21;--line:#2a2e38;--acc:#7aa2ff}}
-:root[data-theme=dark]{--bg:#0f1115;--fg:#eee;--muted:#aaa;--card:#171a21;--line:#2a2e38;--acc:#7aa2ff}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-.wrap{max-width:1100px;margin:0 auto;padding:16px}h1{font-size:1.5rem;margin:.2rem 0}h2{font-size:1.1rem;margin:1rem 0 .4rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;margin:10px 0}
-.row{display:flex;gap:12px;flex-wrap:wrap}.col{flex:1 1 320px;min-width:0}
-button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-size:14px;cursor:pointer}button.sec{background:transparent;color:var(--acc);border:1px solid var(--acc)}button:disabled{opacity:.5;cursor:default}
-.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px}.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;border:3px solid transparent;cursor:pointer}
-.gal img.id0{border-color:var(--id0)}.gal img.id1{border-color:var(--id1)}.gal img.semantic{border-color:var(--sem)}.gal img.covariate{border-color:var(--cov)}.gal img.far{border-color:var(--far)}
-.legend span{display:inline-block;margin-right:10px;font-size:13px}.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}
-table{border-collapse:collapse;width:100%;font-size:13px}td,th{padding:4px 6px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
-.big{font-size:1.6rem;font-weight:700}.muted{color:var(--muted)}.flag{display:inline-block;padding:2px 8px;border-radius:6px;font-weight:600}.ood{background:#fde2e2;color:#9f1239}.ind{background:#dcfce7;color:#14532d}
-canvas{width:100%;border:1px solid var(--line);border-radius:8px;background:var(--card)}
-label{margin-right:12px}input[type=number]{width:64px}
-#status{font-size:13px;color:var(--muted)}
+:root{--bg:#fbfbfc;--fg:#111418;--muted:#5d6670;--card:#ffffff;--line:#e6e8ec;--acc:#d55e00;--acc-soft:#fff1e6;--id:#0072b2;--id2:#2ca02c;--sem:#e69f00;--cov:#d62728;--far:#7f7f7f;--ok:#146c2e;--ok-soft:#e3f6e8;--bad:#9f1239;--bad-soft:#fde2e2;--warn:#7a5200;--warn-soft:#fff4d6;--shadow:0 1px 2px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c;--shadow:none}}
+:root[data-theme=dark]{--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--card:#151a21;--line:#262d37;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c;--shadow:none}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--acc);text-decoration:none}a:hover{text-decoration:underline}
+.nav{position:sticky;top:0;z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.nav .in{max-width:1180px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;gap:18px}
+.brand{font-weight:800;letter-spacing:.2px;font-size:1.05rem;color:var(--fg)}.brand b{color:var(--acc)}
+.nav .links{margin-left:auto;display:flex;gap:16px;font-size:.92rem}.nav .links a{color:var(--muted)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+.hero{padding:44px 0 18px}
+.hero h1{font-size:clamp(1.6rem,3.2vw,2.5rem);line-height:1.15;margin:0 0 10px;letter-spacing:-.01em}
+.hero p.lead{font-size:1.07rem;color:var(--muted);max-width:760px;margin:0 0 18px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+.pill .dot{width:8px;height:8px;border-radius:50%;background:#f0b429;box-shadow:0 0 0 3px rgba(240,180,41,.2)}.pill.ok .dot{background:#2bb673;box-shadow:0 0 0 3px rgba(43,182,115,.2)}
+.cta{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 6px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px;padding:10px 16px;font-weight:600;background:var(--acc);color:#fff;transition:transform .06s ease,filter .15s}
+button:hover{filter:brightness(1.05)}button:active{transform:translateY(1px)}button:disabled{opacity:.45;cursor:default;transform:none}
+button.sec{background:var(--card);color:var(--fg);border:1px solid var(--line)}button.ghost{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:22px 0 10px}
+.step{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)}
+.step .n{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;font-size:.85rem;margin-bottom:8px}
+.step h3{margin:0 0 4px;font-size:1rem}.step p{margin:0;color:var(--muted);font-size:.9rem}
+.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:16px;margin:16px 0}
+@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 4px;font-size:1.1rem}.sub{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+.group{margin:10px 0 4px;font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.group i{display:inline-block;width:10px;height:10px;border-radius:3px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:7px;margin-bottom:6px}
+.gal img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:9px;border:2.5px solid transparent;cursor:pointer;transition:transform .12s;background:#000}
+.gal img:hover{transform:scale(1.05)}.gal img.active{outline:3px solid var(--acc);outline-offset:1px}
+.gal img.id0{border-color:var(--id)}.gal img.id1{border-color:var(--id2)}.gal img.semantic{border-color:var(--sem)}.gal img.covariate{border-color:var(--cov)}.gal img.far{border-color:var(--far)}
+.upload{margin-top:12px;padding:12px;border:1.5px dashed var(--line);border-radius:12px;color:var(--muted);font-size:.9rem;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.upload input{font-size:.85rem}
+.verdict{display:grid;grid-template-columns:150px 1fr;gap:16px;align-items:start}
+@media (max-width:520px){.verdict{grid-template-columns:1fr}}
+.verdict canvas{width:150px;height:150px;border-radius:12px;background:#000;border:1px solid var(--line)}
+.badge{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;font-weight:800;font-size:1.1rem;letter-spacing:.01em}
+.badge.ood{background:var(--bad-soft);color:var(--bad)}.badge.ind{background:var(--ok-soft);color:var(--ok)}.badge.warm{background:var(--warn-soft);color:var(--warn)}.badge.idle{background:var(--line);color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.sig{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.sig .k{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:700}
+.sig .v{font-size:1.35rem;font-weight:800;margin:2px 0 4px}.sig .bar{height:8px;border-radius:6px;background:var(--line);overflow:hidden}.sig .bar>i{display:block;height:100%;width:0;background:var(--acc);transition:width .25s}
+.sig.mcm .bar>i{background:var(--id)}.sig .why{font-size:.82rem;color:var(--muted);margin-top:6px;min-height:2.4em}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.chip{font-size:.8rem;padding:4px 10px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-weight:600;border:1px solid color-mix(in srgb,var(--acc) 30%,transparent)}
+.chip.n{background:var(--card);color:var(--muted);border-color:var(--line)}
+.plot{width:100%;height:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin:8px 0 0}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px}
+details{margin-top:14px}summary{cursor:pointer;font-weight:600}
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}.how .card{padding:14px}.how code{font-size:.85rem;background:var(--acc-soft);color:var(--acc);padding:1px 5px;border-radius:5px}
+label.opt{display:inline-flex;align-items:center;gap:6px;margin-right:14px;font-size:.9rem;color:var(--muted)}input[type=number]{width:66px;font:inherit;padding:3px 6px;border:1px solid var(--line);border-radius:6px;background:var(--card);color:var(--fg)}
+footer{color:var(--muted);font-size:.85rem;padding:26px 0 40px;border-top:1px solid var(--line);margin-top:26px}
+.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.8rem;background:var(--line);padding:1px 5px;border-radius:4px}
 </style>
 </head>
-<body><div class="wrap">
-<h1>PROTON / PROTON+ live demo</h1>
-<p class="muted">Test-time online OOD detection on a frozen retina VLM (<a href="https://github.com/jusiro/FLAIR">FLAIR</a>, ResNet-50, Apache-2.0), running entirely in your browser via ONNX Runtime Web. Click examples to feed them into the stream, or upload your own fundus image. Nothing leaves your device. <a href="../">Back to the project page</a>.</p>
+<body>
+<div class="nav"><div class="in"><a class="brand" href="../">PROTON<b>+</b> <span style="color:var(--muted);font-weight:500">live demo</span></a>
+<div class="links"><a href="../">Project page</a><a href="../protonplus.pdf">Paper</a><a href="https://github.com/aj-das-research/PROTON">Code</a></div></div></div>
+
+<div class="wrap">
+<section class="hero">
+  <span class="pill" id="status"><span class="dot"></span><span id="statusText">Loading examples…</span></span>
+  <h1>Watch PROTON+ catch the images the softmax misses.</h1>
+  <p class="lead">A frozen retina model (<a href="https://github.com/jusiro/FLAIR">FLAIR</a>) runs entirely in your browser. Feed it a stream of fundus photographs: PROTON+ builds a bank of class prototypes from the stream itself and flags ultra-widefield images and non-retinal images that look perfectly confident to the softmax. No labels, no training, nothing leaves your device.</p>
+  <div class="cta">
+    <button id="play">▶ Play a mixed stream</button>
+    <button class="sec" id="playcov">▶ Normal clinic, then a new camera</button>
+    <button class="ghost" id="reset">Reset</button>
+  </div>
+</section>
+
+<div class="steps">
+  <div class="step"><span class="n">1</span><h3>Images arrive one by one</h3><p>Each image is embedded once by the frozen model and scored immediately. Click any thumbnail, or upload your own.</p></div>
+  <div class="step"><span class="n">2</span><h3>The bank learns the clinic</h3><p>Confident, consistent images join a per-class prototype bank anchored to the dominant imaging domain. Shifted images are kept out.</p></div>
+  <div class="step"><span class="n">3</span><h3>Two signals, one verdict</h3><p>Softmax confidence (what MCM sees) and distance to the prototypes (what PROTON+ adds) are fused as online z-scores.</p></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Stream</h2><p class="sub">Thumbnails are real examples from the benchmark. Colours show the true group, which the detector never sees.</p>
+    <div id="gal"></div>
+    <div class="upload">📷 <input type="file" id="upload" accept="image/*"> <span>your image is processed locally (int8 ONNX, WebAssembly)</span> <label class="opt" style="margin-left:auto"><input type="checkbox" id="live"> run the live model on examples too</label></div>
+  </div>
+  <div class="card">
+    <h2>Live verdict</h2><p class="sub">What the softmax says, what PROTON+ says, and why.</p>
+    <div class="verdict">
+      <canvas id="preview" width="300" height="300"></canvas>
+      <div>
+        <div id="flag" class="badge idle">Pick an image to start</div>
+        <div style="margin-top:8px;color:var(--muted);font-size:.9rem">Zero-shot label: <b id="pred">—</b> <span id="conf"></span></div>
+        <div class="two">
+          <div class="sig mcm"><div class="k">Softmax alone (MCM)</div><div class="v" id="mcmv">—</div><div class="bar"><i id="mcmb"></i></div><div class="why" id="mcmw">Confidence of the predicted class. High confidence looks “in-distribution” to MCM.</div></div>
+          <div class="sig"><div class="k">PROTON+ prototype distance</div><div class="v" id="protov">—</div><div class="bar"><i id="protob"></i></div><div class="why" id="protow">1 − cosine similarity to the nearest class prototype of the bank.</div></div>
+        </div>
+        <div class="chips"><span class="chip" id="chipScore">fused score —</span><span class="chip n" id="chipBank">bank 0 / 0</span><span class="chip n" id="chipCal">warming up</span></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="card">
-  <div class="row">
-    <div class="col">
-      <label><input type="radio" name="algo" value="proton" checked> PROTON (paper)</label>
-      <label><input type="radio" name="algo" value="plus"> PROTON+ (ours)</label>
-      <label>γ <input id="gamma" type="number" step="0.05" min="0.3" max="0.95" value="0.7"></label>
-      <label>M <input id="M" type="number" step="10" min="5" max="500" value="100"></label>
-      <label>K<sub>min</sub> <input id="kmin" type="number" step="1" min="1" max="50" value="5"></label>
-      <button class="sec" id="reset">Reset stream</button>
-    </div>
-    <div class="col">
-      <button id="play">▶ Auto-play a shuffled stream (ID 67% + mixed OOD)</button>
-      <button class="sec" id="playcov">▶ ID then ultra-widefield (covariate)</button>
-      <label style="margin-left:8px"><input type="checkbox" id="live"> use the live model for examples (slower)</label>
-    </div>
-  </div>
-  <div id="status">Loading…</div>
+  <h2>Stream so far</h2><p class="sub">Every scored image, placed by softmax confidence (x) and prototype distance (y). Shifted images pile up at the top right: confident, yet far from every prototype. The dashed line is the 95th percentile of the prototype distance among admitted images.</p>
+  <canvas id="scatter" class="plot" width="1100" height="360"></canvas>
+  <div class="legend"><span><i style="background:var(--id)"></i>normal (ID)</span><span><i style="background:var(--id2)"></i>diabetic retinopathy (ID)</span><span><i style="background:var(--sem)"></i>glaucoma / AMD (semantic shift)</span><span><i style="background:var(--cov)"></i>ultra-widefield (covariate shift)</span><span><i style="background:var(--far)"></i>natural image (far-OOD)</span><span><i style="background:#9333ea"></i>your upload</span></div>
+  <div id="summary" class="sub" style="margin-top:8px"></div>
 </div>
 
-<div class="row">
-  <div class="col card">
-    <h2>Examples (click to stream)</h2>
-    <div class="legend"><span><i style="background:var(--id0)"></i>ID: normal</span><span><i style="background:var(--id1)"></i>ID: diabetic retinopathy</span><span><i style="background:var(--sem)"></i>semantic OOD (glaucoma/AMD)</span><span><i style="background:var(--cov)"></i>covariate OOD (ultra-widefield)</span><span><i style="background:var(--far)"></i>far-OOD (ImageNet)</span></div>
-    <div class="gal" id="gal"></div>
-    <p style="margin-top:8px"><input type="file" id="upload" accept="image/*"> <span class="muted">(your image is processed locally)</span></p>
-  </div>
-  <div class="col card">
-    <h2>Current sample</h2>
-    <div class="row"><div><canvas id="preview" width="160" height="160" style="width:160px;height:160px"></canvas></div>
-    <div class="col">
-      <div>Verdict: <span id="flag" class="flag">—</span> <span class="muted" id="rank"></span></div>
-      <div>Zero-shot: <b id="pred">—</b> <span class="muted" id="conf"></span></div>
-      <table><tr><th>signal</th><th>value</th></tr>
-        <tr><td>S<sub>MCM</sub> (−max softmax)</td><td id="smcm">—</td></tr>
-        <tr><td>S<sub>proto</sub> (1 − max cos to prototype)</td><td id="sproto">—</td></tr>
-        <tr><td>α<sub>t</sub> (fusion weight on MCM)</td><td id="alpha">—</td></tr>
-        <tr><td>fused score</td><td id="score">—</td></tr>
-        <tr><td>bank sizes / admitted</td><td id="bank">—</td></tr>
-      </table>
-    </div></div>
-    <h2>Stream so far</h2>
-    <canvas id="scatter" width="600" height="300"></canvas>
-    <p class="muted" style="font-size:12px">x: max softmax confidence (what MCM sees); y: prototype distance S<sub>proto</sub>. Colours = true set of the example (unknown for uploads). Dashed line: 95th percentile of S<sub>proto</sub> among samples the detector admitted.</p>
-    <div id="summary" class="muted" style="font-size:13px"></div>
-  </div>
+<details><summary>Under the hood</summary>
+<div class="how">
+  <div class="card"><b>Domain-anchored prototypes.</b> A mean-shift step over the whole bank finds the dominant imaging-domain mode <code>μ_dom</code>; each class prototype is the mean of its queue weighted by <code>exp((e·μ_dom − 1)/h)</code>, so a shifted cluster that sneaked in gets almost no weight.</div>
+  <div class="card"><b>Consistency admission.</b> An image joins the bank only if the softmax is confident (<code>max p ≥ γ</code>) and its distance to the predicted-class prototype is typical of previously admitted images (<code>d ≤ m + κ·s</code>).</div>
+  <div class="card"><b>Scale-free fusion.</b> The verdict is <code>α·z(S_MCM) + (1−α)·z(S_proto)</code> with online z-scores and the variance-driven weight of PROTON. “Flagged” means the fused score sits in the top 20% of the stream so far.</div>
+</div>
+<p class="sub" style="margin-top:10px">Advanced: <label class="opt">γ <input id="gamma" type="number" step="0.05" min="0.3" max="0.95" value="0.7"></label><label class="opt">M <input id="M" type="number" step="10" min="5" max="500" value="100"></label><label class="opt">K<sub>min</sub> <input id="kmin" type="number" step="1" min="1" max="50" value="5"></label> (changing a value resets the stream)</p>
+</details>
+
+<footer>Model: FLAIR ResNet-50 vision tower (Apache-2.0) exported to ONNX and quantised to int8 (24.7 MB, cosine 0.99 to fp32). Examples: FIVES (CC BY 4.0), DeepDRiD (CC BY-SA 4.0), Imagenette. PROTON+ is a follow-up to <a href="https://arxiv.org/abs/2606.20913">PROTON</a>; code and benchmarks at <a href="https://github.com/aj-das-research/PROTON">github.com/aj-das-research/PROTON</a>.</footer>
 </div>
 
-<div class="card"><h2>What you are seeing</h2>
-<p>Each image is embedded once by the frozen VLM. <b>MCM</b> scores only the softmax over the two class prompts, so a covariate-shifted image (e.g. ultra-widefield fundus) that the model classifies confidently is invisible to it. <b>PROTON</b> keeps a FIFO bank of confident embeddings per class, scores the cosine distance to the nearest class prototype and fuses both signals with a variance-driven weight. <b>PROTON+</b> anchors the prototypes to the dominant imaging-domain mode of the bank (a mean-shift step), rejects atypical samples from the bank, and fuses online z-scores, which keeps the prototypes clean when confident OOD samples flood the stream.</p>
-<p class="muted">Model: FLAIR ResNet-50 exported to ONNX and dynamically quantised to int8 (24.7 MB; embeddings agree with the fp32 model at cosine 0.99). Example thumbnails are from FIVES (CC BY 4.0), DeepDRiD and Imagenette; their embeddings were precomputed with the fp32 model.</p></div>
-</div>
 <script type="module">
 import { PROTON, PLUS, softmax, preprocessToTensor } from "./proton.js";
 const ASSETS = "./assets/ophthalmology.json";
 const MODEL_URLS = ["./models/flair_vision_int8.onnx", "https://huggingface.co/abhijit2k01/proton-demo/resolve/main/flair_vision_int8.onnx"];
 const $ = (id) => document.getElementById(id);
-let spec, det, session = null, stream = [], playing = false;
-const colors = { id0: "#1f77b4", id1: "#2ca02c", semantic: "#ff7f0e", covariate: "#d62728", far: "#7f7f7f", upload: "#9333ea" };
-function cfg() { const base = { gamma: +$("gamma").value, M: +$("M").value, kMin: +$("kmin").value };
-  return document.querySelector("input[name=algo]:checked").value === "plus" ? Object.assign(base, PLUS) : base; }
-function newDet() { det = new PROTON(2, cfg()); stream = []; draw(); $("summary").textContent = ""; }
+const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+let spec, det, session = null, stream = [], playing = false, activeImg = null;
+const colors = () => ({ id0: css("--id"), id1: css("--id2"), semantic: css("--sem"), covariate: css("--cov"), far: css("--far"), upload: "#9333ea" });
+const names = { id0: "normal (ID)", id1: "diabetic retinopathy (ID)", semantic: "glaucoma / AMD (semantic shift)", covariate: "ultra-widefield (covariate shift)", far: "natural image (far-OOD)" };
+function cfg() { return Object.assign({ gamma: +$("gamma").value, M: +$("M").value, kMin: +$("kmin").value }, PLUS); }
 function setClass(ex) { return ex.set === "id" ? (ex.class_name === "normal" ? "id0" : "id1") : ex.set; }
+function newDet() { det = new PROTON(2, cfg()); stream = []; draw(); $("summary").textContent = ""; $("flag").className = "badge idle"; $("flag").textContent = "Pick an image to start"; $("chipBank").textContent = "bank 0 / 0"; $("chipCal").textContent = "warming up"; $("chipScore").textContent = "fused score —"; }
+function setStatus(t, ok) { $("statusText").textContent = t; $("status").className = "pill" + (ok ? " ok" : ""); }
 async function init() {
   spec = await (await fetch(ASSETS)).json();
-  const gal = $("gal");
-  spec.examples.forEach((ex, i) => { const im = document.createElement("img"); im.src = ex.file; im.className = setClass(ex); im.title = `${ex.set}: ${ex.class_name}`; im.onclick = () => feedExample(i); gal.appendChild(im); });
-  newDet(); $("status").textContent = `Loaded ${spec.examples.length} examples with precomputed embeddings. Loading the ONNX model (24.7 MB) for uploads…`;
+  const groups = [["id0", "In-distribution: normal"], ["id1", "In-distribution: diabetic retinopathy"], ["covariate", "Covariate shift: ultra-widefield camera"], ["semantic", "Semantic shift: glaucoma / AMD"], ["far", "Far-OOD: natural images"]];
+  const gal = $("gal"); const col = colors();
+  for (const [g, title] of groups) {
+    const h = document.createElement("div"); h.className = "group"; h.innerHTML = `<i style="background:${col[g]}"></i>${title}`; gal.appendChild(h);
+    const row = document.createElement("div"); row.className = "gal"; gal.appendChild(row);
+    spec.examples.forEach((ex, i) => { if (setClass(ex) !== g) return; const im = document.createElement("img"); im.src = ex.file; im.className = g; im.title = names[g]; im.dataset.i = i; im.onclick = () => feedExample(i); row.appendChild(im); });
+  }
+  newDet(); setStatus("Examples ready · loading the model (24.7 MB) for uploads…", false);
   try {
     const ort = await import("https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/ort.min.mjs");
     ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.19.2/dist/";
     let lastErr = null;
     for (const url of MODEL_URLS) { try { session = await ort.InferenceSession.create(url, { executionProviders: ["wasm"] }); break; } catch (e) { lastErr = e; } }
-    if (!session) throw lastErr;
-    window.__ort = ort; $("status").textContent = "Model ready: upload a fundus image or click examples.";
-  } catch (e) { $("status").textContent = "Model could not be loaded (" + e.message + "); examples still work with precomputed embeddings."; }
+    if (!session) throw lastErr; window.__ort = ort; setStatus("Model ready · running locally in your browser", true);
+  } catch (e) { setStatus("Examples work; live model unavailable (" + e.message.slice(0, 60) + ")", false); }
 }
-async function embed(img) {
-  const { data, dims, canvas } = preprocessToTensor(img, spec.image_size);
-  const ort = window.__ort; const out = await session.run({ image: new ort.Tensor("float32", data, dims) });
-  return { e: Array.from(out.embedding.data), canvas };
-}
-function scoreEmbedding(e) {
-  const logits = spec.text_embeds.map((t) => spec.logit_scale * t.reduce((s, v, i) => s + v * e[i], 0));
-  const p = softmax(logits); return { p, sBase: -Math.max(...p) };
-}
+async function embed(img) { const { data, dims } = preprocessToTensor(img, spec.image_size); const ort = window.__ort; const out = await session.run({ image: new ort.Tensor("float32", data, dims) }); return Array.from(out.embedding.data); }
+function scoreEmbedding(e) { const logits = spec.text_embeds.map((t) => spec.logit_scale * t.reduce((s, v, i) => s + v * e[i], 0)); const p = softmax(logits); return { p, sBase: -Math.max(...p) }; }
+function pct(arr, v) { return arr.length ? arr.filter((s) => s <= v).length / arr.length : 0; }
 function show(rec, set, imgEl) {
-  const ctx = $("preview").getContext("2d"); ctx.clearRect(0, 0, 160, 160); if (imgEl) ctx.drawImage(imgEl, 0, 0, 160, 160);
-  $("pred").textContent = spec.classes[rec.pred]; $("conf").textContent = `(confidence ${rec.conf.toFixed(3)})`;
-  $("smcm").textContent = rec.sBase.toFixed(3); $("sproto").textContent = isNaN(rec.sProto) ? "— (not calibrated yet)" : rec.sProto.toFixed(3);
-  $("alpha").textContent = rec.alpha.toFixed(2); $("score").textContent = rec.score.toFixed(3);
-  $("bank").textContent = det.bankSizes().join(" / ") + (rec.updated ? " (admitted)" : rec.rejected ? " (rejected by consistency gate)" : " (below γ, not admitted)");
-  // verdict: rank of the fused score among the stream so far (higher = more OOD)
-  const scores = det.history.map((h) => h.score); const rank = scores.filter((s) => s <= rec.score).length / scores.length;
-  const ood = det.calibrated && rank >= 0.8; $("flag").textContent = ood ? "flagged OOD" : (det.calibrated ? "in-distribution" : "warm-up (MCM only)");
-  $("flag").className = "flag " + (ood ? "ood" : "ind"); $("rank").textContent = det.calibrated ? `score percentile in stream: ${(100 * rank).toFixed(0)}%` : "";
+  const ctx = $("preview").getContext("2d"); ctx.clearRect(0, 0, 300, 300); if (imgEl) ctx.drawImage(imgEl, 0, 0, 300, 300);
+  $("pred").textContent = spec.classes[rec.pred]; $("conf").textContent = `(confidence ${rec.conf.toFixed(2)})`;
+  $("mcmv").textContent = rec.conf.toFixed(3); $("mcmb").style.width = (100 * rec.conf) + "%";
+  const sp = isNaN(rec.sProto) ? null : rec.sProto; $("protov").textContent = sp === null ? "—" : sp.toFixed(3); $("protob").style.width = sp === null ? "0%" : Math.min(100, 100 * sp / 0.9) + "%";
+  const scores = det.history.map((h) => h.score); const rank = pct(scores, rec.score);
+  const mcmRank = pct(det.history.map((h) => h.sBase), rec.sBase);
+  const ood = det.calibrated && rank >= 0.8;
+  $("mcmw").textContent = mcmRank >= 0.8 ? "Low confidence: MCM alone would flag this image." : "High confidence: MCM alone would accept this image.";
+  $("protow").textContent = sp === null ? "Not calibrated yet: every class needs K_min admitted images." : (sp > 0.5 ? "Far from every prototype: this does not look like the clinic's images." : "Close to a prototype: consistent with the clinic's images.");
+  if (!det.calibrated) { $("flag").className = "badge warm"; $("flag").textContent = "Warming up · softmax only"; }
+  else if (ood) { $("flag").className = "badge ood"; $("flag").textContent = (mcmRank < 0.8 ? "Flagged by PROTON+ (softmax missed it)" : "Flagged as out-of-distribution"); }
+  else { $("flag").className = "badge ind"; $("flag").textContent = "In-distribution"; }
+  $("chipScore").textContent = `fused score ${rec.score.toFixed(2)} · top ${Math.round(100 * (1 - rank))}% of stream`;
+  $("chipBank").textContent = "bank " + det.bankSizes().join(" / ") + (rec.updated ? " · admitted" : rec.rejected ? " · rejected (inconsistent)" : " · not admitted (low confidence)");
+  $("chipCal").textContent = det.calibrated ? `calibrated at t=${det.tCalib}` : "warming up";
+  document.querySelectorAll("#gal img").forEach((im) => im.classList.remove("active")); if (imgEl && imgEl.classList) imgEl.classList.add("active");
 }
 function draw() {
-  const c = $("scatter"), ctx = c.getContext("2d"); const W = c.width, H = c.height; ctx.clearRect(0, 0, W, H);
-  ctx.strokeStyle = "#999"; ctx.strokeRect(40, 10, W - 50, H - 40); ctx.fillStyle = "#888"; ctx.font = "11px sans-serif";
-  ctx.fillText("max softmax →", W / 2 - 30, H - 4); ctx.save(); ctx.translate(12, H / 2 + 30); ctx.rotate(-Math.PI / 2); ctx.fillText("S_proto →", 0, 0); ctx.restore();
-  const xs = (v) => 40 + (v - 0.5) / 0.5 * (W - 50), ys = (v) => 10 + (1 - Math.min(v, 1)) * (H - 40);
-  const admitted = stream.filter((s) => s.rec.updated && !isNaN(s.rec.sProto)).map((s) => s.rec.sProto).sort((a, b) => a - b);
-  if (admitted.length > 5) { const thr = admitted[Math.floor(0.95 * (admitted.length - 1))]; ctx.setLineDash([4, 4]); ctx.strokeStyle = "#555"; ctx.beginPath(); ctx.moveTo(40, ys(thr)); ctx.lineTo(W - 10, ys(thr)); ctx.stroke(); ctx.setLineDash([]); }
-  for (const s of stream) { if (isNaN(s.rec.sProto)) continue; ctx.fillStyle = colors[s.set] || colors.upload; ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), 4, 0, 2 * Math.PI); ctx.fill(); }
+  const c = $("scatter"), ctx = c.getContext("2d"); const W = c.width, H = c.height; const col = colors(); ctx.clearRect(0, 0, W, H);
+  const L = 56, R = 16, T = 14, B = 40; ctx.strokeStyle = css("--line"); ctx.lineWidth = 1; ctx.strokeRect(L, T, W - L - R, H - T - B);
+  ctx.fillStyle = css("--muted"); ctx.font = "12px system-ui,sans-serif"; ctx.textAlign = "center";
+  ctx.fillText("softmax confidence of the predicted class  →", (L + W - R) / 2, H - 12);
+  ctx.save(); ctx.translate(16, (T + H - B) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("prototype distance  →", 0, 0); ctx.restore();
+  for (const v of [0.5, 0.75, 1.0]) { const x = L + (v - 0.5) / 0.5 * (W - L - R); ctx.fillText(v.toFixed(2), x, H - B + 16); }
+  const xs = (v) => L + (Math.max(0.5, v) - 0.5) / 0.5 * (W - L - R), ys = (v) => T + (1 - Math.min(v, 1)) * (H - T - B);
+  const adm = stream.filter((s) => s.rec.updated && !isNaN(s.rec.sProto)).map((s) => s.rec.sProto).sort((a, b) => a - b);
+  if (adm.length > 5) { const thr = adm[Math.floor(0.95 * (adm.length - 1))]; ctx.setLineDash([5, 5]); ctx.strokeStyle = css("--muted"); ctx.beginPath(); ctx.moveTo(L, ys(thr)); ctx.lineTo(W - R, ys(thr)); ctx.stroke(); ctx.setLineDash([]); }
+  stream.forEach((s, k) => { if (isNaN(s.rec.sProto)) return; ctx.fillStyle = col[s.set] || col.upload; ctx.globalAlpha = 0.85; ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), k === stream.length - 1 ? 7 : 4.5, 0, 2 * Math.PI); ctx.fill(); if (k === stream.length - 1) { ctx.strokeStyle = css("--fg"); ctx.lineWidth = 1.5; ctx.stroke(); } });
+  ctx.globalAlpha = 1;
   const n = stream.length; if (n) { const counts = {}; stream.forEach((s) => counts[s.set] = (counts[s.set] || 0) + 1);
-    $("summary").textContent = `${n} samples streamed (${Object.entries(counts).map(([k, v]) => k + ": " + v).join(", ")}); calibrated at t=${det.tCalib ?? "—"}; bank ${det.bankSizes().join("/")}.`; }
+    const flagged = stream.filter((s) => s.flag).length; const shifted = stream.filter((s) => ["covariate", "far", "semantic"].includes(s.set)).length;
+    const caught = stream.filter((s) => s.flag && ["covariate", "far", "semantic"].includes(s.set)).length; const fp = stream.filter((s) => s.flag && (s.set === "id0" || s.set === "id1")).length;
+    $("summary").textContent = `${n} images streamed · bank ${det.bankSizes().join("/")} · calibrated at t=${det.tCalib ?? "—"} · flagged ${flagged}: ${caught} of ${shifted} shifted images caught, ${fp} in-distribution images flagged (so far).`; }
 }
 async function feedExample(i) {
-  const ex = spec.examples[i]; const imgEl = $("gal").children[i]; let e = ex.embedding;
-  if ($("live").checked && session) { e = (await embed(imgEl)).e; }
-  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); stream.push({ rec, set: setClass(ex) }); show(rec, ex.set, imgEl); draw();
+  const ex = spec.examples[i]; const imgEl = document.querySelector(`#gal img[data-i="${i}"]`); let e = ex.embedding;
+  if ($("live").checked && session) e = await embed(imgEl);
+  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase);
+  const scores = det.history.map((h) => h.score); const flag = det.calibrated && pct(scores, rec.score) >= 0.8;
+  stream.push({ rec, set: setClass(ex), flag }); show(rec, ex.set, imgEl); draw();
 }
 $("upload").onchange = async (ev) => {
-  const f = ev.target.files[0]; if (!f || !session) { $("status").textContent = session ? "" : "Model not loaded yet."; return; }
-  const img = new Image(); img.src = URL.createObjectURL(f); await img.decode();
-  $("status").textContent = "Embedding your image…"; const t0 = performance.now(); const { e } = await embed(img);
-  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); stream.push({ rec, set: "upload" }); show(rec, "upload", img); draw();
-  $("status").textContent = `Embedded in ${(performance.now() - t0).toFixed(0)} ms (int8 ONNX, WebAssembly).`;
+  const f = ev.target.files[0]; if (!f) return; if (!session) { setStatus("Model not loaded yet, try again in a moment", false); return; }
+  const img = new Image(); img.src = URL.createObjectURL(f); await img.decode(); setStatus("Embedding your image…", true); const t0 = performance.now();
+  const e = await embed(img); const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase);
+  const flag = det.calibrated && pct(det.history.map((h) => h.score), rec.score) >= 0.8; stream.push({ rec, set: "upload", flag }); show(rec, "upload", img); draw();
+  setStatus(`Your image embedded in ${(performance.now() - t0).toFixed(0)} ms, locally`, true);
 };
 async function play(order) { if (playing) return; playing = true; $("play").disabled = $("playcov").disabled = true;
-  for (const i of order) { if (!playing) break; await feedExample(i); await new Promise((r) => setTimeout(r, 120)); }
+  for (const i of order) { if (!playing) break; await feedExample(i); await new Promise((r) => setTimeout(r, 140)); }
   playing = false; $("play").disabled = $("playcov").disabled = false; }
-$("play").onclick = () => { const idx = spec.examples.map((_, i) => i); for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; } play(idx); };
-$("playcov").onclick = () => { const id = spec.examples.map((e, i) => [e, i]).filter(([e]) => e.set === "id").map(([, i]) => i); const cov = spec.examples.map((e, i) => [e, i]).filter(([e]) => e.set === "covariate").map(([, i]) => i); play([...id, ...id, ...cov]); };
-$("reset").onclick = () => { playing = false; newDet(); $("status").textContent = "Stream reset."; };
-document.querySelectorAll("input[name=algo],#gamma,#M,#kmin").forEach((el) => el.addEventListener("change", () => { newDet(); $("status").textContent = "Settings changed: stream reset."; }));
+const idx = (pred) => spec.examples.map((e, i) => [e, i]).filter(([e]) => pred(e)).map(([, i]) => i);
+$("play").onclick = () => { const a = idx(() => true); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } play(a); };
+$("playcov").onclick = () => { const id = idx((e) => e.set === "id"), cov = idx((e) => e.set === "covariate"); play([...id, ...id, ...cov, ...cov]); };
+$("reset").onclick = () => { playing = false; newDet(); setStatus(session ? "Stream reset · model ready" : "Stream reset", !!session); };
+document.querySelectorAll("#gamma,#M,#kmin").forEach((el) => el.addEventListener("change", () => { newDet(); }));
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
 init();
 </script>
 </body></html>
