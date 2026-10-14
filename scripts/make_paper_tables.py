@@ -29,7 +29,7 @@ def main_table(b):
     d = load(b, "table2_main"); pp = load(b, "table_proton_plus")
     if d is None: return
     rows = []
-    for name in ["max_logit", "energy", "gl_mcm", "mcm", "entropy", "tag_mcm", "hier_l1", "hier_l5"]:
+    for name in ["max_logit", "energy", "gl_mcm", "mcm", "tag_mcm", "hier_l1", "hier_l5"]:
         if name in d["static"]: rows.append((PRETTY[name], d["static"][name]))
     rows.append(("PROTON~\\cite{das2026proton}", d["proton"]))
     if pp: rows.append(("\\protonp (ours)", pp["variants"]["+ domain-anchored prototypes (PROTON+)"] if "+ domain-anchored prototypes (PROTON+)" in pp["variants"] else pp["variants"][list(pp["variants"])[-1]]))
