@@ -1,0 +1,138 @@
+% PROTON+ method figure, variant B (TikZ, vector). Real data: make_data.py (PW=3.55, PH=1.40) -> data.tex
+% (FLAIR embeddings, ultra-widefield stream, seed 0, image t=413). Compile: tectonic -X compile fig_method.tex
+\documentclass[tikz,border={3.5pt 1.5pt 1.5pt 1.5pt}]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage{helvet}
+\usepackage{amsmath,amssymb,pifont}
+\usepackage{sansmath}
+\usetikzlibrary{arrows.meta,calc,positioning,shapes.geometric,backgrounds}
+\renewcommand{\familydefault}{\sfdefault}
+% every glyph >= 5.4 pt, subscripts included
+\DeclareMathSizes{5.6}{5.6}{5.4}{5.4}
+\DeclareMathSizes{6.2}{6.2}{5.4}{5.4}
+\DeclareMathSizes{6.6}{6.6}{5.5}{5.4}
+% ---------------------------------------------------------------- palette
+\definecolor{acc}{HTML}{D55E00}\definecolor{accsoft}{HTML}{FDF2EA}
+\definecolor{cN}{HTML}{3B7DD8}\definecolor{cD}{HTML}{2E9E5B}\definecolor{cU}{HTML}{D64545}
+\definecolor{ink}{HTML}{1F2328}\definecolor{mute}{HTML}{646B76}\definecolor{line}{HTML}{9AA1AB}
+\definecolor{rule}{HTML}{C9CED6}\definecolor{tint}{HTML}{F1F3F6}\definecolor{shade}{HTML}{E4E8EE}
+\input{data.tex}
+% ---------------------------------------------------------------- tokens
+\tikzset{
+  >={Stealth[length=3.4pt,width=2.8pt]},
+  fS/.style={font=\fontsize{5.6}{6.5}\selectfont}, fM/.style={font=\fontsize{6.2}{7.2}\selectfont},
+  fT/.style={font=\fontsize{6.6}{7.6}\selectfont\bfseries},
+  sml/.style={fS,text=mute}, lbl/.style={fM,text=ink},
+  arr/.style={->,line width=0.6pt,draw=line,rounded corners=2pt},
+  card/.style={rounded corners=2pt,draw=line,line width=0.5pt},
+  cardA/.style={rounded corners=2pt,draw=acc,line width=0.7pt,fill=accsoft},
+  badge/.style={circle,fill=acc,text=white,inner sep=0pt,minimum size=7.6pt,font=\fontsize{5.6}{5.6}\selectfont\bfseries},
+  chip/.style={minimum size=0.22cm,inner sep=0pt,rounded corners=0.8pt},
+  pstar/.style={star,star points=5,star point ratio=2.3,fill=acc,draw=white,line width=0.3pt,inner sep=0pt},
+  pill/.style={rounded corners=2pt,text=white,inner xsep=3pt,inner ysep=1.6pt,text height=4.7pt,text depth=1.3pt,font=\fontsize{6.2}{7}\selectfont\bfseries},
+}
+\newcommand{\bdg}[1]{\tikz[baseline=-0.55ex]\node[badge,anchor=center]{#1};}
+\newcommand{\thumb}[4]{% x, y, image, frame colour
+  \node[inner sep=0pt] at (#1,#2) {\includegraphics[width=0.80cm]{img/#3}};
+  \draw[white,line width=1.2pt] ($(#1,#2)+(-0.40,-0.40)$) rectangle ($(#1,#2)+(0.40,0.40)$);
+  \draw[#4,line width=0.7pt] ($(#1,#2)+(-0.40,-0.40)$) rectangle ($(#1,#2)+(0.40,0.40)$);}
+\newcommand{\pcross}[2]{\draw[ink,line width=1.0pt,line cap=round] ($(#1,#2)+(-0.055,-0.055)$) -- ($(#1,#2)+(0.055,0.055)$) ($(#1,#2)+(-0.055,0.055)$) -- ($(#1,#2)+(0.055,-0.055)$);}
+\begin{document}
+\sansmath
+\begin{tikzpicture}[x=1cm,y=1cm]
+% ================================================================ grid
+\def\yA{6.64}\def\yB{5.17}             % softmax lane, embedding lane
+\def\bL{3.60}\def\bR{7.74}             % prototype bank
+\def\bB{4.50}\def\bT{6.00}
+\def\qN{5.38}\def\qD{4.88}             % queue rows
+\def\cO{4.62}\def\cP{0.255}             % first chip centre, chip pitch
+\def\fL{8.14}\def\fR{10.18}\def\fX{9.16}\def\fB{5.38}\def\fT{6.44}\def\fY{5.91} % fusion box, elbow x
+\def\cx{5.99}                           % figure centre
+% ================================================================ zoom (drawn first, under everything)
+\pgfmathsetmacro{\zl}{\cO-0.135}\pgfmathsetmacro{\zr}{\cO+9*\cP+0.135}             % DR chips extent
+\pgfmathsetmacro{\kL}{\cx-4.025}\pgfmathsetmacro{\kR}{\cx+4.025}\def\kT{3.62}\def\kB{0.95}   % bottom block
+\fill[tint] (\zl,\qD+0.155) -- (\zr,\qD+0.155) -- (\zr,\qD-0.155) -- (\kR-0.106,\kT) -- (\kL+0.106,\kT) -- (\zl,\qD-0.155) -- cycle;
+\fill[tint,rounded corners=3pt] (\kL,\kB) rectangle (\kR,\kT);
+\draw[line!70,line width=0.35pt] (\zl,\qD-0.155) -- (\kL+0.106,\kT) (\zr,\qD-0.155) -- (\kR-0.106,\kT);
+\node[sml] at (\cx,4.20) {inside the DR queue on an ultra-widefield stream};
+% ================================================================ stream
+\thumb{0.37}{5.80}{n1.jpg}{cN}\thumb{0.50}{5.69}{d1.jpg}{cD}\thumb{0.63}{5.58}{d2.jpg}{cD}\thumb{0.76}{5.47}{u1.jpg}{cU}
+\node[sml,align=center] at (0.565,4.80) {test stream\\[-0.5pt]no labels};
+\draw[arr] (1.17,5.47) -- node[above,sml,pos=0.45]{$x_t$} (1.50,5.47);
+% ================================================================ frozen VLM
+\draw[line width=0.5pt,draw=line,fill=tint,rounded corners=2pt] (1.52,4.78) -- (1.52,7.06) -- (2.34,6.86) -- (2.34,4.98) -- cycle;
+\node[text=mute,font=\fontsize{7.4}{7.4}\selectfont,inner sep=0pt] at (1.93,6.40) {\ding{100}};
+\node[fT,text=ink] at (1.93,6.10) {VLM};
+\node[sml] at (1.93,5.86) {FLAIR};
+\node[sml,font=\fontsize{5.6}{6.5}\selectfont\itshape] at (1.93,5.64) {frozen};
+% ================================================================ softmax lane (unchanged)
+\node[card,fill=white,minimum width=2.40cm,minimum height=0.60cm,anchor=west,align=center,inner sep=1pt] (mcm) at (\bL,\yA)
+  {{\fontsize{5.6}{6.0}\selectfont\color{mute}softmax score}\\[-0.6pt]{\fontsize{6.2}{6.8}\selectfont$S_{\mathrm{MCM}}={-}\!\max_c p_{t,c}$}};
+\draw[arr] (2.34,\yA) -- node[above,sml,pos=0.35]{$p_t$} (mcm.west);
+\draw[arr] (mcm.east) -- (\fX,\yA) -- (\fX,\fT);
+% ================================================================ embedding lane + consistency admission (change 2)
+\draw[arr] (2.34,\yB) -- (\bL,\yB);
+\node[sml,anchor=north] at (2.56,\yB-0.03) {$e_t$};
+\node[badge] (g2) at (2.97,\yB) {2};
+\node[fS,text=acc,align=center,anchor=south] at (2.97,\yB+0.15) {consistency\\[-0.8pt]admission};
+% ================================================================ prototype bank (the hero)
+\draw[card] (\bL,\bB) rectangle (\bR,\bT);
+\node[fM,text=ink,anchor=west,font=\fontsize{6.2}{7}\selectfont\bfseries] at (\bL+0.10,\bT-0.20) {online prototype bank};
+\node[sml,anchor=west] at (\bL+0.10,\qN) {normal};
+\node[sml,anchor=west] at (\bL+0.10,\qD) {DR};
+\foreach \t [count=\k from 0] in \queueN {\node[chip,fill=cN] at (\cO+\cP*\k,\qN) {};}
+\foreach \t [count=\k from 0] in \queueD {\if u\t\node[chip,fill=cU] at (\cO+\cP*\k,\qD) {};\else\node[chip,fill=cD] at (\cO+\cP*\k,\qD) {};\fi}
+\foreach \y in {\qN,\qD} {\draw[->,line width=0.5pt,draw=line] (\zr+0.07,\y) -- (\zr+0.30,\y); \node[pstar,minimum size=7.2pt] at (\zr+0.45,\y) {};}
+\node[fS,text=acc,anchor=east,inner sep=0pt] (a1) at (\bR-0.12,\bT-0.20) {anchored}; \node[badge,anchor=east] at ($(a1.west)+(-0.05,0)$) {1};
+% ================================================================ z-score fusion (change 3) and output
+\draw[arr] (\bR,\yB) -- (\fX,\yB) -- (\fX,\fB);
+\draw[cardA] (\fL,\fB) rectangle (\fR,\fT);
+\node[fS,text=acc,anchor=west,inner sep=0pt,font=\fontsize{5.6}{6.5}\selectfont\bfseries] (a3) at ($(\fX,\fT-0.22)+(-0.56,0)$) {z-score fusion}; \node[badge,anchor=east] at ($(a3.west)+(-0.05,0)$) {3};
+\node[lbl,align=left,anchor=north,inner sep=0pt] at (\fX,\fT-0.39) {$\alpha_t\, z(S_{\mathrm{MCM}})$\\[0.2pt]${+}\,(1{-}\alpha_t)\, z(S_{\mathrm{proto}})$};
+\node[rounded corners=2pt,draw=ink,line width=0.7pt,fill=white,text=ink,inner xsep=3.2pt,minimum height=0.50cm,anchor=west] (out) at (\fR+0.20,\fY)
+  {\fontsize{6.2}{7}\selectfont\bfseries OOD score\ \mdseries$S_t$};
+\draw[->,line width=0.7pt,draw=ink] (\fR,\fY) -- (out.west);
+% ================================================================ inside the DR queue: PROTON vs PROTON+
+\newcommand{\embedpanel}[6]{% x-offset, frame style, prototype x, prototype y, members, prototype marker
+\begin{scope}[shift={(#1,1.50)}]
+  \fill[white] (0,0) rectangle (\PW,\PH);
+  \foreach \x/\y in \bgNormal \fill[cN,opacity=0.16] (\x,\y) circle (0.34pt);
+  \foreach \x/\y in \bgDR \fill[cD,opacity=0.16] (\x,\y) circle (0.34pt);
+  \foreach \x/\y in \bgUWF \fill[cU,opacity=0.16] (\x,\y) circle (0.34pt);
+  \draw[ink,line width=0.55pt,dash pattern=on 0.8pt off 0.9pt] (\sX,\sY) -- (#3,#4);
+  #5
+  #6
+  \draw[ink,line width=0.75pt] (\sX,\sY) circle (2.2pt);
+  \node[inner sep=0pt] (th) at (\PW-0.25,\PH-0.25) {\includegraphics[width=0.40cm]{img/u1.jpg}};
+  \draw[cU,line width=0.5pt] (th.south west) rectangle (th.north east);
+  \draw[cU,line width=0.4pt] (th.south) -- ([yshift=2.2pt]\sX,\sY);
+  \draw[#2] (0,0) rectangle (\PW,\PH);
+\end{scope}}
+\pgfmathsetmacro{\xa}{\cx-0.225-\PW}\pgfmathsetmacro{\xb}{\cx+0.225}
+% PROTON
+\node[fT,text=ink,anchor=base west,inner sep=0pt] at (\xa,3.33) {PROTON \textcolor{mute}{\mdseries$\cdot$ plain mean}};
+\node[sml,anchor=base west,inner sep=0pt] at (\xa,3.06) {\shiftedPct\% shifted members pull \tikz[baseline=-0.6ex]{\draw[ink,line width=0.8pt,line cap=round] (-1.3pt,-1.3pt)--(1.3pt,1.3pt) (-1.3pt,1.3pt)--(1.3pt,-1.3pt);} away};
+\embedpanel{\xa}{line,line width=0.5pt}{\pAx}{\pAy}{%
+  \foreach \x/\y/\w in \memIDA \fill[cD,draw=white,line width=0.25pt] (\x,\y) circle (1.05pt);
+  \foreach \x/\y/\w in \memUWFA \fill[cU,draw=white,line width=0.25pt] (\x,\y) circle (1.05pt);}{%
+  \pcross{\pAx}{\pAy}}
+% PROTON+
+\node[fT,text=acc,anchor=base west,inner sep=0pt] at (\xb,3.33) {PROTON+ \textcolor{acc}{\mdseries$\cdot$\ \bdg{1}\,domain-anchored}};
+\node[fS,text=acc,anchor=base west,inner sep=0pt] at (\xb,3.06) {shifted \tikz[baseline=-0.6ex]\draw[cU,fill=white,line width=0.45pt] circle (1.1pt); keep \weightPct\% of the weight};
+\embedpanel{\xb}{acc,line width=0.7pt}{\pBx}{\pBy}{%
+  \foreach \x/\y/\w in \memIDB {\pgfmathsetmacro{\op}{0.45+0.55*\w}\fill[cD,fill opacity=\op,draw=white,line width=0.25pt] (\x,\y) circle (1.05pt);}
+  \foreach \x/\y/\w in \memUWFB \draw[cU,fill=white,line width=0.45pt] (\x,\y) circle (1.0pt);}{%
+  \node[pstar,minimum size=9pt] at (\pBx,\pBy) {};}
+% verdicts
+\node[pill,fill=mute,anchor=west] (v1) at (\xa,1.22) {\ding{55}\ missed};
+\node[lbl,anchor=base west] at ($(v1.base east)+(0.06,0)$) {$S_{\mathrm{proto}}\,{=}\,\spA$};
+\node[pill,fill=cU!88!black,anchor=west] (v2) at (\xb,1.22) {\ding{51}\ flagged as OOD};
+\node[lbl,anchor=base west] at ($(v2.base east)+(0.06,0)$) {$S_{\mathrm{proto}}\,{=}\,\spB$};
+% legend
+\node[sml,inner sep=0pt] at (\cx,0.68) {%
+  \tikz[baseline=-0.6ex]\fill[cN] circle (1.2pt);\ normal\hspace{7pt}%
+  \tikz[baseline=-0.6ex]\fill[cD] circle (1.2pt);\ DR\hspace{7pt}%
+  \tikz[baseline=-0.6ex]\fill[cU] circle (1.2pt);\ ultra-widefield (shifted)\hspace{7pt}%
+  \tikz[baseline=-0.6ex]\draw[ink,line width=0.75pt] circle (1.8pt);\ real image, softmax \conf\ ``DR''};
+\end{tikzpicture}
+\end{document}

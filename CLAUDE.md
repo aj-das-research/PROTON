@@ -62,4 +62,4 @@ privileged kNN/Mahalanobis baselines.
 - Prompt policy (2026-10-14, Abhijit's decision): one uniform rule, the modality-prefixed class prompt of the benchmark
   code (`flair_default`, radiology `l1`, pathology `l1`); all other prompt sets go to the appendix prompt-sensitivity table.
 
-- Method figure (Fig. 1 of the preprint, README, project page): `figures_src/fig_method_v4.py` (real FLAIR embeddings, stream seed 0, sample t=413); writes `paper/figures/fig2_method.*`, then copy png/svg to `docs/figures/`. The box-diagram spec `figures_src/fig_method_spec.json` is superseded.
+- Method figure (Fig. 1 of the preprint, README, project page): TikZ, `figures_src/tikz_method/fig_method.tex` with real data from `make_data.py` -> `data.tex` (FLAIR embeddings, ultra-widefield stream seed 0, image t=413). Build: `cd figures_src/tikz_method && ~/.local/bin/tectonic -X compile fig_method.tex`, then copy the PDF to `paper/figures/fig2_method.pdf` and export PNG/SVG (PyMuPDF) to `docs/figures/`. Design variants A/B and the earlier matplotlib versions are kept for reference only.

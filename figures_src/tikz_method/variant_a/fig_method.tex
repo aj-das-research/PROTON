@@ -1,0 +1,140 @@
+% PROTON+ method figure, variant A: compact callout zoom into the DR queue.
+% Real data: make_data.py (PW=3.60, PH=1.48) -> data.tex (FLAIR embeddings, ultra-widefield stream, seed 0, image t=413).
+% Compile: tectonic -X compile --keep-logs fig_method.tex
+\documentclass[tikz,border=1.5pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[scaled=0.92]{helvet}
+\usepackage{amsmath,amssymb,pifont}
+\usepackage{sansmath}
+\usetikzlibrary{arrows.meta,calc,positioning,shadows.blur,backgrounds}
+\renewcommand{\familydefault}{\sfdefault}
+\makeatletter\renewcommand{\defaultscriptratio}{.8}\makeatother% larger sub/superscripts for print
+\definecolor{acc}{HTML}{D55E00}\definecolor{accsoft}{HTML}{FDF0E6}\definecolor{acctint}{HTML}{FFF8F2}
+\definecolor{cN}{HTML}{3B7DD8}\definecolor{cD}{HTML}{2E9E5B}\definecolor{cU}{HTML}{D64545}
+\definecolor{ink}{HTML}{1F2328}\definecolor{mute}{HTML}{6B7280}\definecolor{line}{HTML}{9AA1AB}\definecolor{panel}{HTML}{F7F8FA}
+\definecolor{zbg}{HTML}{F1F2F5}\colorlet{zline}{ink!50}
+\input{data.tex}
+\tikzset{
+  >={Stealth[length=3.6pt,width=3pt]},
+  flow/.style={->,line width=0.6pt,draw=line,rounded corners=2pt},
+  flowA/.style={->,line width=0.7pt,draw=acc,rounded corners=2pt},
+  card/.style={rounded corners=2.2pt,draw=line,line width=0.5pt,fill=white},
+  cardA/.style={rounded corners=2.2pt,draw=acc,line width=0.7pt,fill=accsoft},
+  f6/.style={font=\fontsize{6.2}{7.2}\selectfont}, f55/.style={font=\fontsize{5.9}{6.8}\selectfont},
+  lbl/.style={f6,text=ink}, sml/.style={f55,text=mute},
+  ttl/.style={font=\fontsize{6.4}{7.4}\selectfont\bfseries,text=ink},
+  badge/.style={circle,fill=acc,draw=white,line width=0.5pt,text=white,inner sep=0pt,minimum size=8.6pt,font=\fontsize{5.9}{6}\selectfont\bfseries},
+  chip/.style={minimum size=6.0pt,inner sep=0pt,rounded corners=0.8pt,line width=0.35pt,draw=white},
+  ztag/.style={fill=white,inner sep=1.2pt,rounded corners=1pt,line width=0.3pt,f55},
+  verdict/.style={rounded corners=1.5pt,text height=4.5pt,text depth=1.3pt,text=white,font=\fontsize{5.9}{6.8}\selectfont\bfseries,inner xsep=3.5pt,inner ysep=1.5pt},
+}
+\newcommand{\thumb}[4]{\node[inner sep=0pt,blur shadow={shadow blur steps=6,shadow xshift=0.4pt,shadow yshift=-0.6pt,shadow opacity=25}] at (#1,#2) {\includegraphics[width=0.92cm]{img/#3}};
+  \draw[#4,line width=0.8pt,rounded corners=0.6pt] ($(#1,#2)+(-0.46,-0.46)$) rectangle ($(#1,#2)+(0.46,0.46)$);}
+\newcommand{\pcross}[2]{\draw[#2,line width=1.1pt,line cap=round] ($(#1)+(-1.7pt,-1.7pt)$) -- ($(#1)+(1.7pt,1.7pt)$) ($(#1)+(-1.7pt,1.7pt)$) -- ($(#1)+(1.7pt,-1.7pt)$);}
+\begin{document}
+\sansmath
+\begin{tikzpicture}[x=1cm,y=1cm]
+% ===================================== pipeline (softmax lane y=5.55, bank lane y=4.45) =====================================
+\def\yA{5.55}\def\yB{4.45}
+\thumb{0.50}{4.82}{n1.jpg}{cN}\thumb{0.70}{4.97}{d1.jpg}{cD}\thumb{0.90}{5.12}{u1.jpg}{cU}\thumb{1.10}{5.27}{d2.jpg}{cD}
+\node[sml,align=center] at (0.80,4.07) {test stream,\\[-1pt]no labels};
+\draw[flow] (1.66,5.00) -- node[above,sml]{$x_t$} (2.22,5.00);
+% frozen VLM (encoder trapezoid) with the snowflake attached to it
+\draw[line width=0.6pt,draw=line,fill=panel,rounded corners=1.5pt] (2.25,4.10) -- (2.25,5.90) -- (3.25,5.70) -- (3.25,4.30) -- cycle;
+\node[ttl] at (2.75,5.24) {VLM}; \node[sml] at (2.75,5.00) {FLAIR};
+\node[f55,text=cN!80!black,inner sep=1pt] at (2.75,4.68) {\raisebox{-0.2ex}{\fontsize{6.8}{7}\selectfont\ding{100}}\hspace{1.4pt}frozen};
+% outputs: p_t (confident softmax) and e_t (embedding)
+\draw[flow] (3.25,\yA) -- (3.50,\yA);
+\begin{scope}[shift={(3.55,\yA-0.18)}]
+  \fill[cN!70] (0,0) rectangle (0.09,0.03); \fill[cD] (0.13,0) rectangle (0.22,0.36); \draw[line,line width=0.3pt] (-0.02,0) -- (0.24,0);
+  \node[sml,anchor=south] at (0.11,0.37) {$p_t$};
+\end{scope}
+\draw[flowA] (3.25,\yB) -- (3.50,\yB);
+\begin{scope}[shift={(3.55,\yB-0.30)}]
+  \foreach \i/\s in {0/35,1/70,2/20,3/55,4/85,5/40} \fill[acc!\s!white] (0,0.10*\i) rectangle (0.22,0.10*\i+0.085);
+  \node[sml,anchor=north] at (0.11,-0.02) {$e_t$};
+\end{scope}
+% softmax score (unchanged)
+\node[card,minimum width=2.25cm,minimum height=0.62cm,align=center,anchor=west] (mcm) at (4.15,\yA) {{\fontsize{6.0}{7}\selectfont\bfseries\textcolor{mute}{softmax score}}\\[0.3pt]{\fontsize{6.3}{7}\selectfont$S_{\mathrm{MCM}}=-\max_c p_{t,c}$}};
+\draw[flow] (3.82,\yA) -- (mcm.west);
+% prototype bank (changes 1, 2)
+\node[cardA,minimum width=3.85cm,minimum height=1.42cm,anchor=west] (bank) at (4.15,\yB-0.17) {};
+\node[font=\fontsize{6.2}{7}\selectfont\bfseries,text=acc,anchor=north west] (btitle) at ($(bank.north west)+(0.10,-0.06)$) {online prototype bank};
+\node[badge,anchor=west] (b1) at ($(btitle.east)+(0.04,0)$) {1};\node[badge,anchor=west] at ($(b1.east)+(0.05,0)$) {2};
+\def\qN{4.36}\def\qD{3.94}\def\qc{6.00}
+% DR-queue highlight (drawn before the chips)
+\draw[zline,fill=white,line width=0.5pt,rounded corners=1.6pt] (5.015,\qD-0.145) rectangle (6.985,\qD+0.145);
+\node[sml,anchor=west,inner sep=0pt] at (4.27,\qN) {normal}; \node[sml,anchor=west,inner sep=0pt] at (4.27,\qD) {DR};
+\foreach \t [count=\k from 0] in \queueN {\node[chip,fill=cN] at (5.146+0.190*\k,\qN) {};}
+\foreach \t [count=\k from 0] in \queueD {\if u\t\node[chip,fill=cU] at (5.146+0.190*\k,\qD) {};\else\node[chip,fill=cD] at (5.146+0.190*\k,\qD) {};\fi}
+\foreach \y in {\qN,\qD} {\draw[mute,line width=0.35pt,->] (7.035,\y) -- (7.175,\y); \node[text=acc,font=\fontsize{9.5}{9.5}\selectfont] at (7.295,\y) {$\star$};}
+\node[sml,anchor=west,inner sep=0pt] at (7.44,\qN) {$\mu_{\mathrm{n}}$}; \node[sml,anchor=west,inner sep=0pt] at (7.44,\qD) {$\mu_{\mathrm{DR}}$};
+\draw[flowA] (3.82,\yB) -- (bank.west |- 0,\yB);
+% fusion (change 3): both inputs enter vertically
+\def\fx{9.05}\def\fy{4.95}\def\zx{8.80}\def\ox{9.60}
+\node[circle,draw=acc,fill=accsoft,line width=0.7pt,minimum size=0.50cm,font=\fontsize{8}{8}\selectfont,text=acc] (fuse) at (\fx,\fy) {$+$};
+\draw[flow] (mcm.east) -- (\fx,\yA) -- (fuse.north);
+\node[ztag,draw=line,text=ink] at (\zx,\yA) {$z$};
+\draw[flowA] (bank.east |- 0,\qD) -- (\fx,\qD) -- (fuse.south);
+\node[ztag,draw=acc,text=acc] at (\zx,\qD) {$z$};
+\node[f55,text=acc,anchor=south west,inner sep=0pt] at (8.11,\qD+0.07) {$S_{\mathrm{proto}}$};
+\node[badge] at ($(fuse.center)+(150:0.48)$) {3};
+\node[sml,anchor=west] at (\fx+0.07,5.37) {$\alpha_t$};
+\node[f55,text=acc,anchor=west] at (\fx+0.07,4.42) {$1{-}\alpha_t$};
+\node[rounded corners=2.2pt,fill=ink,text=white,font=\fontsize{6.2}{7}\selectfont\bfseries,minimum height=0.54cm,inner xsep=5pt,anchor=west] (out) at (\ox,\fy) {OOD score $S_t$};
+\draw[->,line width=0.7pt,draw=ink] (fuse.east) -- (out.west);
+\node[f55,text=acc,anchor=north west,align=left,inner sep=0pt] at (\ox,6.22) {\ding{172}\ domain-anchored prototypes\\[0.5pt]\ding{173}\ consistency admission\\[0.5pt]\ding{174}\ z-score fusion};
+% ===================================== zoom: inside the DR queue =====================================
+\def\pw{\PW}\def\ph{\PH}\def\gap{0.44}\def\pad{0.18}
+\pgfmathsetmacro{\xa}{\qc-\gap/2-\pw}\pgfmathsetmacro{\xb}{\qc+\gap/2}
+\pgfmathsetmacro{\cxl}{\xa-\pad}\pgfmathsetmacro{\cxr}{\xb+\pw+\pad}
+\def\cyt{3.30}% top of the callout; everything below flows from it
+\pgfmathsetmacro{\hy}{\cyt-0.07}\pgfmathsetmacro{\ty}{\hy-0.26}\pgfmathsetmacro{\ny}{\ty-0.25}
+\pgfmathsetmacro{\pyb}{\ny-0.24-\ph}\pgfmathsetmacro{\vy}{\pyb-0.07}\pgfmathsetmacro{\cyb}{\vy-0.30-0.08}
+\begin{scope}[on background layer]% callout bubble whose short pointer touches the bank under the DR queue
+  \draw[zline,line width=0.4pt,fill=zbg,rounded corners=3pt] (\cxl,\cyb) -- (\cxl,\cyt) -- (\qc-0.21,\cyt) [rounded corners=0.7pt] -- (\qc,3.47)
+    -- (\qc+0.21,\cyt) [rounded corners=3pt] -- (\cxr,\cyt) -- (\cxr,\cyb) -- cycle;
+\end{scope}
+% ===================================== inside the DR queue: PROTON vs PROTON+ =====================================
+% #1 x, #2 frame colour, #3 prototype x, #4 prototype y, #5 member layer, #6 prototype glyph
+\newcommand{\embedpanel}[6]{%
+\begin{scope}[shift={(#1,\pyb)}]
+  \fill[white] (0,0) rectangle (\pw,\ph);
+  \foreach \x/\y in \bgNormal \fill[cN,opacity=0.14] (\x,\y) circle (0.36pt);
+  \foreach \x/\y in \bgDR \fill[cD,opacity=0.14] (\x,\y) circle (0.36pt);
+  \foreach \x/\y in \bgUWF \fill[cU,opacity=0.14] (\x,\y) circle (0.36pt);
+  #5
+  \coordinate (s) at (\sX,\sY); \coordinate (p) at (#3,#4);
+  \draw[ink,line width=0.6pt,dash pattern=on 0.9pt off 0.9pt,shorten <=2.4pt] (s) -- (p);
+  \draw[ink,line width=0.8pt] (s) circle (2.3pt);
+  #6
+  \node[inner sep=0pt] (th) at (\pw-0.29,\ph-0.28) {\includegraphics[width=0.42cm]{img/u1.jpg}};
+  \draw[cU,line width=0.55pt] (th.south west) rectangle (th.north east);
+  \draw[cU,line width=0.4pt] (th.south) -- ([yshift=2.3pt]s);
+  \draw[#2,line width=0.6pt] (0,0) rectangle (\pw,\ph);
+\end{scope}}
+\node[sml,anchor=north,inner sep=0pt] at (\qc,\hy) {inside the DR queue $\cdot$ ultra-widefield stream};
+\node[ttl,anchor=north west,inner sep=0pt] at (\xa,\ty) {PROTON \textcolor{mute}{\mdseries$\cdot$ plain mean}};
+\node[sml,anchor=north west,inner sep=0pt] at (\xa,\ny) {\shiftedPct\% shifted members pull the mean (\tikz[baseline=-0.6ex]{\draw[ink,line width=0.8pt,line cap=round] (-1.4pt,-1.4pt)--(1.4pt,1.4pt) (-1.4pt,1.4pt)--(1.4pt,-1.4pt);})};
+\embedpanel{\xa}{line}{\pAx}{\pAy}{%
+  \foreach \x/\y/\w in \memIDA \fill[cD,draw=white,line width=0.25pt] (\x,\y) circle (1.1pt);
+  \foreach \x/\y/\w in \memUWFA \fill[cU,draw=white,line width=0.25pt] (\x,\y) circle (1.1pt);}{\pcross{p}{ink}}
+\node[ttl,anchor=north west,inner sep=0pt,text=acc] at (\xb,\ty) {PROTON+ \textcolor{acc!75}{\mdseries$\cdot$ domain-anchored}};
+\node[sml,anchor=north west,inner sep=0pt,text=acc] at (\xb,\ny) {\ding{172}\ shifted members get \weightPct\% of the weight};
+\embedpanel{\xb}{acc}{\pBx}{\pBy}{%
+  \foreach \x/\y/\w in \memIDB {\pgfmathsetmacro{\op}{0.45+0.55*\w}\fill[cD,fill opacity=\op,draw=white,line width=0.25pt] (\x,\y) circle (1.1pt);}
+  \foreach \x/\y/\w in \memUWFB \draw[cU,fill=white,line width=0.45pt] (\x,\y) circle (1.05pt);}{\node[text=acc,font=\fontsize{12}{12}\selectfont] at (p) {$\star$};}
+% verdicts (below the plots)
+\node[verdict,fill=mute,anchor=north west] (v1) at (\xa,\vy) {missed};
+\node[lbl,anchor=base west] at ($(v1.base east)+(0.08,0)$) {$S_{\mathrm{proto}}=\spA$};
+\node[verdict,fill=cU!85!black,anchor=north west] (v2) at (\xb,\vy) {flagged as OOD};
+\node[lbl,anchor=base west] at ($(v2.base east)+(0.08,0)$) {$S_{\mathrm{proto}}=\spB$};
+% legend (centred under the block)
+\node[sml,anchor=north,inner sep=0pt] at (\qc,\cyb-0.10) {%
+  \tikz[baseline=-0.6ex]\fill[cN] circle (1.25pt);\ normal\hspace{5pt}%
+  \tikz[baseline=-0.6ex]\fill[cD] circle (1.25pt);\ DR\hspace{5pt}%
+  \tikz[baseline=-0.6ex]\fill[cU] circle (1.25pt);\ ultra-widefield (shifted)\hspace{5pt}%
+  \tikz[baseline=-0.6ex]\draw[cU,fill=white,line width=0.45pt] circle (1.15pt);\ ${\approx}0$ weight\hspace{5pt}%
+  \tikz[baseline=-0.6ex]\draw[ink,line width=0.8pt] circle (1.9pt);\ real image, softmax \conf\ ``DR''};
+\end{tikzpicture}
+\end{document}
