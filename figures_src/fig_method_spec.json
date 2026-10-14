@@ -1,0 +1,249 @@
+{
+ "version": 1,
+ "kind": "method",
+ "status": "final",
+ "figure": {
+  "width_in": 7.0,
+  "height_in": 3.2,
+  "title": "PROTON+: anchored prototypes, consistent admission, z-scored fusion",
+  "note": "Solid: data flow. Dashed: bank update after scoring. Orange: PROTON+ changes; grey: unchanged PROTON; VLM frozen.",
+  "min_font_pt": 5.5
+ },
+ "theme": {
+  "accent": "#D55E00",
+  "accent_light": "#FFF1E6",
+  "font_size": 7.0,
+  "small_size": 6.2,
+  "title_size": 10
+ },
+ "provenance": {
+  "data_status": "reported",
+  "sources": [
+   {
+    "id": "impl",
+    "kind": "artifact",
+    "locator": "proton/online.py (PROTON, PROTONConfig, proton_plus_config)",
+    "location": "Algorithm as implemented and evaluated in the paper; no numerical values are plotted"
+   }
+  ]
+ },
+ "evidence": {
+  "metrics": [],
+  "results": [],
+  "claims": []
+ },
+ "groups": [
+  {
+   "x": 0.0,
+   "y": 0.36,
+   "w": 0.645,
+   "h": 0.6,
+   "label": "Unchanged PROTON machinery"
+  }
+ ],
+ "nodes": [
+  {
+   "id": "input",
+   "x": 0.01,
+   "y": 0.47,
+   "w": 0.135,
+   "h": 0.22,
+   "label": "Test stream x_t\none image at a time\nno labels",
+   "font_size": 5.9
+  },
+  {
+   "id": "vlm",
+   "x": 0.165,
+   "y": 0.4,
+   "w": 0.195,
+   "h": 0.4,
+   "label": "VLM\nimage tower: e_t\ntext tower (cached): T\np_t = softmax(e_tᵀT / τ)",
+   "state": "frozen",
+   "font_size": 6.4
+  },
+  {
+   "id": "smcm",
+   "x": 0.41,
+   "y": 0.76,
+   "w": 0.22,
+   "h": 0.17,
+   "label": "Softmax score (MCM)\nS_MCM = − max_c p_t,c",
+   "font_size": 6.4
+  },
+  {
+   "id": "bank",
+   "x": 0.41,
+   "y": 0.42,
+   "w": 0.22,
+   "h": 0.24,
+   "label": "Online prototype bank\nper-class FIFO queues D_c\nof at most M embeddings",
+   "font_size": 6.4
+  },
+  {
+   "id": "proto",
+   "x": 0.403,
+   "y": 0.03,
+   "w": 0.257,
+   "h": 0.32,
+   "label": "1  Domain-anchored prototypes\nμ_dom: mean-shift mode of all queues\nμ_c ∝ Σ_e w(e) e\nw(e) = exp((e·μ_dom − 1)/h)\nS_proto = 1 − max_c e_t·μ_c",
+   "role": "proposed",
+   "font_size": 5.6
+  },
+  {
+   "id": "admit",
+   "x": 0.145,
+   "y": 0.03,
+   "w": 0.23,
+   "h": 0.27,
+   "label": "2  Consistency admission\nadmit e_t to D_ĉ iff\nmax_c p_t,c ≥ γ and\nd_t = 1 − e_t·μ_ĉ ≤ m_t + κ s_t",
+   "role": "proposed",
+   "font_size": 5.9
+  },
+  {
+   "id": "fuse",
+   "x": 0.675,
+   "y": 0.52,
+   "w": 0.315,
+   "h": 0.3,
+   "label": "3  Scale-free adaptive fusion\nS_t = α_t z(S_MCM) + (1 − α_t) z(S_proto)\nz: online z-score, α_t: variance-driven\nbefore calibration: S_t = z(S_MCM)",
+   "role": "proposed",
+   "font_size": 5.6
+  },
+  {
+   "id": "out",
+   "x": 0.72,
+   "y": 0.905,
+   "w": 0.22,
+   "h": 0.085,
+   "label": "OOD score S_t",
+   "font_size": 6.8
+  }
+ ],
+ "edges": [
+  {
+   "source": "input",
+   "target": "vlm"
+  },
+  {
+   "source": "vlm",
+   "target": "smcm",
+   "source_port": "right",
+   "target_port": "left",
+   "via": [
+    [
+     0.385,
+     0.6
+    ],
+    [
+     0.385,
+     0.845
+    ]
+   ],
+   "label": "p_t",
+   "label_position": [
+    0.372,
+    0.885
+   ]
+  },
+  {
+   "source": "vlm",
+   "target": "bank",
+   "source_port": "right",
+   "target_port": "left",
+   "label": "e_t",
+   "label_position": [
+    0.385,
+    0.565
+   ]
+  },
+  {
+   "source": "bank",
+   "target": "proto",
+   "source_port": "bottom",
+   "target_port": "top",
+   "label": "members",
+   "label_position": [
+    0.55,
+    0.385
+   ]
+  },
+  {
+   "source": "vlm",
+   "target": "admit",
+   "source_port": "bottom",
+   "target_port": "top",
+   "label": "e_t, p_t",
+   "label_position": [
+    0.305,
+    0.35
+   ]
+  },
+  {
+   "source": "admit",
+   "target": "bank",
+   "source_port": "right",
+   "target_port": [
+    0.1,
+    0.0
+   ],
+   "via": [
+    [
+     0.383,
+     0.165
+    ],
+    [
+     0.383,
+     0.385
+    ],
+    [
+     0.431,
+     0.385
+    ]
+   ],
+   "kind": "dashed",
+   "role": "proposed"
+  },
+  {
+   "source": "smcm",
+   "target": "fuse",
+   "source_port": "right",
+   "target_port": [
+    0.0,
+    0.8
+   ]
+  },
+  {
+   "source": "proto",
+   "target": "fuse",
+   "source_port": "right",
+   "target_port": [
+    0.0,
+    0.3
+   ],
+   "via": [
+    [
+     0.667,
+     0.19
+    ],
+    [
+     0.667,
+     0.61
+    ]
+   ],
+   "role": "proposed",
+   "label": "S_proto",
+   "label_position": [
+    0.667,
+    0.42
+   ]
+  },
+  {
+   "source": "fuse",
+   "target": "out",
+   "source_port": "top",
+   "target_port": "bottom",
+   "role": "proposed"
+  }
+ ],
+ "annotations": []
+}
