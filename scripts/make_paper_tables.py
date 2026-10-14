@@ -14,6 +14,9 @@ def load(b, name):
     return json.load(open(p)) if os.path.exists(p) else None
 
 def f1(x): return f"{x:.1f}"
+def fpm(r, sh, m):
+    """value ± SD when the record carries a std (online detectors), else the value (static scores)."""
+    return f"{r[sh][m]:.1f}" + (f"\\,$\\pm$\\,{r[sh][m + '_std']:.1f}" if (m + "_std") in r[sh] else "")
 
 def bold_best(vals, higher=True):
     order = sorted(range(len(vals)), key=lambda i: (-vals[i] if higher else vals[i]))
@@ -51,7 +54,7 @@ def main_table(b):
     open(os.path.join(OUT, f"main_{b}.tex"), "w").write("\n".join(lines) + "\n")
 
 def cross_domain():
-    lines = ["\\begin{tabular}{llccc|ccc|ccc}", "\\toprule",
+    lines = ["\\begin{tabular}{llrrr|rrr|rrr}", "\\toprule",
              " & & \\multicolumn{3}{c|}{Semantic} & \\multicolumn{3}{c|}{Covariate} & \\multicolumn{3}{c}{Far-OOD} \\\\",
              "Domain (VLM) & Method & AUC & APR & FPR & AUC & APR & FPR & AUC & APR & FPR \\\\", "\\midrule"]
     for b in BENCH:
@@ -61,7 +64,7 @@ def cross_domain():
         if pp: rs.append(("\\protonp", pp["variants"]["+ domain-anchored prototypes (PROTON+)"]))
         for k, (n, r) in enumerate(rs):
             lead = ("\\multirow{%d}{*}{%s}" % (len(rs), BENCH[b])) if k == 0 else ""
-            lines.append(lead + " & " + n + " & " + " & ".join(f1(r[sh][m]) for sh in SH for m in ("auroc", "aupr", "fpr95")) + " \\\\")
+            lines.append(lead + " & " + n + " & " + " & ".join(fpm(r, sh, m) for sh in SH for m in ("auroc", "aupr", "fpr95")) + " \\\\")
         lines.append("\\midrule")
     lines[-1] = "\\bottomrule"; lines.append("\\end{tabular}")
     open(os.path.join(OUT, "cross_domain.tex"), "w").write("\n".join(lines) + "\n")

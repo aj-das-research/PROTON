@@ -37,8 +37,8 @@ def main(argv=None):
     p.add_argument("--device", default=None)
     p.add_argument("--no-grid", action="store_true")
 
-    p = sub.add_parser("figures", help="render the paper figures for a benchmark (needs cached features)")
-    p.add_argument("--benchmark", required=True)
+    p = sub.add_parser("figures", help="render the paper figures for all benchmarks with cached features")
+    p.add_argument("--benchmark", default=None)
 
     p = sub.add_parser("score", help="run PROTON once over the default stream and print metrics per shift")
     p.add_argument("--benchmark", required=True)
