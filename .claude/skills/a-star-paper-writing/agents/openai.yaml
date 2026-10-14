@@ -1,0 +1,4 @@
+interface:
+  display_name: "A-Star Research Paper Writing"
+  short_description: "Write and revise ICLR/NeurIPS/ICML/CVPR papers in the author's house style"
+  default_prompt: "Use $a-star-paper-writing to write or revise my conference paper in its Overleaf/LaTeX project from the supplied research evidence, in the house style (house-style.md, section-playbooks.md), preserving the template, marking rewrites with labreview, and checking the final-mode build, page count, and synchronization."

@@ -1,0 +1,16 @@
+dataset,method,accuracy_pct,mean_latency_ms,rerank_fraction
+Atlas,never,77.4,25,0.00
+Atlas,always,82.1,80,1.00
+Atlas,random,79.8,42,0.30
+Atlas,length,80.9,43,0.31
+Atlas,MarginRoute,81.4,43,0.31
+Beacon,never,76.2,24,0.00
+Beacon,always,79.9,82,1.00
+Beacon,random,78.4,44,0.33
+Beacon,length,79.1,44,0.33
+Beacon,MarginRoute,79.0,44,0.33
+Cedar,never,75.9,26,0.00
+Cedar,always,80.6,78,1.00
+Cedar,random,78.9,42,0.29
+Cedar,length,79.6,43,0.30
+Cedar,MarginRoute,80.0,43,0.30

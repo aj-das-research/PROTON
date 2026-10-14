@@ -1,0 +1,38 @@
+{
+  "total_unique": 622,
+  "hf_unique": 557,
+  "official_icml_metadata_crosschecked": 50,
+  "primary_targeted_reviews": 20,
+  "abstracts_read": 622,
+  "abstract_only_note_records": 602,
+  "unavailable_abstract_records": 0,
+  "abstract_source_limitation_records": 1,
+  "full_paper_reviews": 0,
+  "visual_reviews": 0,
+  "levels": {
+    "abstract_narrative_review": 602,
+    "targeted_narrative_structure_review": 20
+  },
+  "year_basis": "Identifier-inferred year for arXiv; proceedings year for PMLR. Not certified first-publication year.",
+  "years": {
+    "2024": 156,
+    "2023": 57,
+    "2025": 207,
+    "2026": 202
+  },
+  "hf_months": {
+    "2024-01": 50,
+    "2024-04": 50,
+    "2024-07": 50,
+    "2025-01": 49,
+    "2025-04": 49,
+    "2025-07": 50,
+    "2025-10": 50,
+    "2026-01": 50,
+    "2026-04": 49,
+    "2026-07": 50,
+    "2026-08": 50,
+    "2026-09": 10
+  },
+  "research_cutoff": "2026-09-17"
+}

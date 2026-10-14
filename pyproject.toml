@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proton-ood"
+version = "0.1.0"
+description = "PROTON: prototype-based test-time online OOD detection for (medical) vision-language models, plus a reusable zero-shot OOD evaluation toolkit"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Abhijit Das", email = "abhijit.das@mbzuai.ac.ae"}]
+keywords = ["out-of-distribution", "vision-language", "test-time adaptation", "medical imaging", "CLIP"]
+dependencies = [
+  "numpy", "scipy", "scikit-learn", "pandas", "pillow", "tqdm", "pyyaml",
+]
+
+[project.optional-dependencies]
+models = ["torch", "torchvision", "open_clip_torch", "transformers", "huggingface_hub", "timm"]
+data = ["pyarrow", "pydicom", "opencv-python-headless", "kaggle"]
+plots = ["matplotlib", "seaborn", "umap-learn"]
+demo = ["onnx", "onnxruntime", "onnxscript", "gradio"]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+proton = "proton.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["proton*"]
+
+[tool.ruff]
+line-length = 120

@@ -1,0 +1,67 @@
+% Internal working draft; no venue selected.
+% Synthetic teaching material, not an empirical or novelty claim.
+% Passage requires amsmath and amssymb in the enclosing document.
+\subsection{Updating a linear predictor while controlling changes on fixed examples}
+\label{sec:prediction-retention}
+
+How can a linear predictor incorporate a candidate update while retaining
+its predictions on a fixed set of old examples? Let
+\(X\in\mathbb{R}^{n\times d}\) contain the old feature vectors as rows,
+and let \(w\in\mathbb{R}^d\) be the current parameter vector. The old
+predictions are \(Xw\). We are given a candidate update
+\(u\in\mathbb{R}^d\); the learning step that produces it is outside this
+passage. The key observation is that a direction in the null space
+\(\ker(X)=\{z\in\mathbb{R}^d:Xz=0\}\) cannot change these predictions.
+We therefore project the candidate update onto that space before adding
+it to the parameters.
+
+\paragraph{Exact retention.}
+For any \(X\in\mathbb{R}^{n\times d}\) and
+\(w,u\in\mathbb{R}^d\), let \(r=\dim\ker(X)\) and let
+\(N\in\mathbb{R}^{d\times r}\) have orthonormal columns spanning
+\(\ker(X)\). In exact arithmetic, the update
+\[
+    v=NN^{\mathsf T}u,\qquad w'=w+v
+\]
+satisfies \(Xw'=Xw\).
+Indeed, \(XN=0\), so
+\(Xw'=Xw+XN N^{\mathsf T}u=Xw\).
+If \(r=0\), \(N\) has no columns and \(NN^{\mathsf T}=0\), giving
+\(v=0\). This elementary identity explains the construction: only
+components of the update invisible to the fixed old examples survive.
+Projection can also remove a direction needed to learn the new task, so
+retention does not guarantee new-task improvement.
+
+\paragraph{Thresholded implementation.}
+The implementation uses a tolerance \(\epsilon>0\) and an orthogonal
+projector \(P_\epsilon\in\mathbb{R}^{d\times d}\) onto the
+right-singular subspace of \(X\) associated with singular values at most
+\(\epsilon\), including the entire exact null space. It applies
+\(v_\epsilon=P_\epsilon u\). This admits directions to which the old
+predictions may have small, nonzero sensitivity. For every such
+\(X,w,u,\epsilon\), the singular value decomposition gives, in exact
+arithmetic,
+\[
+    \|XP_\epsilon\|_2\leq\epsilon,
+    \qquad
+    \|X(w+v_\epsilon)-Xw\|_2
+    =\|XP_\epsilon u\|_2
+    \leq\epsilon\|u\|_2.
+\]
+Here \(\|\cdot\|_2\) denotes the Euclidean norm for vectors and the
+spectral operator norm for matrices. Thus the implementation bounds the
+change in the old prediction vector rather than necessarily preserving
+it exactly; the bound scales with the candidate update's magnitude.
+
+For an exact-arithmetic illustration, take
+\(X=\operatorname{diag}(1,0.01)\),
+\(w=(2,3)^{\mathsf T}\), \(u=(1,4)^{\mathsf T}\), and
+\(\epsilon=0.02\). The exact null space is trivial, so the idealized
+update is zero. The thresholded projector retains the second coordinate,
+yielding \(v_\epsilon=(0,4)^{\mathsf T}\) and prediction shift
+\((0,0.04)^{\mathsf T}\).
+
+Both statements concern predictions on the rows of this fixed \(X\).
+They do not establish task accuracy, retention on other examples, or
+generalization. The illustration is not empirical evidence, and actual
+floating-point numerical error has not been separately bounded.

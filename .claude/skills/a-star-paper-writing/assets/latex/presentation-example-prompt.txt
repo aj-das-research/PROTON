@@ -1,0 +1,10 @@
+PRESENTATION EXAMPLE ONLY -- NOT AN EXPERIMENTAL PROMPT
+
+You will receive a task input inside the delimiters below.
+Return an answer using the output schema supplied by the task.
+
+<task_input>
+{{TASK_INPUT}}
+</task_input>
+
+If information needed to answer is absent, state what is missing.

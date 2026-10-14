@@ -1,0 +1,19 @@
+{
+  "base_sha256": {
+    "author-notes.md": "70629bcf67d3af910f40a6ac1291554e4e59d5e234849792b696bd90add17da4",
+    "paper.tex": "270abde07e5145c8d6e71a0c586f7a3cdcfc00a1adbcf7e6e590e1c2377fe613",
+    "sections/abstract.tex": "ce36c7de0772b39398855d633e9d0c2c2f55ad0458b03acdb4be418b27c0b3b5",
+    "sections/introduction.tex": "a352262660cceda90afefc2ca211bb282daa158d7ca5e89574c217140b707bd3"
+  },
+  "revised_abstract_sha256": "7869ad8d3af39270c47a45d281ce202632753db2ea89dc5c86a6b516c1119bb4",
+  "changed_existing_files": [
+    "sections/abstract.tex"
+  ],
+  "local_build_root": "paper.tex",
+  "local_engine": "pdfLaTeX (TeX Live 2023/Debian)",
+  "project_root_engine_settings": "not supplied; paper.tex selected from source structure for local verification",
+  "preexisting_build_warnings": [
+    "undefined citation selective2017; undefined-reference summary"
+  ],
+  "output_pdf_sha256": "1cac869b426b79ed4c17fe25874c8c4b8ed6e3408bc8613df46eabe9c757fd77"
+}

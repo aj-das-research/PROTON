@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\title{MarginRoute: Selective Document Reranking with Retrieval Score Gaps}
+\author{}
+\date{Internal working draft---synthetic exercise}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Cross-encoder reranking can improve document retrieval accuracy but adds latency when applied to every query. We study whether a frozen retriever's scores can guide selective reranking without training an additional router. MarginRoute reranks the top 20 retrieved documents only when the score gap between the first two is below a threshold; otherwise, it returns the retriever's first choice. The threshold is selected separately on each dataset's development set to route approximately 30\% of queries and is frozen before testing. In a synthetic evaluation on Atlas, Beacon, and Cedar with one frozen retriever--reranker pair, MarginRoute reduces mean latency by 44.9--46.3\% relative to always reranking, with accuracy losses of 0.6--0.9 percentage points. It exceeds random routing accuracy on all three datasets, but its advantage over routing the longest queries is mixed. These single-run comparisons illustrate an accuracy--latency tradeoff for a simple score-based gate, without establishing uncertainty calibration or superiority across routing alternatives.
+\end{abstract}
+
+\section{Method}
+\label{sec:method}
+MarginRoute decides when a deployed document retriever should invoke a slower cross-encoder reranker. Its contribution is a routing rule that reuses retrieval scores without introducing a trainable router; both retrieval and reranking models remain frozen. The motivating hypothesis is that reranking is useful when the retriever assigns similar scores to its first two candidates.
+
+For a query $q$, the dense retriever returns $20$ documents $d_1,\ldots,d_{20}$ with scores $s_1\geq\cdots\geq s_{20}$. Let $g(q)=s_1-s_2$ denote the score gap and $c(q,d_i)$ the fixed cross-encoder score for candidate $d_i$. The returned document is
+\begin{equation}
+\widehat d(q)=
+\begin{cases}
+d_{\operatorname*{arg\,max}_{1\leq i\leq20} c(q,d_i)}, & g(q)<\tau,\\
+d_1, & g(q)\geq\tau.
+\end{cases}
+\label{eq:marginroute}
+\end{equation}
+The cross-encoder evaluates all 20 candidates only in the first branch. Computing the gate requires no additional model call. Retrieval scores are not calibrated probabilities, so a small gap motivates allocation of computation without supplying a calibrated uncertainty estimate or an error-control guarantee.
+
+We choose $\tau$ separately on each dataset's disjoint development set so that approximately 30\% of development queries invoke reranking, then freeze it before testing. No test-time labels are used. This development target does not fix the test routing fraction, which can change under distribution shift. Random routing and the rule that routes the longest queries use the same development target, frozen models, and candidate set. All methods share evaluation hardware and software. Mean end-to-end latency includes gate computation and is measured per query after warm-up on a single A100 at batch size one.
+
+\section{Results}
+\label{sec:results}
+In this synthetic evaluation, MarginRoute trades a small accuracy loss relative to always reranking for lower mean latency. On Atlas, Beacon, and Cedar, respectively, it achieves 81.4\%, 79.0\%, and 80.0\% accuracy at 43, 44, and 43\,ms, routing 31\%, 33\%, and 30\% of test queries. Always reranking achieves 82.1\%, 79.9\%, and 80.6\% at 80, 82, and 78\,ms: MarginRoute reduces latency by 44.9--46.3\% while losing 0.6--0.9 percentage points of accuracy. Against random routing, its accuracy gains are 1.6, 0.6, and 1.1 points, with latency increases of 1, 0, and 1\,ms. At identical mean latency to the length rule on each dataset, its accuracy differences are $+0.5$, $-0.1$, and $+0.4$ points. Thus, the margin gate improves on random allocation here but does not consistently outperform query length. These comparisons cover one run per condition with one frozen model pair; confidence intervals were not measured.
+
+\end{document}

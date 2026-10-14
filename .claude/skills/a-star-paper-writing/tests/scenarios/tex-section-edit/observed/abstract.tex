@@ -1,0 +1,3 @@
+\begin{abstract}
+Always checking invokes a verifier for every question. We introduce \ourmethod{}, which invokes the verifier only when a learned confidence score falls below a threshold selected on a disjoint development split. On 600 held-out questions, using the same retriever, generator, decoding, and verifier across systems, \ourmethod{} achieved 72.0\% accuracy with 0.42 verifier calls per question on average; always checking achieved 72.3\% with 1.00 call per question. These single-seed results show fewer verifier calls with lower observed accuracy on one dataset; no uncertainty estimate or statistical test was performed.
+\end{abstract}

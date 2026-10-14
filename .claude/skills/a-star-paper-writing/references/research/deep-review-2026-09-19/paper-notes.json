@@ -1,0 +1,284 @@
+{
+  "schema_version": 1,
+  "study": "v3_exemplar_reading",
+  "accessed_date": "2026-09-19",
+  "selection": "Purposive archetype diversity using official conference recognition plus a systems paper; not exhaustive and not acceptance-predictive.",
+  "counts": {
+    "unique_papers": 9,
+    "bounded_close_readings": 9,
+    "complete_paper_reads": 0,
+    "visual_reviews": 0,
+    "prior_corpus_count_unchanged": 622,
+    "prior_close_reading_count_unchanged": 20
+  },
+  "recognition_sources": [
+    "https://blog.neurips.cc/2023/12/11/announcing-the-neurips-2023-paper-awards/",
+    "https://blog.neurips.cc/2024/12/10/announcing-the-neurips-2024-best-paper-awards/",
+    "https://blog.iclr.cc/2025/04/22/announcing-the-outstanding-paper-awards-at-iclr-2025/",
+    "https://blog.iclr.cc/2026/04/23/announcing-the-iclr-2026-outstanding-papers/"
+  ],
+  "notes": [
+    {
+      "arxiv_id": "2305.08846",
+      "title": "Privacy Auditing with One (1) Training Run",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2305.08846v1",
+      "version": "v1",
+      "version_date": "2023-05-15",
+      "paper_archetype": "theory with algorithm and empirical validation",
+      "selection_basis": "NeurIPS 2023 outstanding main-track paper; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "Section 1 and 1.1; HTML lines 49–67",
+        "Section 2, Algorithm 1 and accompanying explanation; lines 68–93"
+      ],
+      "original_observations": [
+        "The introduction distinguishes mathematical privacy upper bounds from empirical audit lower bounds before posing the computational question.",
+        "The contribution preview separates procedure, analysis, and observed result. Algorithm inputs and abstention are explained in adjacent prose."
+      ],
+      "transferable_move": "Define the precise question and the kind of evidence that answers it before introducing the mechanism. Separate complementary contributions without multiplying module names.",
+      "transfer_limit": "The sampled arXiv version is not asserted to equal the final proceedings version; theoretical proofs and full experiments were not reviewed.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": []
+    },
+    {
+      "arxiv_id": "2304.15004",
+      "title": "Are Emergent Abilities of Large Language Models a Mirage?",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/pdf/2304.15004v2",
+      "version": "v2",
+      "version_date": "2023-05-22",
+      "paper_archetype": "diagnostic/measurement analysis",
+      "selection_basis": "NeurIPS 2023 outstanding main-track paper; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "PDF text: Introduction on printed page 2",
+        "Section 2; Figure 2 caption on printed page 3; equations/assumptions on printed page 4",
+        "PDF text lines 33–241"
+      ],
+      "original_observations": [
+        "The paper states an alternative account and enumerates complementary predictions/tests.",
+        "A mathematical illustration and panel-by-panel caption connect metric transformations to apparent discontinuity; an independence approximation is identified in the derivation."
+      ],
+      "transferable_move": "Make rival accounts and their discriminating predictions explicit; make a figure caption carry the inferential steps.",
+      "transfer_limit": "Caption and extracted text were read, not the figure image; no conclusion about all possible emergence phenomena follows from this writing study.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": []
+    },
+    {
+      "arxiv_id": "2404.16019",
+      "title": "The PRISM Alignment Dataset: What Participatory, Representative and Individualised Human Feedback Reveals About the Subjective and Multicultural Alignment of Large Language Models",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2404.16019v2",
+      "version": "v2",
+      "version_date": "2024-12-03",
+      "paper_archetype": "dataset/resource with sociotechnical analyses",
+      "selection_basis": "NeurIPS 2024 datasets-and-benchmarks best paper; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "Section 1 and start of Section 2; Figure 1 caption; HTML lines 165–195",
+        "Section 3.2 methods/results and Section 3.3 methods/Figure 5 caption; lines 255–270",
+        "Appendix navigation B, T, U, V; headings only"
+      ],
+      "original_observations": [
+        "The overview distinguishes participants, conversations, interactions, and utterances, linking each to the collection process.",
+        "Case studies pose separate questions and include methods, results, and bounded interpretation; ranking sensitivity is directly discussed."
+      ],
+      "transferable_move": "Explain resource units and show specific research uses rather than making size the entire argument.",
+      "transfer_limit": "Appendix headings were inspected for navigation; appendix contents were not reviewed. Population representativeness is not implied beyond stated samples.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": []
+    },
+    {
+      "arxiv_id": "2309.06180",
+      "title": "Efficient Memory Management for Large Language Model Serving with PagedAttention",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2309.06180v1",
+      "version": "v1",
+      "version_date": null,
+      "paper_archetype": "serving systems",
+      "selection_basis": "Systems diversity exemplar; no award claim",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "Introduction excerpt, Figure 2 caption; HTML lines 67–95",
+        "Section 5.1–5.2 excerpts and Sections 6.1–6.3; lines 238–298"
+      ],
+      "original_observations": [
+        "The introduction quantifies a bottleneck before explaining the paging analogy.",
+        "Evaluation documents reconstructed baselines and oracle variants, links throughput to batching, and explains a weaker-benefit workload using a competing compute bottleneck."
+      ],
+      "transferable_move": "Write a workload-dependent operating envelope and distinguish implemented, reconstructed, and idealized comparators.",
+      "transfer_limit": "The explanation of a regime boundary is an author interpretation; this reading does not independently verify causation or measurements.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": []
+    },
+    {
+      "arxiv_id": "2410.02355",
+      "title": "AlphaEdit: Null-Space Constrained Knowledge Editing for Language Models",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2410.02355v4",
+      "version": "v4",
+      "version_date": "2025-04-22",
+      "paper_archetype": "method with linear-algebra motivation",
+      "selection_basis": "ICLR 2025 outstanding paper; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "v4 Section 2.2 estimation paragraph; Section 3.2 numerical-threshold footnote and equations 9–10",
+        "v2 Sections 2.1–3.2; HTML lines 84–140",
+        "v2 research questions and Table 1/setup; lines 176–213"
+      ],
+      "original_observations": [
+        "The method develops the preservation constraint before the computational projection.",
+        "The text distinguishes unavailable complete knowledge from an estimate and uses a numerical eigenvalue threshold."
+      ],
+      "transferable_move": "Explicitly map an exact identity to the sampled and approximate implementation; state which guarantee survives each substitution.",
+      "transfer_limit": "This is a critical writing lesson, not an independent proof audit. The reading must not turn an exact null-space identity into universal preservation of all model knowledge.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": [
+        {
+          "version": "v2",
+          "date": "2024-10-21",
+          "url": "https://arxiv.org/html/2410.02355v2"
+        }
+      ]
+    },
+    {
+      "arxiv_id": "2406.05946",
+      "title": "Safety Alignment Should Be Made More Than Just a Few Tokens Deep",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2406.05946v1",
+      "version": "v1",
+      "version_date": null,
+      "paper_archetype": "diagnostic analysis with mitigation experiments",
+      "selection_basis": "ICLR 2025 outstanding paper; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "Section 1 and Sections 2.1–2.2 opening; HTML lines 62–92",
+        "Section 2.3 end and Sections 3–3.1; lines 152–171"
+      ],
+      "original_observations": [
+        "A unifying diagnostic notion precedes potential remedies.",
+        "The transition into the intervention is framed as a counterfactual question; a token-probability example clarifies why suppressing initial output need not constrain continuations."
+      ],
+      "transferable_move": "Organize a diagnosis around an operational definition, observable consequences, and a discriminating intervention.",
+      "transfer_limit": "Do not copy the specific unsafe example. The paper’s remedies are evaluated research interventions, not evidence of comprehensive safety.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": []
+    },
+    {
+      "arxiv_id": "2510.19315",
+      "title": "Transformers are Inherently Succinct",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2510.19315v2",
+      "version": "v2",
+      "version_date": "2025-10-23",
+      "paper_archetype": "formal expressivity/complexity theory",
+      "selection_basis": "ICLR 2026 outstanding paper; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "Section 1, contributions and assumptions; HTML lines 51–73",
+        "Sections 2.4–2.5; lines 170–180",
+        "Section 3 Example 4, Theorem 5 and reduction overview; lines 181–242"
+      ],
+      "original_observations": [
+        "The introduction changes the comparison criterion from recognized language classes to description size.",
+        "Size conventions and model restrictions precede the results. A small counter construction introduces the mechanism of a harder reduction."
+      ],
+      "transferable_move": "Introduce the comparison axis, explain why it matters, and use a worked example before a general proof construction.",
+      "transfer_limit": "Succinctness under stated formal restrictions does not establish trainability, practical performance, or superiority of all deployed transformers.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": []
+    },
+    {
+      "arxiv_id": "2505.06120",
+      "title": "LLMs Get Lost In Multi-Turn Conversation",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2505.06120v1",
+      "version": "v1",
+      "version_date": "2025-05-09",
+      "paper_archetype": "benchmark-driven diagnostic study",
+      "selection_basis": "ICLR 2026 outstanding paper; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "Introduction and related-work contrast; HTML lines 105–125",
+        "Section 3.2 end, Section 3.3 and Section 4.1; lines 156–205"
+      ],
+      "original_observations": [
+        "The related-work distinction explains why episodic conversation tasks miss the targeted setting.",
+        "Simulation variants have explicit evidential roles: a concatenated condition retains rephrasing while removing the multi-turn condition. Simulator errors are discussed before interpretation."
+      ],
+      "transferable_move": "Describe each control as resolving a particular alternative explanation and validate transformations used to construct a benchmark.",
+      "transfer_limit": "Simulated conversations are not automatically representative of live deployment; historical model findings must not become universal present-day claims.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": []
+    },
+    {
+      "arxiv_id": "2505.16932",
+      "title": "The Polar Express: Optimal Matrix Sign Methods and Their Application to the Muon Algorithm",
+      "accessed_date": "2026-09-19",
+      "primary_url": "https://arxiv.org/html/2505.16932v5",
+      "version": "v5",
+      "version_date": "2026-05-04",
+      "paper_archetype": "numerical method/theory with ML application",
+      "selection_basis": "ICLR 2026 honorable mention; official award announcement",
+      "reading_depth": "bounded_close_reading_of_author_text",
+      "locators": [
+        "v5 Introduction/Sections 1.1–1.2; HTML lines 75–104",
+        "v5 Sections 3.3–3.5 and Algorithm 1; lines 194–237",
+        "v5 Section 4.3 ending and reproducibility statement; lines 268–275",
+        "v5 Appendix A code excerpt; lines 366–427; Appendix H.2 excerpt lines 814–827",
+        "v1 Sections 4.4–5.2; lines 268–340"
+      ],
+      "original_observations": [
+        "The motivation explains why established numerical methods face different requirements in deep learning.",
+        "Finite-precision adjustments and offline/online computation are explicit. Numerical convergence and downstream training evidence answer different questions."
+      ],
+      "transferable_move": "Connect ideal analysis, numerical stabilization, component behavior, and end-to-end benefit without treating them as interchangeable evidence.",
+      "transfer_limit": "The same paper’s versions are one reading record, not two papers. Code text was inspected, not executed or independently reproduced.",
+      "full_text_read": false,
+      "visual_reviewed": false,
+      "abstract_only": false,
+      "already_in_legacy_622_corpus": false,
+      "already_in_legacy_20_close_readings": false,
+      "other_versions_inspected": [
+        {
+          "version": "v1",
+          "date": "2025-05-22",
+          "url": "https://arxiv.org/html/2505.16932v1"
+        }
+      ]
+    }
+  ]
+}

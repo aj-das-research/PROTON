@@ -1,0 +1,27 @@
+# data, weights, caches, envs
+data/
+weights/
+third_party/
+outputs/
+.cache/
+*.npz
+*.npy
+*.pth
+*.pt
+*.bin
+*.onnx
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ipynb_checkpoints/
+# Overleaf clone has its own git repo
+paper/
+# project-local skill sources (installed copies in .claude/skills are tracked)
+.claude/skill-sources/
+.claude/settings.local.json
+# docs site artifacts
+docs/demo/models/

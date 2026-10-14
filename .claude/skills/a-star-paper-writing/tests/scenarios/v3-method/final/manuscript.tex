@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+
+\title{MarginRoute: Selective Document Reranking from Retriever Score Gaps}
+\author{}
+\date{Internal working draft --- synthetic exercise}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Reranking every retrieved candidate set can improve document selection but adds latency to every query. We study whether an existing dense retriever's score gap can allocate this computation without a trainable router. MarginRoute reranks the top 20 documents with a fixed cross-encoder only when the retriever's two highest scores differ by less than a threshold; otherwise, it returns the highest-scoring retrieved document. The threshold is selected separately on each dataset's development set to route approximately 30\% of queries and is frozen before testing. In a synthetic evaluation on Atlas, Beacon, and Cedar with one frozen model pair, MarginRoute reduces mean latency by 44.9--46.3\% relative to always reranking, at an accuracy cost of 0.6--0.9 percentage points. It exceeds random routing on all three datasets, but comparison with routing the longest queries is mixed. These single-run findings support a simple accuracy--latency tradeoff, without establishing calibrated uncertainty or general superiority.
+\end{abstract}
+
+\section{Method}
+\label{sec:method}
+For each query, a deployed retrieval system must decide whether to return its first candidate or incur the cost of reranking. MarginRoute makes this decision using scores already computed by the retriever. Its contribution is a routing rule: both the dense retriever and the cross-encoder remain frozen, and no additional router is trained. The motivating hypothesis is that reranking is a useful allocation of computation when the retriever's first two choices have similar scores.
+
+For query $q$, the retriever returns 20 documents $d_1,\ldots,d_{20}$ with scores $s_1\geq\cdots\geq s_{20}$. Define the gap $g(q)=s_1-s_2$, and let $c(q,d)$ denote the fixed cross-encoder's score for document $d$. The returned document is
+\begin{equation}
+\widehat d(q)=
+\begin{cases}
+ d_{j^*(q)},\quad j^*(q)\in\underset{1\leq j\leq 20}{\arg\max}\;c(q,d_j),
+    & g(q)<\tau,\\[3pt]
+ d_1, & g(q)\geq\tau.
+\end{cases}
+\label{eq:route}
+\end{equation}
+Thus, a routed query triggers cross-encoder scoring of all 20 candidates; otherwise, the system returns $d_1$ without a reranker call. The gate itself requires no model call or test-time label. Retriever scores are not calibrated probabilities, and a small gap is a routing heuristic rather than a guaranteed estimate of uncertainty or error.
+
+For each dataset, we choose $\tau$ on a disjoint development set so that approximately 30\% of queries are routed, then freeze it before testing. This target does not constrain the test routing fraction, which can change under distribution shift. Random routing and the rule that routes the longest queries use the same development target, frozen models, candidate sets, and evaluation hardware. Mean end-to-end latency includes gate computation.
+
+\section{Results}
+\label{sec:results}
+On Atlas, Beacon, and Cedar, respectively, MarginRoute attains 81.4\%, 79.0\%, and 80.0\% test accuracy, compared with 82.1\%, 79.9\%, and 80.6\% for always reranking. Its mean latency is 43, 44, and 43\,ms, compared with 80, 82, and 78\,ms: reductions of 46.3\%, 46.3\%, and 44.9\% at accuracy costs of 0.7, 0.9, and 0.6 percentage points. Test routing fractions are 31\%, 33\%, and 30\%. Accuracy exceeds never reranking by 4.0, 2.8, and 4.1 points, with higher latency, and random routing by 1.6, 0.6, and 1.1 points, with equal or 1\,ms higher latency. Against the length rule at identical measured latencies and routing fractions, the differences are $+0.5$, $-0.1$, and $+0.4$ points. Per-query wall time was measured on one A100 at batch size one after warm-up, with fixed software and hardware. With one frozen model pair, one run per condition, and no confidence intervals, these synthetic results establish an observed tradeoff but leave the margin heuristic's advantage over length routing mixed.
+
+\end{document}

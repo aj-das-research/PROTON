@@ -1,0 +1,51 @@
+{
+  "repository": "Mishrakshitij/paper-figure-creation-skill",
+  "url": "https://github.com/Mishrakshitij/paper-figure-creation-skill",
+  "retrieved_on": "2026-09-17",
+  "default_branch": "main",
+  "commit": "66739085a15c2cb7c85a1522e8811bf0e0af6161",
+  "commit_date": "2026-09-16T22:54:37Z",
+  "access_method": "GitHub plugin read-only repository metadata and file retrieval",
+  "inspected_files": [
+    {
+      "path": "skills/paper-figure-creation/SKILL.md",
+      "blob_sha": "cebf293fd8dab7fed46ca7bc889f257723bae46c",
+      "scope": "full file"
+    },
+    {
+      "path": "skills/paper-figure-creation/references/evidence.md",
+      "blob_sha": "62a7b898edd0cfad6158d7ff07fae32df4578abf",
+      "scope": "full file"
+    },
+    {
+      "path": "skills/paper-figure-creation/references/spec-format.md",
+      "blob_sha": "5b00ec3d0436441d6ccaecac969e98fe0a693d34",
+      "scope": "full file"
+    },
+    {
+      "path": "skills/paper-figure-creation/references/delivery.md",
+      "blob_sha": "9dc743958fb0ec0a1420917808417b73fcf43be9",
+      "scope": "full file"
+    },
+    {
+      "path": "skills/paper-figure-creation/assets/benchmark-brief.md",
+      "blob_sha": "089baf6e744f88230b35d95837721d948bcbf64e",
+      "scope": "full file"
+    }
+  ],
+  "not_performed": [
+    "Dependency installation",
+    "Figure generation",
+    "Script execution or code audit",
+    "Visual review of generated example figures",
+    "Remote mutation"
+  ],
+  "integration_findings": [
+    "Entrypoint skill name is paper-figure-creation; repository root is not the skill root.",
+    "Teaser, method, and benchmark/environment are conditional roles, not a mandatory set.",
+    "Benchmark/environment mode requires a described substantive setup and new/adapted/existing status.",
+    "spec-format.md supports kind=benchmark; the shorter common-envelope prose in evidence.md lists only teaser and method.",
+    "Quantitative values and claims require stable result IDs, exact source locations, units, comparability, and uncertainty provenance.",
+    "Rendered pixels at manuscript insertion size must be inspected in addition to structural validation."
+  ]
+}

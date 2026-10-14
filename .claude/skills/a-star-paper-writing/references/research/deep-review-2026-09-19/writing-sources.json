@@ -1,0 +1,311 @@
+{
+  "schema_version": 1,
+  "review_date": "2026-09-19",
+  "scope": "Primary writing and review guidance; source-to-change IDs reference report.md",
+  "source_count": 10,
+  "sources": [
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "spj-paper-writing",
+      "title": "How to write a great research paper",
+      "authors": [
+        "Simon Peyton Jones"
+      ],
+      "url": "https://www.microsoft.com/en-us/research/wp-content/uploads/2016/07/How-to-write-a-great-research-paper.pdf",
+      "source_type": "author lecture slides hosted by Microsoft Research",
+      "publication_date": null,
+      "reading_depth": "targeted PDF text review",
+      "sections_read": [
+        "Writing as a research mechanism (PDF pp. 4–7)",
+        "Key idea and narrative (pp. 9–15)",
+        "Contributions and evidence (pp. 18–25)",
+        "Related work (pp. 27–32)",
+        "Examples, reader feedback, language (pp. 35–51)"
+      ],
+      "proposed_change_ids": [
+        1,
+        5
+      ],
+      "conditions": [
+        "Related-work position, sentence count, page count, and active-voice preferences are not universal requirements."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "widom-technical-papers",
+      "title": "Tips for Writing Technical Papers",
+      "authors": [
+        "Jennifer Widom"
+      ],
+      "url": "https://cs.stanford.edu/people/widom/paper-writing.html",
+      "source_type": "researcher-authored university webpage",
+      "publication_date": "2006-01",
+      "reading_depth": "full available article text, excluding linked resources",
+      "sections_read": [
+        "Title",
+        "Abstract",
+        "Introduction",
+        "Related Work",
+        "The Body",
+        "Experiments",
+        "Conclusions",
+        "Future Work",
+        "Acknowledgements",
+        "Citations",
+        "Appendices",
+        "Grammar",
+        "Mechanics",
+        "Versions"
+      ],
+      "proposed_change_ids": [
+        1
+      ],
+      "conditions": [
+        "Dated stylistic and appendix preferences must not override current conference rules."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "ernst-technical-paper",
+      "title": "How to write a technical paper or a research paper",
+      "authors": [
+        "Michael Ernst"
+      ],
+      "url": "https://homes.cs.washington.edu/~mernst/advice/write-technical-paper.html",
+      "source_type": "researcher-authored university webpage",
+      "publication_date": "2005-04",
+      "source_updated_date": "2024-07-01",
+      "reading_depth": "bounded article sections",
+      "sections_read": [
+        "Know your message, and stay on message",
+        "Which details to include",
+        "Make the organization and results clear",
+        "Getting started",
+        "Brevity",
+        "Opening of Writing style"
+      ],
+      "proposed_change_ids": [
+        2
+      ],
+      "conditions": [
+        "The article's first-person and passive-voice prescriptions are not adopted as categorical bans."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "gopen-swan-scientific-writing",
+      "title": "The Science of Scientific Writing",
+      "authors": [
+        "George D. Gopen",
+        "Judith A. Swan"
+      ],
+      "url": "https://courses.washington.edu/b572/public/GopenSwan.pdf",
+      "source_type": "original article, permissioned retyped university mirror",
+      "publication_date": "1990-11",
+      "reading_depth": "bounded PDF text review, not full visual article review",
+      "sections_read": [
+        "Opening and expectation/context (PDF pp. 1–3)",
+        "Subject–verb separation and stress position (pp. 4–7)",
+        "Topic position (pp. 8–9)",
+        "Principle clarification and logical gaps (pp. 12–13)",
+        "Locating action (pp. 14–15, partial)"
+      ],
+      "proposed_change_ids": [
+        3
+      ],
+      "conditions": [
+        "The authors explicitly describe principles rather than rigid universal rules."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "mensh-kording-structure",
+      "title": "Ten simple rules for structuring papers",
+      "authors": [
+        "Brett Mensh",
+        "Konrad Kording"
+      ],
+      "url": "https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005619",
+      "accessed_url": "https://journals.plos.org/ploscompbiol/article/file?id=10.1371/journal.pcbi.1005619&type=printable",
+      "source_type": "primary author editorial, PLOS Computational Biology",
+      "publication_date": "2017-09-28",
+      "reading_depth": "full article text including all ten rules, table text, discussion and references; no figure image inspection",
+      "sections_read": [
+        "Overview",
+        "Introduction",
+        "Rules 1–10",
+        "Discussion",
+        "Table 1"
+      ],
+      "proposed_change_ids": [
+        3,
+        5
+      ],
+      "conditions": [
+        "A useful conceptual framework, not evidence of causal acceptance improvement or an obligatory paragraph formula."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "lipton-steinhardt-trends",
+      "title": "Troubling Trends in Machine Learning Scholarship",
+      "authors": [
+        "Zachary C. Lipton",
+        "Jacob Steinhardt"
+      ],
+      "url": "https://arxiv.org/html/1807.03341v2",
+      "source_type": "author paper on arXiv",
+      "publication_date": "2018-07-26",
+      "reading_depth": "bounded HTML full-text sections",
+      "sections_read": [
+        "1 Introduction",
+        "2 Disclaimers",
+        "3.1 Explanation vs. Speculation",
+        "3.2 Failure to Identify the Sources of Empirical Gains",
+        "3.3 Mathiness",
+        "3.4 Misuse of Language (opening and 3.4.1)"
+      ],
+      "proposed_change_ids": [
+        4
+      ],
+      "conditions": [
+        "The authors characterize this as an introspective position rather than a balanced census of ML scholarship."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "eisner-write-first",
+      "title": "Write the Paper First",
+      "authors": [
+        "Jason Eisner"
+      ],
+      "url": "https://www.cs.jhu.edu/~jason/advice/write-the-paper-first.html",
+      "source_type": "researcher-authored university webpage",
+      "publication_date": "2010",
+      "reading_depth": "bounded article sections",
+      "sections_read": [
+        "Writing is the best use of limited time",
+        "The document is a focus for discussion with others",
+        "Writing is a mechanism for planning what to work on",
+        "The document is an organizing scheme for your work",
+        "Opening of document-as-specification"
+      ],
+      "proposed_change_ids": [
+        8
+      ],
+      "conditions": [
+        "Early drafting cannot justify fabricating outcomes or deferring evidence required for a central claim."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "neurips-2026-review",
+      "title": "NeurIPS 2026 Reviewing Guidelines",
+      "authors": [
+        "NeurIPS 2026 organizers"
+      ],
+      "url": "https://neurips.cc/Conferences/2026/ReviewerGuidelines",
+      "source_type": "official conference guidance",
+      "publication_date": null,
+      "venue_year": 2026,
+      "reading_depth": "all substantive contribution-type and evaluation sections; navigation excluded",
+      "sections_read": [
+        "Contribution Types",
+        "General",
+        "Theory",
+        "Use-Inspired",
+        "Concept and Feasibility",
+        "Negative Results"
+      ],
+      "proposed_change_ids": [
+        6
+      ],
+      "conditions": [
+        "Formal category selection and its immutability apply to this specific conference/year. Refresh before use."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "icml-2026-review",
+      "title": "Reviewer Instructions 2026",
+      "authors": [
+        "ICML 2026 organizers"
+      ],
+      "url": "https://icml.cc/Conferences/2026/ReviewerInstructions",
+      "source_type": "official conference guidance",
+      "publication_date": null,
+      "venue_year": 2026,
+      "reading_depth": "bounded review-method and main-track rubric sections",
+      "sections_read": [
+        "Best Practices",
+        "Tips for Reviewing",
+        "Main Track Reviewer Form Instructions: Summary",
+        "Strengths and Weaknesses",
+        "Soundness",
+        "Presentation",
+        "Significance",
+        "Originality",
+        "Key Questions for Authors"
+      ],
+      "proposed_change_ids": [
+        7
+      ],
+      "conditions": [
+        "No numerical internal acceptance scoring is implied by adopting the qualitative dimensions."
+      ]
+    },
+    {
+      "accessed_at": "2026-09-19",
+      "access_status": "read",
+      "primary_source": true,
+      "visual_inspection": false,
+      "id": "iclr-2026-review",
+      "title": "ICLR 2026 Reviewer Guide",
+      "authors": [
+        "ICLR 2026 organizers"
+      ],
+      "url": "https://iclr.cc/Conferences/2026/ReviewerGuide",
+      "source_type": "official conference guidance",
+      "publication_date": null,
+      "venue_year": 2026,
+      "reading_depth": "bounded review guidance and beginning of accepted-leaning sample",
+      "sections_read": [
+        "Reviewing a submission: step-by-step",
+        "Review example: opening of leaning-to-accept"
+      ],
+      "proposed_change_ids": [
+        7
+      ],
+      "conditions": [
+        "This review did not use the page as authorization for AI assistance; author policy is separately checked."
+      ]
+    }
+  ]
+}

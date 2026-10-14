@@ -1,0 +1,41 @@
+% Internal working draft. All methods, datasets, and results below are synthetic.
+% No venue has been selected; this is not a venue-formatted submission.
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\title{MarginRoute: Selective Reranking from Retriever Score Gaps}
+\author{}
+\date{Internal working draft --- synthetic exercise}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Reranking retrieved documents with a cross-encoder can improve accuracy but adds latency to every query when applied unconditionally. We investigate whether a frozen retriever's score gap can guide selective reranking without an additional trainable router. MarginRoute reranks the top 20 documents only when the difference between the two highest retriever scores falls below a threshold; otherwise, it returns the retriever's first choice. The threshold targets approximately 30\% routing on a disjoint development set and is fixed before testing. In a synthetic evaluation on Atlas, Beacon, and Cedar using one frozen retriever--reranker pair, MarginRoute attains 81.4\%, 79.0\%, and 80.0\% accuracy. Relative to always reranking, accuracy decreases by 0.6--0.9 percentage points while mean end-to-end latency falls by approximately 45--46\%. MarginRoute exceeds random routing on all three datasets, but its advantage over query-length routing is mixed. These single-run comparisons support a quality--latency tradeoff, without establishing calibrated uncertainty or consistent superiority over simple routing alternatives.
+\end{abstract}
+
+\section{Method}
+\label{sec:method}
+
+MarginRoute decides whether a query warrants the cost of cross-encoder reranking after an already deployed dense retriever has produced its candidates. Its contribution is the routing rule: both the retriever and reranker remain frozen, and no additional router is trained. The rule allocates reranking to queries whose two highest retriever scores are close, motivated by the hypothesis that these queries benefit from reconsidering the initial ranking.
+
+For a query $q$, the retriever returns 20 documents $d_1,\ldots,d_{20}$ with scores $s_1\geq\cdots\geq s_{20}$. Let $g(q)=s_1-s_2$ be the top-two score gap and $r(q,d)$ the fixed cross-encoder's score for document $d$. The returned document is
+\begin{equation}
+\label{eq:marginroute}
+\widehat d(q)=
+\begin{cases}
+\displaystyle\operatorname*{arg\,max}_{d\in\{d_1,\ldots,d_{20}\}} r(q,d),
+    & g(q)<\tau,\\
+d_1, & g(q)\geq\tau.
+\end{cases}
+\end{equation}
+Thus, a small gap triggers cross-encoder scoring of all 20 candidates; otherwise, the method returns the retriever's first choice without invoking the reranker. Computing the gap requires no model call. Retriever scores are not calibrated probabilities, so the gap is an allocation heuristic rather than an estimate of epistemic uncertainty.
+
+We choose $\tau$ separately on each dataset's disjoint development set to route approximately 30\% of queries, then freeze it before testing. Test-time routing uses no labels; its frequency can change under distribution shift. Random routing and the query-length rule, which routes the longest queries, use the same development routing target, fixed models, and candidate set. Alongside always and never reranking, these alternatives test whether the gap offers a useful allocation rule. Measured end-to-end latency includes gate computation.
+
+\section{Results}
+\label{sec:results}
+
+MarginRoute offers a lower-latency operating point than always reranking, with a modest accuracy loss. On Atlas, Beacon, and Cedar, respectively, test accuracy is 81.4\%, 79.0\%, and 80.0\%, compared with 82.1\%, 79.9\%, and 80.6\% for always reranking. Mean end-to-end latency falls from 80, 82, and 78\,ms to 43, 44, and 43\,ms, reductions of approximately 45--46\%; test routing fractions are 31\%, 33\%, and 30\%. MarginRoute exceeds random routing by 1.6, 0.6, and 1.1 percentage points. Against query-length routing at identical test routing fractions and mean latencies, its differences are $+0.5$, $-0.1$, and $+0.4$ points: the gap does not consistently select better queries than length. These synthetic comparisons use one frozen model pair and one run per condition. Latency is per-query wall time on a single A100 at batch size one, with fixed software, hardware, and warm-up. Without confidence intervals, the observed differences do not establish statistical significance.
+
+\end{document}
