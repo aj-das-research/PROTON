@@ -23,7 +23,7 @@ proj = lambda X: np.c_[(np.atleast_2d(X) - c) @ d1, (np.atleast_2d(X) - c) @ d2]
 Zdr, Zcv = proj(E[idm & (lab == 1)]), proj(E[cov])
 xlo, xhi = np.percentile(Zdr[:, 0], 1), np.percentile(Zcv[:, 0], 99.5)
 ylo, yhi = min(np.percentile(Zcv[:, 1], 0.5), np.percentile(Zdr[:, 1], 3)), np.percentile(Zdr[:, 1], 99.5)
-PW, PH, M = 3.55, 1.40, 0.11                                  # panel size (cm) and inner margin
+PW, PH, M = 3.60, 1.48, 0.13                                 # panel size (cm) and inner margin
 def to_panel(Z):
     Z = np.atleast_2d(Z); x = M + (Z[:, 0] - xlo) / (xhi - xlo) * (PW - 2 * M); y = M + (Z[:, 1] - ylo) / (yhi - ylo) * (PH - 2 * M)
     return np.c_[x, y]
