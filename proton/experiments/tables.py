@@ -15,7 +15,7 @@ from ..evaluate import (SHIFTS, Prepared, evaluate_base_over_streams, evaluate_p
                         evaluate_static, prepare, run_proton_stream)
 from ..features import extract_features
 from ..metrics import ood_metrics
-from ..online import PROTONConfig, proton_plus_config
+from ..online import proton_plus_config
 from ..streams import make_stream
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))

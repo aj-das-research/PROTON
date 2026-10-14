@@ -1,5 +1,5 @@
 """How much do FLAIR's MCM numbers depend on the prompt wording? Encodes prompt variants and reports MCM AUROC."""
-import numpy as np, sys
+import numpy as np
 from proton.data import load_benchmark
 from proton.features import load_features
 from proton.models import load_model

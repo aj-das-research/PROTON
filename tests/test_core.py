@@ -1,8 +1,7 @@
 import numpy as np
-import pytest
 
-from proton.metrics import ood_metrics, auroc, fpr_at_tpr
-from proton.online import PROTON, PROTONConfig, Welford, score_stream
+from proton.metrics import ood_metrics, auroc
+from proton.online import PROTON, Welford, score_stream
 from proton.scores.static import energy, entropy, gl_mcm, hierarchical_mcm, max_logit, mcm, softmax, tag_mcm
 from proton.streams import make_stream
 

@@ -1,6 +1,6 @@
 """Turn outputs/results/<benchmark>/*.json into LaTeX table bodies under paper/tables/ (booktabs, no copying of
 paper numbers: everything comes from the JSON written by `proton run`)."""
-import json, os, sys
+import json, os
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RES = os.path.join(ROOT, "outputs", "results"); OUT = os.path.join(ROOT, "paper", "tables"); os.makedirs(OUT, exist_ok=True)
 SH = ("semantic", "covariate", "far")
