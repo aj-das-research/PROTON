@@ -9,7 +9,7 @@
 [![Project page](https://img.shields.io/badge/project%20page-live-1d4ed8)](https://aj-das-research.github.io/PROTON/)
 [![Browser demo](https://img.shields.io/badge/demo-run%20in%20browser-0f766e)](https://aj-das-research.github.io/PROTON/demo/)
 [![Preprint](https://img.shields.io/badge/PROTON%2B-preprint%20PDF-b31b1b)](https://aj-das-research.github.io/PROTON/protonplus.pdf)
-[![PROTON paper](https://img.shields.io/badge/PROTON-arXiv%3A2606.20913-b31b1b)](https://arxiv.org/abs/2606.20913)
+[![PROTON paper](https://img.shields.io/badge/PROTON-MICCAI%202026-b31b1b)](https://arxiv.org/abs/2606.20913)
 [![Data](https://img.shields.io/badge/data-Hugging%20Face-yellow)](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
@@ -17,7 +17,7 @@
 
 </div>
 
-PROTON+ is the follow-up to **PROTON** (Das et al., 2026), our prototype-based test-time online OOD detector for
+PROTON+ is the follow-up to **PROTON** (Das et al., MICCAI 2026), our prototype-based test-time online OOD detector for
 medical vision-language models (VLMs). PROTON keeps a bank of class prototypes filled from confident test
 predictions and fuses the distance to the nearest prototype with the maximum-concept-matching (MCM) score, so that
 inputs from a new camera or population that look confident to the softmax can still be flagged. When we
@@ -127,17 +127,19 @@ REPORT.md          short pointer to the preprint and the method changes
 ## Citation
 
 ```bibtex
-@article{das2026proton,
-  title   = {PROTON: Prototype-Based Test-Time Online OOD Detection for Medical VLMs},
-  author  = {Das, Abhijit and Wasalathilaka, Nichula and Lu, Yifan and Dukre, Adinath and Mahapatra, Dwarikanath and Khan, Shadab and Razzak, Imran},
-  journal = {arXiv preprint arXiv:2606.20913},
-  year    = {2026}
+@inproceedings{das2026proton,
+  title={PROTON: Prototype-Based Test-Time Online OOD Detection for Medical VLMs},
+  author={Das, Abhijit and Wasalathilaka, Nichula and Lu, Yifan and Dukre, Adinath and Mahapatra, Dwarikanath and Khan, Shadab and Razzak, Imran},
+  booktitle={International Conference on Medical Image Computing and Computer-Assisted Intervention},
+  pages={527--537},
+  year={2026},
+  organization={Springer}
 }
 @misc{das2026protonplus,
   title  = {PROTON+: Contamination-Robust Prototype Banks for Test-Time Online OOD Detection with Medical VLMs},
   author = {Das, Abhijit and Wasalathilaka, Nichula and Lu, Yifan and Dukre, Adinath and Mahapatra, Dwarikanath and Khan, Shadab and Razzak, Imran},
   year   = {2026},
-  note   = {Technical report, https://github.com/aj-das-research/PROTON}
+  note   = {Preprint, https://github.com/aj-das-research/PROTON}
 }
 ```
 
