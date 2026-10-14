@@ -61,3 +61,5 @@ privileged kNN/Mahalanobis baselines.
   (the demo falls back to the GitHub-served copy).
 - Prompt policy (2026-10-14, Abhijit's decision): one uniform rule, the modality-prefixed class prompt of the benchmark
   code (`flair_default`, radiology `l1`, pathology `l1`); all other prompt sets go to the appendix prompt-sensitivity table.
+
+- Method figure (Fig. 1 of the preprint, README, project page): `figures_src/fig_method_v4.py` (real FLAIR embeddings, stream seed 0, sample t=413); writes `paper/figures/fig2_method.*`, then copy png/svg to `docs/figures/`. The box-diagram spec `figures_src/fig_method_spec.json` is superseded.
