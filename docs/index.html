@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PROTON+ project page</title>
+<title>PROTON+ official page</title>
 <meta name="description" content="PROTON and PROTON+: prototype-based test-time online out-of-distribution detection for medical vision-language models. Code, reproduction, live browser demo.">
 <link rel="stylesheet" href="style.css">
 </head>
@@ -12,11 +12,12 @@
 <p class="affil"><sup>1</sup>MBZUAI &nbsp; <sup>2</sup>University of Peradeniya &nbsp; <sup>3</sup>Khalifa University &nbsp; <sup>4</sup>ADIA Lab &nbsp; <sup>5</sup>MedOS</p>
 <div class="btns">
   <a class="btn" href="demo/">▶ Live browser demo (real FLAIR weights)</a>
-  <a class="btn sec" href="https://github.com/aj-das-research/PROTON">Code</a>
-  <a class="btn sec" href="results.html">All reproduced tables</a>
-  <a class="btn sec" href="protonplus_draft.pdf">PROTON+ paper draft (PDF)</a>
-  <a class="btn sec" href="proton_paper.pdf">Original PROTON paper (PDF)</a>
+  <a class="btn sec" href="https://github.com/aj-das-research/PROTON">Code (official implementation)</a>
+  <a class="btn sec" href="protonplus.pdf">PROTON+ preprint (PDF)</a>
+  <a class="btn sec" href="results.html">All tables</a>
+  <a class="btn sec" href="https://arxiv.org/abs/2606.20913">PROTON (arXiv)</a>
 </div>
+<p class="muted">PROTON+ is the follow-up to our PROTON paper, and this repository is the official implementation of both. PROTON+ is the recommended method; the original algorithm stays available as the default configuration for comparison.</p>
 
 <div class="card">
 <h2>TL;DR</h2>
@@ -34,7 +35,8 @@ no prompt engineering, no labels.</p>
 <figure><img src="figures/fig1_blind_spot.png" alt="MCM blind spot figure"><figcaption>Fig. 1: (a) ID/OOD overlap of MCM scores, (b) MCM vs prototype distance, (c) t-SNE of VLM embeddings. One row per modality (FLAIR, UniMed-CLIP, QuiltNet). Covariate-shifted images sit in distinct embedding regions that softmax collapses.</figcaption></figure>
 
 <h2>Method in one picture</h2>
-<div class="card"><pre>
+<figure><img src="figures/fig2_method.png" alt="PROTON+ method figure"><figcaption>A frozen VLM scores each stream image with the softmax (what MCM reads) and with the distance to online class prototypes. PROTON+ changes three things, in orange: prototypes are anchored to the dominant imaging-domain mode of the bank (1), a sample is admitted only if it is confident and consistent with its class prototype (2), and the two signals are fused as online z-scores (3). The inset is an illustrative schematic of why the plain mean prototype fails.</figcaption></figure>
+<details><summary>Plain-text summary of the computation</summary><div class="card"><pre>
 stream x_t ─► frozen VLM ─► e_t (embedding), p_t = softmax(e_t·T/τ)
                               │
                               ├─ S_base(t)  = −max p_t                (MCM, or any logit/softmax score)
@@ -42,15 +44,22 @@ stream x_t ─► frozen VLM ─► e_t (embedding), p_t = softmax(e_t·T/τ)
                               └─ score(t)   = α_t · z(S_base) + (1−α_t) · z(S_proto)
 bank update (after scoring):  admit e_t to class ĉ if max p_t ≥ γ  AND  (PROTON+) ‖e_t − μ_ĉ‖ typical of admitted samples
 PROTON+ prototypes:           μ_dom = mean-shift mode of all bank members;  μ_c ∝ Σ_i exp((⟨e_i, μ_dom⟩−1)/h) e_i
-</pre></div>
+</pre></div></details>
 
 <h2>Headline numbers</h2>
-<p class="muted">AUROC (%) per shift type, mean over 5 stream orders; full tables with AUPR/FPR@95, ablations, ID-fraction sweeps and prompt sensitivity on the <a href="results.html">results page</a>.</p>
+<p class="muted">AUROC (%) per shift type, mean over 5 stream orders. PROTON+ beats MCM on every covariate and far stream on all five orders in all three modalities; it trails MCM on the ophthalmology semantic shift, which the preprint discusses. Full tables with AUPR/FPR@95, ablations, ID-fraction sweeps and prompt sensitivity are on the <a href="results.html">results page</a>.</p>
 <div id="headline"></div>
 
 <h2>Prototype dynamics</h2>
 <figure><img src="figures/fig3a_convergence.png" alt="prototype convergence"><figcaption>Fig. 3a: convergence of online prototypes (cosine to the final prototype), drift per update and PCA trajectories.</figcaption></figure>
 <figure><img src="figures/fig3b_gamma_M.png" alt="gamma M sensitivity"><figcaption>Fig. 3b: sensitivity of the covariate-shift AUROC gain over MCM to the confidence gate γ and bank size M.</figcaption></figure>
+
+<h2>Use it on your own data</h2>
+<pre>pip install -e ".[models,data,plots]"
+proton make-benchmark --name mydata --vlm flair --id normal=/d/id/normal --id "diabetic retinopathy=/d/id/dr" \
+    --ood semantic=/d/glaucoma --ood covariate=/d/uwf --ood far=/d/natural --prompt "A fundus photograph of {}"
+proton extract --benchmark mydata && proton run --benchmark mydata      # every table in outputs/results/mydata/</pre>
+<p class="muted">Any <code>open_clip</code> checkpoint works as the VLM (<code>--vlm open_clip:hf-hub:org/name</code>); a new model is a four-method subclass of <code>proton.models.base.VLM</code>.</p>
 
 <h2>Reproduce</h2>
 <pre>git clone https://github.com/aj-das-research/PROTON && cd PROTON

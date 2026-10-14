@@ -26,3 +26,7 @@ paper/
 .claude/settings.local.json
 # docs site artifacts
 docs/demo/models/flair_vision.onnx
+proton/data/benchmarks.local.yaml
+
+# project-local skills come from private repos: installed by tools/install_skills.sh, never committed
+.claude/skills/

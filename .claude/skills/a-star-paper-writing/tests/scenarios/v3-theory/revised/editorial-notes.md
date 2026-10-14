@@ -1,4 +1,0 @@
-1. This internal draft uses only the supplied synthetic material. No venue compliance, empirical result, or novelty claim is asserted.
-2. The passage distinguishes exact null-space retention from the thresholded implementation's exact-arithmetic bound, including the zero-dimensional null-space case and the unbounded floating-point error.
-3. The supplied illustration is explicitly an exact-arithmetic example. The guarantee is limited to predictions on the rows of the fixed feature matrix; it does not imply new-task improvement or retention on other data.
-4. Verification: 375 whitespace-delimited LaTeX source tokens, including math and excluding comments (below the 550-word limit); two successful pdfLaTeX passes in a temporary article wrapper; no final warnings or box diagnostics; the one-page rendering was visually inspected. The supplied illustration and its bound were also checked with exact rational arithmetic. No remote build or synchronization was performed.

@@ -4,7 +4,8 @@
     proton extract       --benchmark ophthalmology [--model flair] [--device cuda]
     proton run           --benchmark ophthalmology [--n-perm 5] [--no-grid]
     proton score         --features outputs/features/ophthalmology__flair.npz [--prompts vanilla] [--gamma 0.7 ...]
-    proton figures       --benchmark ophthalmology
+    proton figures
+    proton make-benchmark --name NAME --vlm flair --id CLASS=FOLDER ... --ood SHIFT=FOLDER ... [--prompt "x of {}"]
 """
 from __future__ import annotations
 
@@ -40,6 +41,16 @@ def main(argv=None):
     p = sub.add_parser("figures", help="render the paper figures for all benchmarks with cached features")
     p.add_argument("--benchmark", default=None)
 
+    p = sub.add_parser("make-benchmark", help="build a benchmark from image folders and register it")
+    p.add_argument("--name", required=True)
+    p.add_argument("--vlm", required=True, help="flair | unimedclip | quiltnet | open_clip:<id>")
+    p.add_argument("--id", action="append", required=True, metavar="CLASS=FOLDER", help="ID class folder (repeat, in class order)")
+    p.add_argument("--ood", action="append", required=True, metavar="SHIFT=FOLDER", help="OOD folder named by shift type (repeat)")
+    p.add_argument("--prompt", default="{}", help="prompt template with {} for the class name")
+    p.add_argument("--n-id", type=int, default=None); p.add_argument("--n-ood", type=int, default=None)
+    p.add_argument("--bank", type=int, default=0, help="extra labelled ID images per class for the privileged baselines")
+    p.add_argument("--seed", type=int, default=0)
+
     p = sub.add_parser("score", help="run PROTON once over the default stream and print metrics per shift")
     p.add_argument("--benchmark", required=True)
     p.add_argument("--prompts", default=None)
@@ -70,6 +81,13 @@ def main(argv=None):
     elif a.cmd == "figures":
         from .experiments.figures import make_all
         make_all(a.benchmark)
+    elif a.cmd == "make-benchmark":
+        from .data.custom import make_benchmark
+        ids = dict(kv.split("=", 1) for kv in a.id); oods = dict(kv.split("=", 1) for kv in a.ood)
+        df, spec = make_benchmark(a.name, a.vlm, ids, oods, prompt_template=a.prompt, n_id=a.n_id, n_ood=a.n_ood,
+                                  bank=a.bank, seed=a.seed)
+        print(df.groupby(["set", "class_name"]).size().to_string())
+        print(f"registered '{a.name}' (vlm={a.vlm}); next: proton extract --benchmark {a.name} && proton run --benchmark {a.name}")
     elif a.cmd == "score":
         from .data import load_benchmark
         from .evaluate import evaluate_proton, evaluate_static, prepare

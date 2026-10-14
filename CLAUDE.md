@@ -59,3 +59,5 @@ privileged kNN/Mahalanobis baselines.
 - Pending human steps: make the GitHub repo public (or use a Pages-capable plan) and enable Pages from `docs/`;
   optionally publish `docs/demo/models/flair_vision*.onnx` to the Hugging Face repo `abhijit2k01/proton-demo`
   (the demo falls back to the GitHub-served copy).
+- Prompt policy (2026-10-14, Abhijit's decision): one uniform rule, the modality-prefixed class prompt of the benchmark
+  code (`flair_default`, radiology `l1`, pathology `l1`); all other prompt sets go to the appendix prompt-sensitivity table.
