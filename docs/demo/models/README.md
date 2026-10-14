@@ -10,6 +10,8 @@ Apache-2.0, https://github.com/jusiro/FLAIR), used by the in-browser demo of **P
 
 * `flair_vision.onnx`: fp32 (98 MB). Input `image` float32 `[B,3,512,512]` in [0,1] (long side resized to 512,
   zero-padded right/bottom, no mean/std normalisation). Output `embedding` `[B,512]`, l2-normalised.
-* `flair_vision_int8.onnx`: dynamically quantised int8 (25 MB); embeddings agree with fp32 at cosine 0.99.
+* `flair_vision_int8.onnx`: weight-only int8 (25 MB): int8 weights with per-channel scales dequantised at load
+  (standard DequantizeLinear + Conv ops, runs in onnxruntime-web WASM); embeddings agree with fp32 at cosine >= 0.994
+  (mean 0.9985) on ID, ultra-widefield and natural images.
 
 Code and benchmarks: https://github.com/aj-das-research/PROTON. Curated data: https://huggingface.co/datasets/abhijit2k01/proton-benchmarks
