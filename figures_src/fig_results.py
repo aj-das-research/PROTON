@@ -18,8 +18,8 @@ for b, (lab, col) in B.items():
     d = json.load(open(f"{R}/{b}/table_proton_plus.json"))["rho"]; rhos = sorted(float(k) for k in d)
     ax.plot([100 * r for r in rhos], [d[str(r)]["proton_plus"]["covariate"]["auroc"] for r in rhos], "-", marker="*", ms=5.5, lw=1.0, color=col, label=f"{lab}: PROTON+ (ours)")
     ax.plot([100 * r for r in rhos], [d[str(r)]["mcm"]["covariate"]["auroc"] for r in rhos], "--", marker="o", ms=2.2, lw=0.8, color=col, alpha=0.75, label=f"{lab}: MCM")
-ax.axhline(50, color="#999999", lw=0.5, ls=":"); ax.set_xlabel("ID fraction of the stream (%)"); ax.set_ylabel(r"covariate AUROC (%) $\uparrow$"); ax.set_title("(a) stream composition")
-ax.set_xticks([10, 30, 50, 70, 90]); ax.set_ylim(0, 100); ax.legend(loc="lower right", frameon=False, handlelength=1.6, borderpad=0.2, labelspacing=0.15)
+ax.axhline(50, color="#999999", lw=0.5, ls=":"); ax.set_xlabel("ID fraction (%)"); ax.set_ylabel(r"covariate AUROC (%) $\uparrow$"); ax.set_title("(a) stream composition")
+ax.set_xticks([10, 30, 50, 70, 90]); ax.set_ylim(0, 105); ax.set_title("(a) ID fraction of the stream")
 ax = axes[1]
 for b, (lab, col) in B.items():
     g = json.load(open(f"{R}/{b}/table_proton_plus.json"))["gamma"]; gs = sorted(float(k) for k in g)
@@ -27,7 +27,7 @@ for b, (lab, col) in B.items():
     mcm = json.load(open(f"{R}/{b}/table2_main.json"))["static"]["mcm"]["covariate"]["auroc"]
     ax.axhline(mcm, color=col, lw=0.7, ls="--", alpha=0.75)
     ax.plot([0.7], [g["0.7"]["covariate"]["auroc"]], marker="*", ms=8.5, color=col, mec="black", mew=0.4)
-ax.set_xlabel(r"confidence gate $\gamma$ (large star: default)"); ax.set_ylabel(r"covariate AUROC (%) $\uparrow$"); ax.set_title("(b) gate; dashed: MCM")
+ax.set_xlabel(r"$\gamma$ (large star: default)"); ax.set_ylabel(r"covariate AUROC (%) $\uparrow$"); ax.set_title(r"(b) confidence gate $\gamma$"); ax.legend(loc="lower left", frameon=False, handlelength=1.6, borderpad=0.2, labelspacing=0.15, title="solid: PROTON+ (ours)  dashed: MCM", title_fontsize=5)
 ax.set_xticks([0.5, 0.6, 0.7, 0.8, 0.9]); ax.set_ylim(40, 100)
 ax = axes[2]
 cs = json.load(open(f"{R}/contamination_stats.json")); x = np.arange(len(B)); w = 0.36
@@ -35,8 +35,8 @@ pro = [100 * max(cs[b]["covariate"]["bank_ood_frac"]) for b in B]; plus = [100 *
 ax.bar(x - w / 2, pro, w, color="#5F6368", label="PROTON"); ax.bar(x + w / 2, plus, w, color="#D55E00", label="PROTON+ (ours)")
 for xi, (a, c) in enumerate(zip(pro, plus)):
     ax.text(xi - w / 2, a + 1.5, f"{a:.0f}", ha="center", fontsize=5); ax.text(xi + w / 2, c + 1.5, f"{c:.0f}", ha="center", fontsize=5)
-ax.set_xticks(x); ax.set_xticklabels([B[b][0] for b in B]); ax.set_ylabel(r"shifted share of class bank (%) $\downarrow$"); ax.set_title("(c) contamination, covariate stream")
-ax.set_ylim(0, 80); ax.legend(frameon=False, loc="upper right", borderpad=0.2)
+ax.set_xticks(x); ax.set_xticklabels(["Ophth.", "Radio.", "Patho."]); ax.set_ylabel(r"OOD share of class bank (%) $\downarrow$"); ax.set_title("(c) bank contamination")
+ax.set_ylim(0, 85); ax.legend(frameon=False, loc="upper right", borderpad=0.2, ncol=1)
 for a in axes:
     a.spines[["top", "right"]].set_visible(False)
 for ext in ("pdf", "svg", "png"):

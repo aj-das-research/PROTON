@@ -54,7 +54,7 @@ txt(21.0, 10.4, r"$p_t=\mathrm{softmax}(e_t^{\top}T/\tau)$", size=5.8, maxw=13.5
 box(31.5, 36.3, 50.5, 43.8, fc="white", ec=GREY)
 txt(41.0, 41.6, "Softmax score (what MCM reads)", size=6.4, weight="bold", maxw=18)
 txt(41.0, 38.6, r"$S_{\mathrm{MCM}}=-\max_c\, p_{t,c}$", size=6.6, maxw=18)
-arrow((28.4, 27.0), (31.3, 39.5), rad=-0.3, lw=1.0); txt(29.1, 36.3, r"$p_t$", size=6, color=GREY)
+arrow((28.4, 27.0), (31.3, 39.5), rad=-0.3, lw=1.0); txt(27.6, 36.6, r"$p_t$", size=6, color=GREY, ha="right")
 
 # ---------------- column C: prototype bank (proposal)
 box(31.5, 1.6, 68.5, 34.0, fc="white", ec=ACC, lw=1.1)
@@ -65,7 +65,7 @@ for row, (y, col, name) in enumerate([(27.6, ID0, r"$\mathcal{D}_1$"), (23.2, ID
         c = SHIFT if (row == 1 and k in (2, 4, 7)) else col
         ax.add_patch(Rectangle((36.4 + 2.15 * k, y - 1.35), 1.8, 2.7, fc=c, ec="white", lw=0.4, zorder=3))
     txt(56.4, y, "oldest", size=5.2, color=GREY, ha="left")
-txt(44.0, 20.3, "red: confidently misclassified shifted inputs that passed the gate", size=5.3, color=SHIFT, maxw=30)
+txt(52.5, 19.6, "red: confidently misclassified shifted\ninputs that passed the gate", size=5.0, color=SHIFT, maxw=18)
 arrow((28.4, 25.0), (36.0, 25.4), lw=1.0); txt(31.8, 26.6, r"$e_t$", size=6, color=GREY)
 # (1) domain-anchored prototypes
 box(33.0, 3.0, 52.0, 17.5, fc=PEACH, ec=ACC, lw=0.9)
@@ -84,10 +84,10 @@ ax.scatter(idp[:, 0], idp[:, 1], s=4, c=ID1, zorder=4, lw=0); ax.scatter(shp[:, 
 mean_all = np.r_[idp, shp].mean(0); ax.scatter(*mean_all, s=30, marker="x", c=GREY, zorder=5, lw=1.2)
 ax.scatter(*idp.mean(0), s=60, marker="*", c=ACC, ec="white", lw=0.4, zorder=6)
 ax.add_patch(Circle(idp.mean(0), 2.7, fc="none", ec=ACC, lw=0.6, ls=(0, (2, 1.5)), zorder=4))
-txt(60.6, 16.4, "illustrative embedding space", size=5.0, color=GREY, maxw=12.5)
-txt(mean_all[0] + 0.5, mean_all[1] - 0.2, "mean (PROTON)", size=4.9, color=GREY, ha="left", maxw=6.5)
-txt(idp.mean(0)[0] - 3.3, idp.mean(0)[1] + 2.4, "anchored (PROTON+)", size=4.9, color=ACC, ha="left", weight="bold", maxw=9)
-txt(58.0, 4.0, r"admission radius $m_t+\kappa s_t$", size=4.8, color=ACC, maxw=9)
+txt(60.6, 16.5, "illustrative", size=5.0, color=GREY, maxw=12.5)
+txt(mean_all[0] + 0.8, mean_all[1] + 0.3, "mean\n(PROTON)", size=4.9, color=GREY, ha="left", maxw=6)
+txt(54.6, 7.2, "anchored\n(PROTON+)", size=4.9, color=ACC, ha="left", weight="bold", maxw=6)
+txt(60.6, 3.9, r"dashed circle: admission radius $m_t+\kappa s_t$", size=4.6, color=ACC, maxw=12.5)
 
 # ---------------- column D top: fusion (3) and output
 box(71.5, 24.0, 99.0, 37.5, fc=PEACH, ec=ACC, lw=0.9)
@@ -96,7 +96,7 @@ txt(85.2, 32.4, r"$S_t=\alpha_t\, z(S_{\mathrm{MCM}})+(1-\alpha_t)\, z(S_{\mathr
 txt(85.2, 29.4, r"$z$: online z-score;  $\alpha_t$ from the running variance of $S_{\mathrm{MCM}}$", size=5.3, maxw=26)
 txt(85.2, 26.4, r"before calibration ($|\mathcal{D}_c|<K_{\min}$): $S_t=z(S_{\mathrm{MCM}})$", size=5.3, color=GREY, maxw=26)
 arrow((50.7, 40.0), (71.3, 33.5), rad=0.15, lw=1.0)
-arrow((68.7, 10.0), (71.3, 27.5), rad=-0.3, lw=1.0); txt(69.4, 20.0, r"$S_{\mathrm{proto}}$", size=6, color=GREY, ha="right")
+arrow((68.7, 10.0), (71.3, 27.5), rad=-0.3, lw=1.0); txt(70.9, 17.0, r"$S_{\mathrm{proto}}$", size=6, color=GREY, ha="left")
 box(84.5, 39.2, 99.0, 44.0, fc=ACC, ec=ACC); txt(91.7, 41.5, r"OOD score $S_t$", size=6.8, color="white", weight="bold", maxw=13)
 arrow((91.7, 37.7), (91.7, 39.0), lw=1.0)
 
@@ -110,8 +110,8 @@ arrow((71.3, 8.7), (68.7, 8.7), color=ACC, lw=1.0, ls=(0, (3, 2)))
 arrow((68.7, 8.7), (68.7, 1.0), color=ACC, lw=1.0, style="-", ls=(0, (3, 2)))
 arrow((68.7, 1.0), (45.0, 1.0), color=ACC, lw=1.0, style="-", ls=(0, (3, 2)))
 arrow((45.0, 1.0), (45.0, 2.8), color=ACC, lw=1.0, ls=(0, (3, 2)))
-txt(57.0, 0.0, "bank update (dashed)", size=4.9, color=ACC, va="bottom", maxw=14)
-txt(1.0, 0.1, "orange: changed by PROTON+   grey: unchanged PROTON machinery   solid arrows: data flow", size=5.2, color=GREY, ha="left", va="bottom", maxw=60)
+txt(78.0, 0.05, "dashed: bank update", size=4.9, color=ACC, va="bottom", maxw=14)
+txt(1.0, 0.1, "orange: changed by PROTON+    grey: unchanged PROTON machinery    solid arrows: data flow", size=5.0, color=GREY, ha="left", va="bottom", maxw=58)
 
 for ext in ("pdf", "svg", "png"):
     fig.savefig(OUT + "." + ext, dpi=300 if ext == "png" else None, bbox_inches="tight", pad_inches=0.02)
