@@ -36,51 +36,7 @@ for b in ["ophthalmology", "radiology", "pathology"]:
     json.dump({"vlm": bench.vlm, "logit_scale": f["logit_scale"], "classes": bench.classes, "default_prompts": bench.default_prompts, "text": text},
               open(os.path.join(a.out, f"{b}_text_{bench.vlm}.json"), "w"))
     df.drop(columns=["image"]).to_csv(os.path.join(a.out, f"{b}_manifest.csv"), index=False)
-card = """---
-license: other
-license_name: mixed-source-licenses
-license_link: https://github.com/aj-das-research/PROTON#citation
-task_categories: [image-classification]
-tags: [out-of-distribution-detection, medical-imaging, vision-language, retina, chest-x-ray, histopathology, proton]
-pretty_name: PROTON / PROTON+ medical OOD benchmarks
-size_categories: [1K<n<10K]
----
-# PROTON / PROTON+ medical OOD benchmarks
-
-Curated test streams for test-time out-of-distribution detection with medical vision-language models, released with
-**PROTON+** (https://github.com/aj-das-research/PROTON, project page https://aj-das-research.github.io/PROTON/),
-the follow-up to PROTON (MICCAI 2026, https://arxiv.org/abs/2606.20913).
-
-| File | Content |
-|---|---|
-| `ophthalmology.parquet`, `radiology.parquet`, `pathology.parquet` | one row per image: `set` (id / id_bank / semantic / covariate / far), `label` (ID class index or -1), `class_name`, `source`, `path` (as in the repo manifests), `image` (PNG bytes, long side <= 1024 px) |
-| `<benchmark>_features_<vlm>.parquet` | the l2-normalised image embedding of every row from the frozen VLM used in the paper (FLAIR, UniMed-CLIP, QuiltNet) |
-| `<benchmark>_text_<vlm>.json` | the class-prompt embeddings of every prompt set, the logit scale and the default prompt set |
-| `<benchmark>_manifest.csv` | the seeded manifest without images |
-
-With the features and text embeddings every number of the paper can be recomputed on a CPU:
-```python
-import pandas as pd, numpy as np, json
-from proton import score_stream, ood_metrics
-from proton.online import proton_plus_config
-fe = pd.read_parquet("ophthalmology_features_flair.parquet"); tx = json.load(open("ophthalmology_text_flair.json"))
-T = np.array([np.mean(tx["text"][tx["default_prompts"]]["embeddings"][c][:k], 0) for c, k in enumerate(tx["text"][tx["default_prompts"]]["counts"])])
-stream = fe[fe.set.isin(["id", "covariate"])].sample(frac=1, random_state=0)
-out = score_stream(np.stack(stream.embedding), T, tx["logit_scale"], config=proton_plus_config())
-print(ood_metrics(out["score"], (stream.set != "id").astype(int)))
-```
-
-## Sources and licenses (please cite the original datasets)
-* FIVES (Jin et al., Sci. Data 2022), CC BY 4.0. DeepDRiD ultra-widefield (Liu et al., Patterns 2022), CC BY-SA 4.0.
-* Imagenette (fast.ai; a subset of ImageNet, Deng et al. 2009), for research use under the ImageNet terms.
-* RSNA Pneumonia Detection Challenge (Shih et al., Radiology: AI 2019; images from NIH ChestX-ray14), non-commercial research use.
-  NIH ChestX-ray14 sample (Wang et al., CVPR 2017), NIH Clinical Center release. Paediatric chest X-rays (Kermany et al., Cell 2018), CC BY 4.0.
-* PatchCamelyon (Veeling et al., MICCAI 2018), CC0. Camelyon17-WILDS (Koh et al., ICML 2021), CC0. NCT-CRC-HE (Kather et al., 2018), CC BY 4.0.
-
-The streams, splits and de-duplication rules are described in the PROTON+ paper and implemented in
-`proton/data/manifests.py` of the repository. Images are redistributed only to make the exact test streams
-reproducible; the original licenses apply.
-"""
+card = open(os.path.join(ROOT, "scripts", "hf_dataset_card.md")).read()  # card text lives in scripts/hf_dataset_card.md
 open(os.path.join(a.out, "README.md"), "w").write(card)
 print("total MB:", round(sum(os.path.getsize(os.path.join(a.out, f)) for f in os.listdir(a.out)) / 1e6, 1))
 if not a.no_upload:

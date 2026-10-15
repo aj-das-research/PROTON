@@ -44,7 +44,8 @@ privileged kNN/Mahalanobis baselines.
 - Metrics: OOD positive, higher score = more OOD; AUROC/AUPR-out/FPR@95 as in Ju et al. notebooks.
 - PROTON defaults (paper): gamma=0.7, M=100, K_min=5, alpha in [0.3,0.7], sigma2_0=0.02; 5 stream permutations.
 - Never copy numbers from the paper into results; everything in `outputs/results` is computed.
-- Git identity is repo-local (Abhijit Das). Push code to `origin` (github.com/aj-das-research/PROTON) and the paper
+- Git identity is repo-local (Abhijit Das). Abhijit (2026-10-15): the GitHub contributor list must show only
+  aj-das-research, so commits carry NO Co-Authored-By / AI trailer. Push code to `origin` (github.com/aj-das-research/PROTON) and the paper
   to Overleaf via `git -C paper push` (pull first).
 
 ## Paper and site (status 2026-10-14)

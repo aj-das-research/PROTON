@@ -1,10 +1,19 @@
 <div align="center">
 
-# PROTON+
+# PROTON+: Contamination-Robust Prototype Banks for Test-Time Online OOD Detection with Medical VLMs
 
-**Contamination-robust prototype banks for test-time online out-of-distribution detection with medical vision-language models**
+The official implementation of PROTON+, the follow-up to [PROTON](https://arxiv.org/abs/2606.20913) (MICCAI 2026): a label-free, training-free test-time OOD detector for frozen medical vision-language models, with a reusable zero-shot OOD evaluation toolkit.
 
-*Official implementation of PROTON+ and of its predecessor PROTON, plus a reusable zero-shot OOD evaluation toolkit*
+</div>
+
+**What PROTON+ changes over PROTON**
+
+- **Domain-anchored prototypes:** a mean-shift step finds the dominant imaging-domain mode, so shifted samples that slip into a bank get almost no weight.
+- **Consistency admission:** a sample enters the bank only if it is confident *and* as close to its class prototype as earlier admissions.
+- **Scale-free fusion:** the softmax score and the prototype distance are fused as online z-scores.
+- **Drop-in and cheap:** PROTON's hyper-parameters plus two fixed constants (h = 0.1, κ = 2) via `proton_plus_config()`, 0.1 to 0.3 ms per image on one CPU core, no labels, no training.
+
+<div align="center">
 
 [![Project page](https://img.shields.io/badge/project%20page-live-1d4ed8)](https://aj-das-research.github.io/PROTON/)
 [![Browser demo](https://img.shields.io/badge/demo-run%20in%20browser-0f766e)](https://aj-das-research.github.io/PROTON/demo/)
@@ -15,22 +24,20 @@
 
 <img src="docs/figures/fig2_method.png" width="100%" alt="PROTON+ method overview">
 
+*PROTON+, with its three changes in orange. Bottom: in the DR queue of an ultra-widefield stream, PROTON's plain mean drifts toward the shifted members and misses a real ultra-widefield image, while the domain-anchored prototype stays on the DR images and flags it.*
+
+<img src="docs/figures/proton_method.png" width="65%" alt="PROTON method overview">
+
+*PROTON (MICCAI 2026): confident test predictions fill a FIFO prototype bank per class, and the prototype distance is fused with the MCM score by a variance-driven weight.*
+
 </div>
 
-PROTON+ is the follow-up to **PROTON** (Das et al., MICCAI 2026), our prototype-based test-time online OOD detector for
-medical vision-language models (VLMs). PROTON keeps a bank of class prototypes filled from confident test
-predictions and fuses the distance to the nearest prototype with the maximum-concept-matching (MCM) score, so that
-inputs from a new camera or population that look confident to the softmax can still be flagged. Evaluated on three
-modalities, PROTON's confidence gate turns out to admit exactly the confidently misclassified shifted inputs, so the
-prototypes absorb the shift. PROTON+ fixes this with three changes (orange in the figure) and the same
-hyper-parameters:
+## Why PROTON+
 
-1. **Domain-anchored prototypes.** A mean-shift step over the union of all class banks finds the dominant imaging-domain mode; each class prototype is the mean of its bank weighted by proximity to that mode.
-2. **Consistency admission.** A sample enters the bank only if it is confident *and* within the typical prototype distance of previously admitted samples.
-3. **Scale-free fusion.** The two signals are fused as online z-scores instead of raw values.
-
-Use PROTON+ instead of PROTON: it is better on every covariate and far shift we measured, it costs 0.1 to 0.3 ms per
-sample on a CPU core, and the original algorithm remains available as the default configuration for comparison.
+PROTON fills its prototype banks from confident test predictions. On three modalities this gate admits exactly the
+confidently misclassified shifted inputs, so the prototypes absorb the shift they should expose. PROTON+ keeps the bank
+and the fusion and changes how the bank is filled, read and fused. It improves over MCM on every covariate and far
+shift we measured, and the original PROTON stays available as the default configuration for comparison.
 
 - **+16.4 to +47.3 AUROC points over MCM on covariate shift** and +14.9 to +63.9 on far shift, in all three modalities and on every stream order.
 - **Beats PROTON in all 168 gate and bank-size settings**, and MCM in 165 of them.
