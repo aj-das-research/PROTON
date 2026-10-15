@@ -2,11 +2,28 @@
 
 # PROTON+: Contamination-Robust Prototype Banks for Test-Time Online OOD Detection with Medical VLMs
 
-The official implementation of PROTON+, the follow-up to [PROTON](https://arxiv.org/abs/2606.20913) (MICCAI 2026): a label-free, training-free test-time OOD detector for frozen medical vision-language models, with a reusable zero-shot OOD evaluation toolkit.
+[![Project page](https://img.shields.io/badge/project%20page-live-1d4ed8)](https://aj-das-research.github.io/PROTON/)
+[![Browser demo](https://img.shields.io/badge/demo-run%20in%20browser-0f766e)](https://aj-das-research.github.io/PROTON/demo/)
+[![Preprint](https://img.shields.io/badge/PROTON%2B-preprint%20PDF-b31b1b)](https://aj-das-research.github.io/PROTON/protonplus.pdf)
+[![PROTON paper](https://img.shields.io/badge/PROTON-MICCAI%202026-b31b1b)](https://arxiv.org/abs/2606.20913)
+[![Data](https://img.shields.io/badge/data-Hugging%20Face-yellow)](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+**The official implementation of PROTON+**, the follow-up to [PROTON](https://arxiv.org/abs/2606.20913) (MICCAI 2026): a label-free, training-free test-time OOD detector for frozen medical vision-language models, with a reusable zero-shot OOD evaluation toolkit.
 
 </div>
 
-**What PROTON+ changes over PROTON**
+## News
+
+- **[Oct 2026]** PROTON+ is released with the [preprint](https://aj-das-research.github.io/PROTON/protonplus.pdf), this code, a [live browser demo](https://aj-das-research.github.io/PROTON/demo/) and the curated [benchmarks on Hugging Face](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks).
+- **[Jun 2026]** PROTON is accepted at **MICCAI 2026** ([paper](https://arxiv.org/abs/2606.20913)).
+
+## Overview
+
+PROTON fills a prototype bank per class from confident test predictions and fuses the distance to the nearest prototype
+with the softmax (MCM) score. On three modalities its confidence gate admits exactly the confidently misclassified
+shifted inputs, so the prototypes absorb the shift they should expose. PROTON+ keeps the bank and the fusion and
+changes how the bank is filled, read and fused:
 
 - **Domain-anchored prototypes:** a mean-shift step finds the dominant imaging-domain mode, so shifted samples that slip into a bank get almost no weight.
 - **Consistency admission:** a sample enters the bank only if it is confident *and* as close to its class prototype as earlier admissions.
@@ -14,13 +31,6 @@ The official implementation of PROTON+, the follow-up to [PROTON](https://arxiv.
 - **Drop-in and cheap:** PROTON's hyper-parameters plus two fixed constants (h = 0.1, κ = 2) via `proton_plus_config()`, 0.1 to 0.3 ms per image on one CPU core, no labels, no training.
 
 <div align="center">
-
-[![Project page](https://img.shields.io/badge/project%20page-live-1d4ed8)](https://aj-das-research.github.io/PROTON/)
-[![Browser demo](https://img.shields.io/badge/demo-run%20in%20browser-0f766e)](https://aj-das-research.github.io/PROTON/demo/)
-[![Preprint](https://img.shields.io/badge/PROTON%2B-preprint%20PDF-b31b1b)](https://aj-das-research.github.io/PROTON/protonplus.pdf)
-[![PROTON paper](https://img.shields.io/badge/PROTON-MICCAI%202026-b31b1b)](https://arxiv.org/abs/2606.20913)
-[![Data](https://img.shields.io/badge/data-Hugging%20Face-yellow)](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 <img src="docs/figures/fig2_method.png" width="100%" alt="PROTON+ method overview">
 
@@ -32,18 +42,13 @@ The official implementation of PROTON+, the follow-up to [PROTON](https://arxiv.
 
 </div>
 
-## Why PROTON+
-
-PROTON fills its prototype banks from confident test predictions. On three modalities this gate admits exactly the
-confidently misclassified shifted inputs, so the prototypes absorb the shift they should expose. PROTON+ keeps the bank
-and the fusion and changes how the bank is filled, read and fused. It improves over MCM on every covariate and far
-shift we measured, and the original PROTON stays available as the default configuration for comparison.
+## Highlights
 
 - **+16.4 to +47.3 AUROC points over MCM on covariate shift** and +14.9 to +63.9 on far shift, in all three modalities and on every stream order.
 - **Beats PROTON in all 168 gate and bank-size settings**, and MCM in 165 of them.
 - **Keeps the bank clean:** the shifted share of the most contaminated class bank drops from 63%, 59% and 16% (PROTON) to 42%, 16% and 1%.
 
-The full story, the diagnosis and all tables are in the [PROTON+ preprint](https://aj-das-research.github.io/PROTON/protonplus.pdf) (LNCS format, a follow-up to PROTON) and on the [results page](https://aj-das-research.github.io/PROTON/results.html).
+The diagnosis, the ablations and every table are in the [PROTON+ preprint](https://aj-das-research.github.io/PROTON/protonplus.pdf) and on the [results page](https://aj-das-research.github.io/PROTON/results.html).
 
 ## Results
 
@@ -85,11 +90,21 @@ The table is generated from the outputs of `proton run` by `scripts/readme_resul
 
 </details>
 
-The curated benchmarks (parquet images, cached embeddings, prompt embeddings, manifests) are on the Hugging Face Hub at [abhijit2k01/proton-benchmarks](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks), so every number can be recomputed on a CPU without downloading any source dataset. Benchmarks: ophthalmology = FIVES normal/DR vs glaucoma+AMD, DeepDRiD ultra-widefield, ImageNet; radiology = RSNA
-normal/opacity vs NIH ChestX-ray14 other findings, paediatric CXR, ImageNet; pathology = PatchCamelyon vs NCT-CRC
-tissue types, Camelyon17-WILDS other hospital, ImageNet. Every image list is a committed, seeded manifest.
+## Data
 
-## Use it
+The curated benchmarks (parquet images, cached embeddings, prompt embeddings, seeded manifests) are on the Hugging Face
+Hub at [abhijit2k01/proton-benchmarks](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks), so every number
+can be recomputed on a CPU without downloading any source dataset.
+
+| Benchmark | VLM | ID classes | Semantic shift | Covariate shift | Far shift |
+|---|---|---|---|---|---|
+| Ophthalmology | FLAIR | FIVES normal, diabetic retinopathy | FIVES glaucoma, AMD | DeepDRiD ultra-widefield | ImageNet (Imagenette) |
+| Radiology | UniMed-CLIP | RSNA normal, pneumonia | NIH ChestX-ray14 other findings | paediatric CXR (Kermany et al.) | ImageNet (Imagenette) |
+| Pathology | QuiltNet | PatchCamelyon benign, malignant | NCT-CRC-HE tissue types | Camelyon17-WILDS other hospital | ImageNet (Imagenette) |
+
+Every image list is a committed, seeded manifest, and the construction follows Ju et al. (MICCAI 2025).
+
+## Quick start
 
 ```bash
 pip install -e ".[models,data,plots]"      # core is numpy / scipy / scikit-learn only
@@ -116,7 +131,7 @@ for e, p, s_mcm in stream:          # embedding, softmax over class prompts, any
 Any base score works (`proton.scores.static`: MCM, Max-Logit, Energy, GL-MCM, TAG-MCM, hierarchical MCM), and any
 `open_clip` checkpoint can be the VLM.
 
-## Evaluate on your own data in three commands
+## Evaluate any VLM on your own data
 
 ```bash
 proton make-benchmark --name myretina --vlm flair \
@@ -149,7 +164,7 @@ The method figure is TikZ (`figures_src/tikz_method/fig_method.tex`, built with 
 datasets, the cached embeddings on the [Hugging Face Hub](https://huggingface.co/datasets/abhijit2k01/proton-benchmarks)
 give every number on a CPU.
 
-## Layout
+## Repository layout
 
 ```
 proton/            models/ (FLAIR, UniMed-CLIP, QuiltNet, open_clip), data/ (registry, manifests, make-benchmark),
@@ -163,6 +178,8 @@ REPORT.md          short pointer to the preprint and the method changes
 ```
 
 ## Citation
+
+If you use this code, the benchmarks or the demo, please cite PROTON and PROTON+:
 
 ```bibtex
 @inproceedings{das2026proton,
@@ -181,6 +198,8 @@ REPORT.md          short pointer to the preprint and the method changes
 }
 ```
 
-FLAIR (Apache-2.0), UniMed-CLIP and QuiltNet are used as frozen models; FIVES (CC BY 4.0), DeepDRiD, Imagenette,
-RSNA Pneumonia, NIH ChestX-ray14, Kermany et al. paediatric CXR, PatchCamelyon, Camelyon17-WILDS and NCT-CRC-HE are
-used under their own licenses. The benchmark construction follows Ju et al. (MICCAI 2025).
+## Acknowledgements and licenses
+
+The code is released under the MIT license. FLAIR (Apache-2.0), UniMed-CLIP and QuiltNet are used as frozen models.
+FIVES (CC BY 4.0), DeepDRiD (CC BY-SA 4.0), Imagenette, RSNA Pneumonia, NIH ChestX-ray14, Kermany et al. paediatric
+CXR, PatchCamelyon, Camelyon17-WILDS and NCT-CRC-HE are used under their own licenses.
