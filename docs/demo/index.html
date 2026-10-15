@@ -5,7 +5,7 @@
 <title>PROTON+ live demo</title>
 <meta name="description" content="PROTON+ in your browser: load a frozen retina vision-language model, meet the data, then stream images and watch an online prototype bank flag the shifted ones the softmax misses.">
 <style>
-:root{--bg:#f6f7f9;--fg:#14181d;--muted:#5d6670;--faint:#8a929c;--card:#fff;--line:#e4e7eb;--grid:#eef0f3;--acc:#d55e00;--acc-soft:#fff1e6;--id:#3b7dd8;--id2:#2e9e5b;--sem:#e69f00;--cov:#d64545;--far:#8a9099;--up:#9333ea;--ok:#146c2e;--ok-soft:#e3f5e9;--bad:#b42318;--bad-soft:#fde8e6;--warn:#7a5200;--warn-soft:#fff4d6;--shadow:0 1px 2px rgba(16,24,40,.05)}
+:root{--bg:#f6f7f9;--fg:#14181d;--muted:#5d6670;--faint:#8a929c;--card:#fff;--line:#e4e7eb;--grid:#eef0f3;--acc:#d55e00;--acc-soft:#fff1e6;--id:#3b7dd8;--id2:#2e9e5b;--sem:#e69f00;--cov:#d64545;--far:#8a9099;--ok:#146c2e;--ok-soft:#e3f5e9;--bad:#b42318;--bad-soft:#fde8e6;--warn:#7a5200;--warn-soft:#fff4d6;--shadow:0 1px 2px rgba(16,24,40,.05)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--faint:#6e7782;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c;--shadow:none}}
 :root[data-theme=dark]{--bg:#0e1116;--fg:#e8ebef;--muted:#9aa4b0;--faint:#6e7782;--card:#151a21;--line:#262d37;--grid:#1d232b;--acc:#ff8a3d;--acc-soft:#2a1b10;--ok:#7ad39a;--ok-soft:#12301c;--bad:#ff8aa5;--bad-soft:#3a1420;--warn:#f3c96b;--warn-soft:#33270c;--shadow:none}
 *{box-sizing:border-box}
@@ -61,7 +61,6 @@ button:disabled,.btn.disabled{opacity:.45;cursor:default;pointer-events:none}
 .btn input{display:none}
 /* step 3 */
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0 0}
-.actions .hint{font-size:11.5px;color:var(--faint)}
 .results{display:grid;grid-template-columns:minmax(0,1fr) 372px;gap:20px;margin-top:12px;align-items:start}
 @media (max-width:860px){.results{grid-template-columns:1fr}}
 .vtop{display:flex;gap:12px;align-items:flex-start}
@@ -129,8 +128,6 @@ footer details[open]{flex-basis:100%}
     <button id="play">▶ Play a mixed stream</button>
     <button class="sec" id="playcov">▶ Normal clinic, then a new camera</button>
     <button class="ghost" id="reset">Reset</button>
-    <label class="btn sec disabled" id="upBtn" title="Upload unlocks when the model is ready">⬆ Upload your own fundus image<input type="file" id="upload" accept="image/*"></label>
-    <span class="hint" id="upHint">upload unlocks when the model is ready</span>
   </div>
   <div class="results">
     <div>
@@ -149,7 +146,7 @@ footer details[open]{flex-basis:100%}
     </div>
     <div>
       <div class="plotbox"><canvas id="scatter"></canvas></div>
-      <div class="legend"><span><i style="background:var(--id)"></i>normal</span><span><i style="background:var(--id2)"></i>DR</span><span><i style="background:var(--cov)"></i>ultra-widefield</span><span><i style="background:var(--sem)"></i>glaucoma/AMD</span><span><i style="background:var(--far)"></i>natural</span><span id="lgUp" hidden><i style="background:var(--up)"></i>upload</span><span><i class="ring"></i>flagged</span></div>
+      <div class="legend"><span><i style="background:var(--id)"></i>normal</span><span><i style="background:var(--id2)"></i>DR</span><span><i style="background:var(--cov)"></i>ultra-widefield</span><span><i style="background:var(--sem)"></i>glaucoma/AMD</span><span><i style="background:var(--far)"></i>natural</span><span><i class="ring"></i>flagged</span></div>
       <div class="summary" id="summary">Shifted images land top-right: confident, yet far from every prototype.</div>
     </div>
   </div>
@@ -178,7 +175,7 @@ const CACHE = "proton-demo-v2";
 const $ = (id) => document.getElementById(id);
 const css = (v) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 let spec, det, session = null, ort = null, stream = [], playing = false, imgs = [];
-const colors = () => ({ id0: css("--id"), id1: css("--id2"), semantic: css("--sem"), covariate: css("--cov"), far: css("--far"), upload: css("--up") });
+const colors = () => ({ id0: css("--id"), id1: css("--id2"), semantic: css("--sem"), covariate: css("--cov"), far: css("--far") });
 const GROUPS = [["id0", "Normal", "in-distribution"], ["id1", "Diabetic retinopathy", "in-distribution"], ["covariate", "Ultra-widefield camera", "covariate shift"], ["semantic", "Glaucoma / AMD", "semantic shift"], ["far", "Natural images", "far shift"]];
 const cfg = () => Object.assign({ gamma: +$("gamma").value, M: +$("M").value, kMin: +$("kmin").value }, PLUS);
 const setClass = (ex) => ex.set === "id" ? (ex.class_name === "normal" ? "id0" : "id1") : ex.set;
@@ -214,7 +211,7 @@ async function fetchWithProgress(url) {
   return buf;
 }
 async function loadModel() {
-  session = null; setUploadEnabled(false); $("s1").classList.remove("ok"); setStep(1, "active");
+  session = null; setLiveEnabled(false); $("s1").classList.remove("ok"); setStep(1, "active");
   setLoader("load", "Loading the runtime…", 0.02);
   try {
     if (!ort) { ort = await import(ORT + "ort.min.mjs"); ort.env.wasm.wasmPaths = ORT; ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1; }
@@ -225,21 +222,18 @@ async function loadModel() {
     }
     if (!session) throw lastErr || new Error("no model");
     $("okline").textContent = "FLAIR vision encoder ready, runs locally in your browser";
-    $("s1").classList.add("ok"); setStep(1, "done"); if (step[2] === "") setStep(2, "active"); setUploadEnabled(true);
+    $("s1").classList.add("ok"); setStep(1, "done"); if (step[2] === "") setStep(2, "active"); setLiveEnabled(true);
   } catch (e) {
     setLoader("err", "The model could not load (" + String(e && e.message || e).slice(0, 60) + "). The examples still work.");
     if (step[2] === "") setStep(2, "active");
   }
 }
-function setUploadEnabled(on) {
-  $("upload").disabled = !on; $("upBtn").classList.toggle("disabled", !on); $("live").disabled = !on;
-  $("upHint").textContent = on ? "processed locally, never uploaded" : "upload unlocks when the model is ready";
-}
+function setLiveEnabled(on) { $("live").disabled = !on; }
 $("retry").onclick = loadModel;
 
 // ---------------------------------------------------------------- step 3: stream logic
 function newDet() {
-  det = new PROTON(2, cfg()); stream = []; $("lgUp").hidden = true; draw(); $("summary").textContent = "Shifted images land top-right: confident, yet far from every prototype.";
+  det = new PROTON(2, cfg()); stream = []; draw(); $("summary").textContent = "Shifted images land top-right: confident, yet far from every prototype.";
   $("flag").className = "badge idle"; $("flag").textContent = "Press play or click an image"; $("pred").textContent = "—"; $("conf").textContent = "";
   $("mcmv").textContent = $("protov").textContent = "—"; $("mcmb").style.width = $("protob").style.width = "0";
   $("mcmw").textContent = "How sure the model is about its label. High confidence looks in-distribution to MCM.";
@@ -294,14 +288,14 @@ function draw() {
   }
   stream.forEach((s, k) => {
     if (isNaN(s.rec.sProto)) return; const last = k === stream.length - 1;
-    ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), last ? 5 : 3.6, 0, 2 * Math.PI); ctx.fillStyle = col[s.set] || col.upload; ctx.fill();
+    ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), last ? 5 : 3.6, 0, 2 * Math.PI); ctx.fillStyle = col[s.set]; ctx.fill();
     ctx.lineWidth = 1; ctx.strokeStyle = css("--card"); ctx.stroke();
     if (s.flag) { ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), last ? 7 : 6, 0, 2 * Math.PI); ctx.lineWidth = 1.4; ctx.strokeStyle = css("--bad"); ctx.stroke(); }
     if (last) { ctx.beginPath(); ctx.arc(xs(s.rec.conf), ys(s.rec.sProto), 8.5, 0, 2 * Math.PI); ctx.lineWidth = 1.5; ctx.strokeStyle = css("--fg"); ctx.stroke(); }
   });
   const n = stream.length;
   if (n) { const sh = (s) => ["covariate", "far", "semantic"].includes(s.set); const shifted = stream.filter(sh).length, caught = stream.filter((s) => s.flag && sh(s)).length, fp = stream.filter((s) => s.flag && (s.set === "id0" || s.set === "id1")).length;
-    $("summary").textContent = `${n} streamed · flagged ${caught}/${shifted} shifted, ${fp}/${n - shifted - stream.filter((s) => s.set === "upload").length} in-distribution`; }
+    $("summary").textContent = `${n} streamed · flagged ${caught}/${shifted} shifted, ${fp}/${n - shifted} in-distribution`; }
 }
 async function feedExample(i) {
   goStep3(); const ex = spec.examples[i]; const imgEl = imgs[i]; let e = ex.embedding;
@@ -309,12 +303,6 @@ async function feedExample(i) {
   const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); const flag = isFlag(rec);
   stream.push({ rec, set: setClass(ex), flag }); show(rec, imgEl, i); draw();
 }
-$("upload").onchange = async (ev) => {
-  const f = ev.target.files[0]; if (!f || !session) return; goStep3();
-  const img = new Image(); img.src = URL.createObjectURL(f); await img.decode(); const t0 = performance.now(); const e = await embed(img);
-  const { p, sBase } = scoreEmbedding(e); const rec = det.step(e, p, sBase); const flag = isFlag(rec);
-  stream.push({ rec, set: "upload", flag }); $("lgUp").hidden = false; show(rec, img); draw(); $("upHint").textContent = `your image was embedded locally in ${(performance.now() - t0).toFixed(0)} ms`;
-};
 async function play(order) {
   if (playing) return; playing = true; goStep3(); $("play").disabled = $("playcov").disabled = true;
   for (const i of order) { if (!playing) break; await feedExample(i); await new Promise((r) => setTimeout(r, 120)); }
