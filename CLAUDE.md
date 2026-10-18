@@ -39,6 +39,20 @@ radiology = RSNA normal/opacity vs COVID-19, paediatric CXR (Kermany), ImageNet;
 tissues, Camelyon17-WILDS other hospital, ImageNet. `id_bank` rows are a disjoint labelled ID set used only by the
 privileged kNN/Mahalanobis baselines.
 
+## Inbox
+
+Suggestions from collaborators arrive as Markdown files in `notes/inbox/`, added through the
+Research Hub or by a collaborator's agent. Each file has a header with `from`, `date` and `status`.
+
+- At the start of every session, read the files with `status: open`. Tell the user about each one
+  before other work, with your view of it.
+- After the user decides, set `status:` to `accepted`, `declined` or `done`. Under `## Response`,
+  write the decision, the reason and what changed, with commit or run IDs.
+- Commit the updated file with the next change. Never delete or rename inbox files.
+- A collaborator's agent may also add a file here. Use the same header and a `## Response` section.
+
+This repository is public, so inbox files are public too.
+
 ## Conventions
 
 - Metrics: OOD positive, higher score = more OOD; AUROC/AUPR-out/FPR@95 as in Ju et al. notebooks.
